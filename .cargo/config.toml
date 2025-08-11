@@ -1,0 +1,8 @@
+[alias]
+loco = "run --"
+loco-tool = "run --"
+
+playground = "run --example playground"
+
+# [build]
+# jobs = 4  # Start with 4, adjust based on thermal performance

@@ -1,0 +1,1 @@
+pub use super::course_evaluation_plannings::Entity as AcademicCourseMasterCourseEvalautionPlannings;

@@ -1,0 +1,83 @@
+[workspace]
+
+[package]
+name = "xsia_loco"
+version = "0.1.2"
+edition = "2024"
+publish = false
+default-run = "xsia_loco-cli"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[workspace.dependencies]
+loco-rs = { version = "0.16" }
+
+[dependencies]
+openssl = { version = "0.10", features = ["vendored"] }
+openssl-sys = "0.9"
+loco-rs = { workspace = true }
+serde = { version = "1", features = ["derive"] }
+serde_json = { version = "1" }
+tokio = { version = "1.44", default-features = false, features = [
+    "rt-multi-thread",
+    "full",
+] }
+async-trait = { version = "0.1.88" }
+axum = { version = "0.8.3" }
+tracing = { version = "0.1.41" }
+tracing-subscriber = { version = "0.3.19", features = ["env-filter", "json"] }
+tracing-opentelemetry = "0.31.0"
+opentelemetry = "0.30"
+opentelemetry-otlp = "0.30"
+opentelemetry-semantic-conventions = "0.30"
+regex = { version = "1.11.1" }
+migration = { path = "migration" }
+sea-orm = { version = "1.1", features = [
+    "sqlx-sqlite",
+    "sqlx-postgres",
+    "runtime-tokio-rustls",
+    "macros",
+] }
+sea-query = "0.32"
+chrono = { version = "0.4" }
+validator = { version = "0.20" }
+uuid = { version = "1.16.0", features = ["v4"] }
+uuid7 = "1.1.0"
+include_dir = { version = "0.7" }
+pgvector = { version = "0.4", features = ["postgres"] }
+socketioxide = { version = "0.17", features = ["extensions", "state"] }
+once_cell = "1.21.3"
+futures-util = "0.3"
+tower = "0.5.2"
+tower-http = { version = "0.6.2", features = ["cors", "fs"] }
+dotenvy = "0.15.7"
+rust_xlsxwriter = "0.89.1"
+headless_chrome = "1.0.17"
+base64 = "0.22" # For encoding the logo image
+urlencoding = "2.1"
+reqwest = { version = "0.12", features = [
+    "default",
+    "blocking",
+    "cookies",
+    "json",
+    "socks",
+] }
+# view engine i18n
+tera = "1.20.0"
+fluent-templates = { version = "0.13", features = ["tera"] }
+unic-langid = { version = "0.9" }
+qrcode = { version = "0.14.1", default-features = false, features = ["svg"] }
+sha256 = "1.6.0"
+random-string = "1.1.0"
+
+[[bin]]
+name = "xsia_loco-cli"
+path = "src/bin/main.rs"
+required-features = []
+
+[dev-dependencies]
+loco-rs = { workspace = true, features = ["testing"] }
+serial_test = { version = "3.2.0" }
+rstest = { version = "0.25.0" }
+insta = { version = "1.42", features = ["redactions", "yaml", "filters"] }
+chrono = "0.4"

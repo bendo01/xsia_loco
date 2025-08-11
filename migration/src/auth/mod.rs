@@ -1,0 +1,6 @@
+pub mod m20241004_225447_schema_auth_table_users;
+pub mod m20241102_053649_schema_auth_table_verifications;
+pub mod m20241102_053701_schema_auth_table_permissions;
+pub mod m20241102_053846_schema_auth_table_permission_user;
+pub mod m20241102_053904_schema_auth_table_permission_position_type;
+pub mod m20241102_053946_schema_auth_table_user_position_type;

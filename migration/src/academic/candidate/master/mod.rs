@@ -1,0 +1,2 @@
+pub mod m20241009_192301_schema_academic_candidate_master_table_candidates;
+pub mod m20241009_192321_schema_academic_candidate_master_table_exam_classes;

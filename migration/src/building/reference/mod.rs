@@ -1,0 +1,4 @@
+pub mod m20241102_054329_schema_bulding_reference_table_categories;
+pub mod m20241102_054343_schema_bulding_reference_table_conditions;
+pub mod m20241102_054356_schema_bulding_reference_table_room_types;
+pub mod m20241102_054412_schema_bulding_reference_table_varieties;

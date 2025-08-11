@@ -1,0 +1,4 @@
+pub mod m20241030_184758_schema_academic_lecturer_reference_contracts;
+pub mod m20241030_184813_schema_academic_lecturer_reference_groups;
+pub mod m20241030_184825_schema_academic_lecturer_reference_ranks;
+pub mod m20241030_184837_schema_academic_lecturer_reference_statuses;

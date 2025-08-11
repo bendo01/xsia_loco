@@ -1,0 +1,1 @@
+pub use super::final_assignment_decrees::Entity as AcademicStundentFinalAssignmentTransactionFinalAssignmentDecree;

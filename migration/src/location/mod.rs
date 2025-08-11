@@ -1,0 +1,8 @@
+pub mod m20241006_234356_schema_location_table_continents;
+pub mod m20241006_234412_schema_location_table_countries;
+pub mod m20241006_234423_schema_location_table_provinces;
+pub mod m20241006_234434_schema_location_table_regencies;
+pub mod m20241006_234445_schema_location_table_regency_types;
+pub mod m20241006_234456_schema_location_table_regions;
+pub mod m20241006_234506_schema_location_table_sub_districts;
+pub mod m20241006_234516_schema_location_table_villages;

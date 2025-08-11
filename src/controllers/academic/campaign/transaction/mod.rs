@@ -1,0 +1,9 @@
+pub mod activities;
+pub mod calendar_details;
+pub mod calendars;
+pub mod class_codes;
+pub mod grades;
+pub mod schedules;
+pub mod teach_decrees;
+pub mod teach_lecturers;
+pub mod teaches;

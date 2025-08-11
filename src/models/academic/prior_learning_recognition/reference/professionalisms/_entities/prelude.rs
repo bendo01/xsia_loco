@@ -1,0 +1,1 @@
+pub use super::professionalisms::Entity as AcademicPriorLearningRecognitionReferenceProfessionalisms;

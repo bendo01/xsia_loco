@@ -1,0 +1,26 @@
+   Compiling xsia_loco v0.1.1 (/Users/bendo01/Sites/xsia_loco_0_14_1)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 18m 49s
+     Running unittests src/lib.rs (target/debug/deps/xsia_loco-3eb695e0494bcf6a)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/bin/main.rs (target/debug/deps/xsia_loco_cli-8a3845f1548563cb)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/mod.rs (target/debug/deps/mod-311b8a6ef99a7930)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests xsia_loco
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

@@ -1,0 +1,1 @@
+pub use super::evaluation_summaries::Entity as AcademicStundentFinalAssignmentTransactionEvaluationSummaries;

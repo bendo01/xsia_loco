@@ -1,0 +1,4 @@
+pub mod m20241006_234052_schema_person_master_table_biodatas;
+pub mod m20241006_234137_schema_person_master_table_family_card_members;
+pub mod m20241006_234146_schema_person_master_table_family_cards;
+pub mod m20241006_234205_schema_person_master_table_individuals;

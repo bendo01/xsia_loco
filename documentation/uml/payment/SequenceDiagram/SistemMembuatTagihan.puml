@@ -1,0 +1,104 @@
+@startuml SystemMembuatTagihan
+actor System as System
+boundary Boundary as AntarMukaApplikasiClient
+control Service as StudentPayment
+entity AcademicYear as AcademicYearEntity
+entity Unit as UnitEntity
+entity UnitActivity as UnitActivityEntity
+entity Account as AccountEntity
+entity Student as StudentEntity
+entity Individual as IndividualEntity
+entity Phone as PhoneEntity
+entity User as UserEntity
+entity StudentActivity as StudentActivityEntity
+entity Payment as PaymentEntity
+database Database as DatabaseApplikasi
+System->AntarMukaApplikasiClient: Menginisiasi Pembuatan Pembayaran
+AntarMukaApplikasiClient->StudentPayment: GenerateUnitStudentCampaignActivityParams
+StudentPayment->StudentPayment: Validasi dan Konversi Data
+StudentPayment->AcademicYearEntity: Ambil Data pada model AcademicYearEntity berdasarkan id
+AcademicYearEntity->DatabaseApplikasi: mencari Data pada model AcademicYearEntity berdasarkan id
+DatabaseApplikasi->AcademicYearEntity: pesan pencarian AcademicYearEntity berdasarkan id tidak ditemukan
+AcademicYearEntity->StudentPayment: membuat pesan data tidak ditemukan
+StudentPayment->AntarMukaApplikasiClient: membuat pesan data tidak ditemukan
+AntarMukaApplikasiClient->System: menampilkan pesan data tidak ditemukan
+StudentPayment->UnitEntity: Ambil Data pada model UnitEntity berdasarkan id
+UnitEntity->DatabaseApplikasi: mencari Data pada model UnitEntity berdasarkan id
+UnitEntity->StudentPayment: membuat pesan data tidak ditemukan
+StudentPayment->AntarMukaApplikasiClient: membuat pesan data tidak ditemukan
+AccountEntity->DatabaseApplikasi: mencari Data pada model AccountEntity berdasarkan id
+DatabaseApplikasi->AccountEntity: pesan pencarian AcademicYearEntity berdasarkan id tidak ditemukan
+AntarMukaApplikasiClient->System: menampilkan pesan data tidak ditemukan
+AccountEntity->StudentPayment: membuat pesan data tidak ditemukan
+StudentPayment->AntarMukaApplikasiClient: membuat pesan data tidak ditemukan
+AcademicYearEntity->DatabaseApplikasi: mencari Data pada model StudentAcademicYearEntity berdasarkan id
+DatabaseApplikasi->AcademicYearEntity: pesan pencarian StudentAcademicYearEntity berdasarkan id tidak ditemukan
+AntarMukaApplikasiClient->System: menampilkan pesan data tidak ditemukan
+AcademicYearEntity->StudentPayment: membuat pesan data tidak ditemukan
+StudentPayment->AntarMukaApplikasiClient: membuat pesan data tidak ditemukan
+AntarMukaApplikasiClient->System: menampilkan pesan data tidak ditemukan
+DatabaseApplikasi->AcademicYearEntity: memberikan Data pada model AcademicYearEntity berdasarkan id
+AcademicYearEntity->StudentPayment: mengembalikan Data hasil pencarian AcademicYear berdasarkan id
+StudentPayment->StudentEntity: mencari peserta didik berdasarkan tahun akademik
+StudentEntity->DatabaseApplikasi: mengambil data mahasiswa berdasarkan tahun akademik
+DatabaseApplikasi->StudentEntity: tidak menemukan data mahasiswa berdasarkan tahun akademik
+
+StudentEntity->StudentPayment: tidak menemukan data mahasiswa berdasarkan tahun akademik
+StudentPayment->AntarMukaApplikasiClient: membuat pesan data tidak ditemukan
+AntarMukaApplikasiClient->System: menampilkan pesan data tidak ditemukan
+DatabaseApplikasi->StudentEntity: menemukan data mahasiswa berdasarkan tahun akademik
+StudentEntity->StudentPayment: menyimpan data mahasiswa berdasarkan tahun akademik
+DatabaseApplikasi->UnitEntity: menemukan Data pada model UnitEntity berdasarkan id
+UnitEntity->StudentPayment: menyimpan data unit berdasarkan hasil pencarian id
+
+StudentPayment->UnitActivityEntity: mencari data aktifitas unit berdasarkan tahun akademik
+UnitActivityEntity->DatabaseApplikasi: mencari data aktifitas unit berdasarkan tahun akademik
+DatabaseApplikasi->UnitActivityEntity: tidak menemukan data aktifitas unit berdasarkan tahun akademik
+UnitActivityEntity->StudentPayment: tidak menemukan data aktifitas unit berdasarkan tahun akademik
+StudentPayment->AntarMukaApplikasiClient: membuat pesan data tidak ditemukan
+AntarMukaApplikasiClient->System: menampilkan pesan data tidak ditemukan
+DatabaseApplikasi->UnitActivityEntity: menemukan data aktifitas unit berdasarkan tahun akademik
+UnitActivityEntity->StudentPayment: menyimpan data aktifitas unit berdasarkan tahun akademik
+
+group FindStudentActivity
+    loop students as student
+        StudentPayment->UserEntity: Mencari Data Pengguna
+        UserEntity->DatabaseApplikasi: Mencari Data Pengguna
+        DatabaseApplikasi->UserEntity: Tidak menemukan data pengguna
+        UserEntity->StudentPayment: tidak menemukan data pengguna
+        StudentPayment->AntarMukaApplikasiClient: membuat pesan data pengguna tidak ditemukan
+        AntarMukaApplikasiClient->System: menampilkan pesan data pengguna tidak ditemukan
+        DatabaseApplikasi->UserEntity: menemukan data pengguna
+        UserEntity->StudentPayment: menyimpan data pengguna
+
+        StudentPayment->IndividualEntity: mencari data individual
+        IndividualEntity->DatabaseApplikasi: mencari data individual berdasarkan user
+        DatabaseApplikasi->IndividualEntity: tidak menemukan data individual berdasarkan user
+        IndividualEntity->StudentPayment: tidak menemukan data individual berdasarkan user
+        StudentPayment->AntarMukaApplikasiClient: membuat pesan data tidak ditemukan
+        AntarMukaApplikasiClient->System: menampilkan pesan data tidak ditemukan
+        DatabaseApplikasi->IndividualEntity: menemukan data data individual berdasarkan user
+        IndividualEntity->StudentPayment: menyimpan data data individual berdasarkan user
+
+        StudentPayment->PhoneEntity: mencari data telepon
+        PhoneEntity->DatabaseApplikasi: mencari data telepon berdasarkan user
+        DatabaseApplikasi->PhoneEntity: tidak menemukan data telepon berdasarkan user
+        PhoneEntity->StudentPayment: tidak menemukan data telepon berdasarkan user
+        StudentPayment->AntarMukaApplikasiClient: membuat pesan data tidak ditemukan
+        AntarMukaApplikasiClient->System: menampilkan pesan data tidak ditemukan
+        DatabaseApplikasi->PhoneEntity: menemukan data data telepon berdasarkan user
+        PhoneEntity->StudentPayment: menyimpan data data telepon berdasarkan user
+
+        StudentPayment->StudentActivityEntity: mencari data aktivitas mahasiswa
+        StudentActivityEntity->DatabaseApplikasi: mencari data aktivitas mahasiswa berdasarkan mahasiswa
+        DatabaseApplikasi->StudentActivityEntity: tidak menemukan data aktivitas mahasiswa berdasarkan mahasiswa
+        StudentActivityEntity->StudentPayment: tidak menemukan data aktivitas mahasiswa berdasarkan mahasiswa
+        StudentPayment->AntarMukaApplikasiClient: membuat pesan data tidak ditemukan
+        AntarMukaApplikasiClient->System: menampilkan pesan data tidak ditemukan
+        DatabaseApplikasi->StudentActivityEntity: menemukan data data aktivitas mahasiswa berdasarkan mahasiswa
+        StudentActivityEntity->StudentPayment: menyimpan data data aktivitas mahasiswa berdasarkan mahasiswa
+        StudentPayment->StudentPayment: membuat tagihan perkuliahan mahasiswa
+        StudentPayment->AntarMukaApplikasiClient: berhasil membuat tagihan mahasiswa
+        AntarMukaApplikasiClient->System: menampilkan pesan berhasil membuat tagihan mahasiswa
+    end
+@enduml

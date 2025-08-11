@@ -1,0 +1,10 @@
+pub mod data_mahasiswa;
+pub mod kredensial;
+pub mod kuliah_mahasiswa;
+pub mod mahasiswa_lulus;
+pub mod matakuliah_program_studi;
+pub mod mengajar_dosen;
+pub mod nilai_transfer_mahasiswa;
+pub mod penugasan_dosen_program_studi;
+pub mod perkuliahan_mahasiswa;
+pub mod perkuliahan_program_studi;

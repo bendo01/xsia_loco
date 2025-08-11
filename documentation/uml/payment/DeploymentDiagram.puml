@@ -1,0 +1,15 @@
+@startuml DeploymentDiagram
+node BackEnd [
+    BackEnd
+    ----
+    component application
+    database RDBMS
+]
+node FrontEnd [
+    FrontEnd
+    ----
+    component application
+]
+
+BackEnd -- FrontEnd : REST HTTP
+@enduml

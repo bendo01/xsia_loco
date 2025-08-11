@@ -1,0 +1,3 @@
+pub mod m20241030_185557_schema_academic_lecturer_transaction_academic_groups;
+pub mod m20241030_185617_schema_academic_lecturer_transaction_academic_ranks;
+pub mod m20241030_185646_schema_academic_lecturer_transaction_homebases;

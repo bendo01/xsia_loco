@@ -1,0 +1,1 @@
+pub use super::evaluation_details::Entity as AcademicPriorLearningRecognitionTransactionEvaluationDetails;

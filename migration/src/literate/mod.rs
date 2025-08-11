@@ -1,0 +1,5 @@
+pub mod m20241007_000346_schema_literate_table_categories;
+pub mod m20241007_000358_schema_literate_table_educations;
+pub mod m20241007_000408_schema_literate_table_groups;
+pub mod m20241007_000417_schema_literate_table_levels;
+pub mod m20241007_000434_schema_literate_table_varieties;

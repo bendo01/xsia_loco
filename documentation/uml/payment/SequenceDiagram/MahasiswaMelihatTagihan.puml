@@ -1,0 +1,21 @@
+@startuml MahasiswaMelihatTagihan
+actor Mahasiswa as Student
+boundary Boundary as AntarMukaApplikasiClient
+control Payment as PaymentController
+entity Payment as PaymentEntity
+database Database as DatabaseApplikasi
+
+Student->AntarMukaApplikasiClient: membuka halaman pembayaran
+AntarMukaApplikasiClient->PaymentController: meminta data tagihan mahasiswa berdasarkan user
+PaymentController->PaymentEntity: meminta data tagihan mahasiswa berdasarkan user
+PaymentEntity->DatabaseApplikasi: meminta data tagihan mahasiswa berdasarkan user
+DatabaseApplikasi->PaymentEntity: tidak menemukan data
+PaymentEntity->PaymentController: data kosong
+PaymentController->AntarMukaApplikasiClient: menyampaikan pesan data kosong
+AntarMukaApplikasiClient->Student: menampilkan pesan data tidak ada
+
+DatabaseApplikasi->PaymentEntity: menemukan data
+PaymentEntity->PaymentController: data tagihan mahasiswa
+PaymentController->AntarMukaApplikasiClient: menyampaikan data tagihan mahasiswa
+AntarMukaApplikasiClient->Student: menampilkan data tagihan mahasiswa
+@enduml

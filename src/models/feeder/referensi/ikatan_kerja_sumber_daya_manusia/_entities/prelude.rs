@@ -1,0 +1,1 @@
+pub use super::ikatan_kerja_sumber_daya_manusia::Entity as FeederReferensiIkatanKerjaSumberDayaManusia;

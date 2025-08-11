@@ -1,0 +1,104 @@
+Table accounts {
+  id uuid [primary key]
+  name varchar
+  institution_id uuid
+  merchant_identification varchar
+  client_key varchar
+  server_key varchar
+  sandbox_url varchar
+  production_url varchar
+  is_production boolean
+  is_sanitized boolean
+  is_3ds boolean
+  created_at timestamp
+  updated_at timestamp
+  deleted_at timestamp
+  sync_at timestamp
+  created_by uuid
+  updated_by uuid
+}
+
+Table transaction_details {
+  id uuid [primary key]
+  order_id varchar
+  gross_amount varchar
+  account_id uuid
+  transaction_detailable_id uuid
+  transaction_detailable_type varchar
+  is_paid boolean
+  created_at timestamp
+  updated_at timestamp
+  deleted_at timestamp
+  sync_at timestamp
+  created_by uuid
+  updated_by uuid
+}
+
+Table customer_details {
+  id uuid [primary key]
+  first_name varchar
+  last_name varchar
+  email varchar
+  phone varchar
+  transaction_detail_id uuid
+  created_at timestamp
+  updated_at timestamp
+  deleted_at timestamp
+  sync_at timestamp
+  created_by uuid
+  updated_by uuid
+}
+
+Table item_details {
+  id uuid [primary key]
+  name varchar
+  quantity varchar
+  price varchar
+  transaction_detail_id varchar
+  created_at timestamp
+  updated_at timestamp
+  deleted_at timestamp
+  sync_at timestamp
+  created_by uuid
+  updated_by uuid
+}
+
+Table billing_addresses {
+  id uuid [primary key]
+  first_name varchar
+  last_name varchar
+  email varchar
+  phone varchar
+  customer_detail_id uuid
+  created_at timestamp
+  updated_at timestamp
+  deleted_at timestamp
+  sync_at timestamp
+  created_by uuid
+  updated_by uuid
+}
+
+Table shipping_addresses {
+  id uuid [primary key]
+  first_name varchar
+  last_name varchar
+  email varchar
+  phone varchar
+  address varchar
+  city varchar
+  postal_code varchar
+  country_cod varchar
+  customer_detail_id uuid
+  created_at timestamp
+  updated_at timestamp
+  deleted_at timestamp
+  sync_at timestamp
+  created_by uuid
+  updated_by uuid
+}
+
+Ref: transaction_details.id < customer_details.transaction_detail_id
+Ref: transaction_details.id < item_details.transaction_detail_id
+Ref: customer_details.id < billing_addresses.customer_detail_id
+Ref: customer_details.id < shipping_addresses.customer_detail_id
+Ref: accounts.id < transaction_details.account_id

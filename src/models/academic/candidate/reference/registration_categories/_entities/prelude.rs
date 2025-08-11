@@ -1,0 +1,1 @@
+pub use super::registration_categories::Entity as AcademicCandidateReferenceRegistrationCategories;

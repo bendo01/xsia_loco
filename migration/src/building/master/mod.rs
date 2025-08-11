@@ -1,0 +1,2 @@
+pub mod m20241102_054200_schema_bulding_master_table_buildings;
+pub mod m20241102_054230_schema_bulding_master_table_rooms;

@@ -1,0 +1,13 @@
+pub mod age_classifications;
+pub mod blood_types;
+pub mod eye_colors;
+pub mod genders;
+pub mod hair_colors;
+pub mod hair_types;
+pub mod identification_types;
+pub mod incomes;
+pub mod marital_statuses;
+pub mod occupations;
+pub mod professions;
+pub mod relative_types;
+pub mod religions;

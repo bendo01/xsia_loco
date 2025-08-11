@@ -1,0 +1,4 @@
+pub mod m20241102_064407_schema_contact_reference_table_electronic_mail_types;
+pub mod m20241102_065934_schema_contact_reference_table_phone_types;
+pub mod m20241102_065944_schema_contact_reference_table_residence_types;
+pub mod m20241102_065956_schema_contact_reference_table_website_types;

@@ -1,0 +1,2 @@
+pub mod m20241030_195454_schema_academic_student_master_images;
+pub mod m20241030_195505_schema_academic_student_master_students;

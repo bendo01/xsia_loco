@@ -1,0 +1,12 @@
+pub mod academic;
+pub mod auth;
+pub mod broadcast;
+pub mod building;
+pub mod contact;
+pub mod document;
+pub mod experiment;
+pub mod institution;
+pub mod literate;
+pub mod location;
+pub mod payment;
+pub mod person;

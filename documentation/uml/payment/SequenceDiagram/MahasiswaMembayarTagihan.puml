@@ -1,0 +1,22 @@
+@startuml MahasiswaMembayarTagihan
+actor Mahasiswa as Student
+boundary Boundary as AntarMukaApplikasiClient
+control Payment as PaymentController
+entity Payment as PaymentEntity
+database Database as DatabaseApplikasi
+actor LayananPembayaran as PaymentService
+
+Student->AntarMukaApplikasiClient: memilih tagihan pembayaran
+AntarMukaApplikasiClient->PaymentController: mengirimkan data tagihan ke pihak ketiga
+PaymentController->PaymentService: mengirimkan data tagihan
+PaymentService->PaymentController: memberikan token pembayaran
+PaymentController->AntarMukaApplikasiClient: memberikan token pembayaran
+AntarMukaApplikasiClient->Student:menampilkan form pembayaran
+Student->AntarMukaApplikasiClient: mengisi form pembayaran
+AntarMukaApplikasiClient->PaymentService: mengirimkan data pembayaran
+PaymentService->AntarMukaApplikasiClient: Pembayaran Gagal
+AntarMukaApplikasiClient->Student: Terjadi kegagalan dalam membayar tagihan
+PaymentService->AntarMukaApplikasiClient: Pembayaran Berhasil
+AntarMukaApplikasiClient->Student: Berhasil dalam membayar tagihan
+
+@enduml

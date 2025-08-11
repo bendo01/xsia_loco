@@ -1,0 +1,13 @@
+@startuml UseCaseDiagram
+left to right direction
+actor System as system
+actor Mahasiswa as mahasiswa
+package Pembayaran {
+    usecase "Melihat Tagihan" as ST
+    usecase "Membuat Tagihan" as MT
+    usecase "Membayar Tagihan" as MBYT
+}
+system --> MT
+mahasiswa --> MBYT
+mahasiswa --> ST
+@enduml

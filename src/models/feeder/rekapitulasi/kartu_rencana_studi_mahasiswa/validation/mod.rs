@@ -1,0 +1,1 @@
+pub mod kartu_rencana_studi_mahasiswa;

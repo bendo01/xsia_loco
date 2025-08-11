@@ -1,0 +1,61 @@
+use sea_orm::entity::prelude::*;
+use serde::{Deserialize, Serialize};
+
+#[derive(Clone, Debug, PartialEq, DeriveEntityModel, Eq, Serialize, Deserialize)]
+#[sea_orm(schema_name = "feeder_master", table_name = "biodata_dosen")]
+pub struct Model {
+    #[sea_orm(primary_key, auto_increment = false)]
+    pub id: Uuid,
+    pub id_dosen: Option<String>,
+    pub nama_dosen: Option<String>,
+    pub tempat_lahir: Option<String>,
+    pub tanggal_lahir: Option<Date>,
+    pub jenis_kelamin: Option<String>,
+    pub id_agama: Option<String>,
+    pub nama_agama: Option<String>,
+    pub id_status_aktif: Option<String>,
+    pub nama_status_aktif: Option<String>,
+    pub nidn: Option<String>,
+    pub nama_ibu_kandung: Option<String>,
+    pub nik: Option<String>,
+    pub nip: Option<String>,
+    pub npwp: Option<String>,
+    pub id_jenis_sdm: Option<String>,
+    pub nama_jenis_sdm: Option<String>,
+    pub no_sk_cpns: Option<String>,
+    pub tanggal_sk_cpns: Option<Date>,
+    pub no_sk_pengangkatan: Option<String>,
+    pub mulai_sk_pengangkatan: Option<String>,
+    pub id_lembaga_pengangkatan: Option<String>,
+    pub nama_lembaga_pengangkatan: Option<String>,
+    pub id_pangkat_golongan: Option<String>,
+    pub nama_pangkat_golongan: Option<String>,
+    pub id_sumber_gaji: Option<String>,
+    pub nama_sumber_gaji: Option<String>,
+    pub jalan: Option<String>,
+    pub dusun: Option<String>,
+    pub rt: Option<String>,
+    pub rw: Option<String>,
+    pub ds_kel: Option<String>,
+    pub kode_pos: Option<String>,
+    pub id_wilayah: Option<String>,
+    pub nama_wilayah: Option<String>,
+    pub telepon: Option<String>,
+    pub handphone: Option<String>,
+    pub email: Option<String>,
+    pub status_pernikahan: Option<String>,
+    pub nama_suami_istri: Option<String>,
+    pub nip_suami_istri: Option<String>,
+    pub tanggal_mulai_pns: Option<Date>,
+    pub id_pekerjaan_suami_istri: Option<String>,
+    pub nama_pekerjaan_suami_istri: Option<String>,
+    pub sync_at: Option<DateTime>,
+    pub created_by: Option<Uuid>,
+    pub updated_by: Option<Uuid>,
+    pub created_at: Option<DateTime>,
+    pub updated_at: Option<DateTime>,
+    pub deleted_at: Option<DateTime>,
+}
+
+#[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
+pub enum Relation {}

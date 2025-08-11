@@ -1,0 +1,58 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <script src="https://cdn.tailwindcss.com/3.4.16"></script>
+        <style>
+            @page {
+                margin-top: 120px;
+                margin-bottom: 80px;
+
+                @top-center {
+                    content: element(pageHeader);
+                }
+
+                @bottom-center {
+                    content: element(pageFooter);
+                }
+            }
+
+            #pageHeader {
+                position: running(pageHeader);
+                top: -120px;
+                width: 100%;
+            }
+
+            #pageFooter {
+                position: running(pageFooter);
+                bottom: -80px;
+                width: 100%;
+            }
+
+            .page-number:before {
+                content: "Page " counter(page);
+            }
+        </style>
+    </head>
+    <body>
+        <!-- Header -->
+        <div id="pageHeader" class="flex items-center justify-between px-8">
+            <div class="flex items-center">
+                <img src="data:image/png;base64,{{ logo }}" class="h-12 w-12 mr-4" />
+                <h1 class="text-2xl font-bold">Company Name</h1>
+            </div>
+            <div class="text-gray-500">Report Date: 2023-01-01</div>
+        </div>
+        <!-- Footer -->
+        <div id="pageFooter" class="text-center text-sm text-gray-500">
+            <div class="page-number"></div>
+            <div>Confidential Document</div>
+        </div>
+        <div class="container mx-auto mt-4">
+            <!-- Your dynamic content here -->
+            {{ content }}
+        </div>
+        <!-- Footer -->
+        <div class="footer text-center text-sm text-gray-500">Page <span class="pageNumber"></span> of <span class="totalPages"></span></div>
+    </body>
+</html>

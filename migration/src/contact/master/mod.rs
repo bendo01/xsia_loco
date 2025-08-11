@@ -1,0 +1,4 @@
+pub mod m20241102_064053_schema_contact_master_table_electronic_mails;
+pub mod m20241102_064106_schema_contact_master_table_phones;
+pub mod m20241102_064249_schema_contact_master_table_residences;
+pub mod m20241102_064301_schema_contact_master_table_websites;

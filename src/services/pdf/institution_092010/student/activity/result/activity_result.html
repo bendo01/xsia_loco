@@ -1,0 +1,86 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>Kartu Rencana Perkuliahan</title>
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.css" rel="stylesheet" />
+        <link href="https://cdn.jsdelivr.net/npm/roboto-font@0.1.0/css/fonts.min.css" rel="stylesheet" />
+    </head>
+    <body>
+        <div class="container mx-auto">
+            <h1 class="text-lg font-bold text-center mb-1">KARTU HASIL STUDI</h1>
+            <table class="border-collapse table-auto w-full text-xs text-left">
+                <tbody>
+                    <tr>
+                        <td class="border-b border-gray-300 dark:border-gray-600 p-1 text-gray-700 dark:text-gray-300">Nomor Induk</td>
+                        <td class="border-b border-gray-300 dark:border-gray-600 p-1 text-gray-700 dark:text-gray-300">{{student_activity.student.code}}</td>
+                    </tr>
+                    <tr>
+                        <td class="border-b border-gray-300 dark:border-gray-600 p-1 text-gray-700 dark:text-gray-300">Nama</td>
+                        <td class="border-b border-gray-300 dark:border-gray-600 p-1 text-gray-700 dark:text-gray-300">{{student_activity.student.name}}</td>
+                    </tr>
+                    <tr>
+                        <td class="border-b border-gray-300 dark:border-gray-600 p-1 text-gray-700 dark:text-gray-300">Program Studi</td>
+                        <td class="border-b border-gray-300 dark:border-gray-600 p-1 text-gray-700 dark:text-gray-300">{{student_activity.unit.code}} / {{student_activity.unit.name}}</td>
+                    </tr>
+                    <tr>
+                        <td class="border-b border-gray-300 dark:border-gray-600 p-1 text-gray-700 dark:text-gray-300">Tahun Akademik</td>
+                        <td class="border-b border-gray-300 dark:border-gray-600 p-1 text-gray-700 dark:text-gray-300">{{student_activity.unit_activity.academic_year.name}}</td>
+                    </tr>
+                    <tr>
+                        <td class="border-b border-gray-300 dark:border-gray-600 p-1 text-gray-700 dark:text-gray-300">Status</td>
+                        <td class="border-b border-gray-300 dark:border-gray-600 p-1 text-gray-700 dark:text-gray-300">{{student_activity.status.name}}</td>
+                    </tr>
+                    <tr>
+                        <td class="border-b border-gray-300 dark:border-gray-600 p-1 text-gray-700 dark:text-gray-300">Tanggal Cetak</td>
+                        <td class="border-b border-gray-300 dark:border-gray-600 p-1 text-gray-700 dark:text-gray-300">{{print_date}}</td>
+                    </tr>
+                    <tr>
+                        <td class="border-b border-gray-300 dark:border-gray-600 p-1 text-gray-700 dark:text-gray-300">Indeks Prestasi Sementara</td>
+                        <td class="border-b border-gray-300 dark:border-gray-600 p-1 text-gray-700 dark:text-gray-300">{{student_activity.activity.cumulative_index}}</td>
+                    </tr>
+                    <tr>
+                        <td class="border-b border-gray-300 dark:border-gray-600 p-1 text-gray-700 dark:text-gray-300">Kredit Tempuh Semester</td>
+                        <td class="border-b border-gray-300 dark:border-gray-600 p-1 text-gray-700 dark:text-gray-300">{{student_activity.activity.total_credit}}</td>
+                    </tr>
+                    <tr>
+                        <td class="border-b border-gray-300 dark:border-gray-600 p-1 text-gray-700 dark:text-gray-300">Indeks Prestasi Kumulatif</td>
+                        <td class="border-b border-gray-300 dark:border-gray-600 p-1 text-gray-700 dark:text-gray-300">{{student_activity.activity.grand_cumulative_index}}</td>
+                    </tr>
+                    <tr>
+                        <td class="border-b border-gray-300 dark:border-gray-600 p-1 text-gray-700 dark:text-gray-300">Total Kredit Tempuh</td>
+                        <td class="border-b border-gray-300 dark:border-gray-600 p-1 text-gray-700 dark:text-gray-300">{{student_activity.activity.grand_total_credit}}</td>
+                    </tr>
+                </tbody>
+            </table>
+            <br />
+            <table class="w-full text-xs border-collapse border border-gray-300">
+                <thead>
+                    <tr>
+                        <th class="border border-gray-300">No</th>
+                        <th class="border border-gray-300">Kode</th>
+                        <th class="border border-gray-300">Nama</th>
+                        <th class="border border-gray-300">Kredit</th>
+                        <th class="border border-gray-300">Nilai Index</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for detail in student_activity.detail_activities %}
+                    <tr>
+                        <td class="border border-gray-300 text-center">{{loop.index}}</td>
+                        <td class="border border-gray-300 text-center">{{detail.course.code}}</td>
+                        <td class="border border-gray-300 text-center">{{detail.course.name}}</td>
+                        <td class="border border-gray-300 text-center">{{detail.course.total_credit}}</td>
+                        {% if detail.detail_activity.grade_id != '00000000-0000-0000-0000-000000000000' %}
+                        <td class="border border-gray-300 text-center">{{detail.grade.name}}</td>
+                        {% else %}
+                        <td class="border border-gray-300 text-center">&nbsp;</td>
+                        {% endif %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </body>
+</html>

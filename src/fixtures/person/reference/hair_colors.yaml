@@ -1,0 +1,10 @@
+---
+- code: 1
+  alphabet_code: "BLK"
+  name: "Black"
+- code: 2
+  alphabet_code: "BRN"
+  name: "Brown"
+- code: 3
+  alphabet_code: "BLN"
+  name: "Blonde"
