@@ -38,6 +38,7 @@ pub async fn store(
     JsonValidateWithMessage(payload): JsonValidateWithMessage<ModelValidator>,
     
 ) -> Result<Response> {
+    // println!("{:#?}", payload);
     // let validation_errors = ValidationErrors::new();
     if let Err(validation_errors) = payload.validate() {
         let error_json = format_validation_errors(&validation_errors, "Validation Failed");
@@ -46,7 +47,6 @@ pub async fn store(
             Json(error_json),                 // Return JSON-formatted errors
         ).into_response());
     }
-
     // find candidate
     let candidate = AcademicCandidateMasterCandidate::Entity::find_by_id(payload.candidate_id)
         .filter(AcademicCandidateMasterCandidate::Column::DeletedAt.is_null())
@@ -54,12 +54,14 @@ pub async fn store(
         .await?;
 
     if let Some(candidate) = candidate {
+        // println!("{:#?}", candidate.clone());
         let unit = InstitutionMasterUnit::Entity::find_by_id(payload.unit_id)
             .filter(InstitutionMasterUnit::Column::DeletedAt.is_null())
             .one(&ctx.db)
             .await?;
 
         if let Some(unit) = unit {
+            // println!("{:#?}", unit.clone());
             let curriculum = AcademicMasterCurriculum::Entity::find()
                 .filter(AcademicMasterCurriculum::Column::DeletedAt.is_null())
                 .filter(AcademicMasterCurriculum::Column::UnitId.eq(unit.id))
@@ -68,6 +70,7 @@ pub async fn store(
                 .await?;
 
             if let Some(curriculum) = curriculum {
+                // println!("{:#?}", curriculum.clone());
                 let registration_name = format!("{}_{}", unit.code, candidate.name);
                 let now = Utc::now().naive_utc();
                 let id = Uuid::new_v4();

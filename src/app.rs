@@ -104,6 +104,7 @@ impl Hooks for App {
             .add_route(controllers::academic::lecturer::transaction::academic_groups::routes())
             .add_route(controllers::academic::lecturer::transaction::academic_ranks::routes())
             .add_route(controllers::academic::lecturer::transaction::homebases::routes())
+            .add_route(controllers::academic::prior_learning_recognition::transaction::recognitions::routes(ctx))
             .add_route(controllers::academic::student::adviser::counsellors::routes())
             .add_route(controllers::academic::student::adviser::decrees::routes())
             .add_route(controllers::academic::student::campaign::activities::routes(ctx))
