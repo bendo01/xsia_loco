@@ -13,6 +13,7 @@ use crate::models::academic::student::master::students::_entities::students as A
 use crate::models::institution::master::institutions::_entities::institutions as AcademicInstitutionMasterInstitution;
 use crate::models::institution::master::units::_entities::units as AcademicInstitutionMasterUnit;
 
+use chrono;
 use loco_rs::prelude::*;
 use sea_orm::{ColumnTrait, EntityTrait, QueryFilter, QueryOrder, Set};
 use serde::{Deserialize, Serialize};
@@ -52,11 +53,41 @@ impl DataGenerator {
             }
         };
 
-        let Some(teach_decree) = teach_decree_opt else {
-            let params_activity_id = params.activity_id.to_string();
-            return Err(Error::Message(format!(
-                "teach decree not found with activity ID: {params_activity_id}"
-            )));
+        let teach_decree = if let Some(existing_decree) = teach_decree_opt {
+            existing_decree
+        } else {
+            // Create a new teach_decree if not found
+            let decree_uuid = uuid7::uuid7().to_string();
+            let decree_pk_id = Uuid::parse_str(&decree_uuid).expect("Invalid UUID format");
+
+            let new_teach_decree = AcademicCampaignTransactionTeachDecree::ActiveModel {
+                id: Set(decree_pk_id),
+                decree_number: Set(format!(
+                    "AUTO-{}",
+                    uuid7::uuid7().to_string()[0..8].to_uppercase()
+                )),
+                decree_date: Set(chrono::Utc::now().date_naive()),
+                activity_id: Set(params.activity_id),
+                staff_id: Set(None), // You may want to set this based on your business logic
+                feeder_id: Set(None),
+                created_at: Set(Some(chrono::Utc::now().naive_utc())),
+                ..Default::default()
+            };
+
+            match new_teach_decree.insert(&app_context.db).await {
+                Ok(inserted_decree) => {
+                    println!(
+                        "Teach decree created successfully with ID: {}",
+                        inserted_decree.id
+                    );
+                    inserted_decree
+                }
+                Err(db_err) => {
+                    return Err(Error::Message(format!(
+                        "Database error while creating teach decree: {db_err}"
+                    )));
+                }
+            }
         };
 
         let uuidv7_string = uuid7::uuid7().to_string();

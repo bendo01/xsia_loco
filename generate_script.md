@@ -29,5 +29,5 @@ cargo loco task GenerateUnitStudentCampaignActivities "unit_id:2b869143-c522-4ca
 
 # Membuat Detail KRS Data Tahun Akademik 20251 Administrasi Rumah Sakit Angkatan 20231
 ```sh
-cargo loco task RegenerateAllStudentDetailActivities "student_register_academic_year_id:cea55274-4be3-4311-8c68-cc788e988c1b" "curriculum_id:9b6511d2-3eff-4dbb-aeb5-a96b769de7fe" "unit_activity_id:7cbef7f93-c76b-4572-bef3-e577bcd77108" "semester_id:73dca4f4-afa5-484d-b437-6ca945e691e9"
+cargo loco task RegenerateAllStudentDetailActivities "student_register_academic_year_id:cea55274-4be3-4311-8c68-cc788e988c1b" "curriculum_id:9b6511d2-3eff-4dbb-aeb5-a96b769de7fe" "unit_activity_id:cbef7f93-c76b-4572-bef3-e577bcd77108" "semester_id:73dca4f4-afa5-484d-b437-6ca945e691e9"
 ```
