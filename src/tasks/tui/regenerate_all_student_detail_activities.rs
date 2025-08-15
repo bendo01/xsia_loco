@@ -109,23 +109,30 @@ impl Task for RegenerateAllStudentDetailActivities {
         let curriculum_semester = vars.cli_arg("semester_id");
         let current_curriculum = vars.cli_arg("curriculum_id");
 
-        // start parse args to uuid
-        if unit_activity_id_string.is_ok() {
-            unit_activity_id = Uuid::parse_str(unit_activity_id_string.unwrap().as_str()).unwrap();
+        // start parse args to uuid with proper error handling
+        if let Ok(id_str) = unit_activity_id_string {
+            unit_activity_id = Uuid::parse_str(id_str.as_str()).map_err(|e| {
+                Error::string(&format!("Invalid unit_activity_id UUID format: {}", e))
+            })?;
         }
 
-        if student_register_academic_year_id_string.is_ok() {
-            student_register_academic_year_id =
-                Uuid::parse_str(student_register_academic_year_id_string.unwrap().as_str())
-                    .unwrap();
+        if let Ok(id_str) = student_register_academic_year_id_string {
+            student_register_academic_year_id = Uuid::parse_str(id_str.as_str()).map_err(|e| {
+                Error::string(&format!(
+                    "Invalid student_register_academic_year_id UUID format: {}",
+                    e
+                ))
+            })?;
         }
 
-        if curriculum_semester.is_ok() {
-            semester_id = Uuid::parse_str(curriculum_semester.unwrap().as_str()).unwrap();
+        if let Ok(id_str) = curriculum_semester {
+            semester_id = Uuid::parse_str(id_str.as_str())
+                .map_err(|e| Error::string(&format!("Invalid semester_id UUID format: {}", e)))?;
         }
 
-        if current_curriculum.is_ok() {
-            curriculum_id = Uuid::parse_str(current_curriculum.unwrap().as_str()).unwrap();
+        if let Ok(id_str) = current_curriculum {
+            curriculum_id = Uuid::parse_str(id_str.as_str())
+                .map_err(|e| Error::string(&format!("Invalid curriculum_id UUID format: {}", e)))?;
         }
         // end parse args to uuid
 
