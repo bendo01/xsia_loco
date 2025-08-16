@@ -116,7 +116,7 @@ settings:
   current_student_admission_academic_year_id: {{ get_env(name="CURRENT_STUDENT_ADMISSION_ACADEMIC_YEAR_ID", default="7fb68ca8-3376-4aef-b158-4c43f1b0f177") }}
   current_institution_id: {{ get_env(name="CURRENT_INSTITUTION_ID", default="ed7e8c02-451b-4548-aa81-26b8d0b7fdec") }}
   current_institution_code: {{ get_env(name="CURRENT_INSTITUTION_CODE", default="092010") }}
-  app_directory: {{ get_env(name="APP_DIRECTORY", default="/usr/share/nginx/html/server") }}
+  app_directory: {{ get_env(name="APP_DIRECTORY", default=".") }}
   feeder_username: {{ get_env(name="FEEDER_USERNAME", default="admin") }}
   feeder_password: {{ get_env(name="FEEDER_PASSWORD", default="admin") }}
   feeder_url: {{ get_env(name="FEEDER_URL", default="http://localhost") }}
