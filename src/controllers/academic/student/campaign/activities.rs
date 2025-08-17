@@ -3,12 +3,26 @@
 #![allow(clippy::unused_async)]
 use crate::middleware::is_authenticated::AuthenticatedLayer;
 use crate::models::academic::student::campaign::activities::_entities::activities as ReferenceModel;
+use crate::models::academic::student::campaign::activities::_entities::activities as AcademicStudentCampaignActivity;
 use crate::models::academic::student::campaign::activities::data_objects::DataObject as ReferenceDataObject;
+use crate::models::academic::student::master::students::_entities::students as AcademicStudentMasterStudent;
+use crate::models::institution::master::units::_entities::units as InstitutionMasterUnit;
 use crate::services::pdf::institution_092010::student::activity::plan::activity_plan as Institution092010StudentActivityPlan;
 use crate::services::pdf::institution_092010::student::activity::result::activity_result as Institution092010StudentActivityResult;
+use crate::vendor::paginate::pagination::{PaginateInput, PaginateResult};
+// use crate::vendor::validation::common::format_validation_errors;
 use axum::{debug_handler, extract::Path};
 use loco_rs::prelude::*;
-use sea_orm::{ColumnTrait, EntityTrait, QueryFilter, QueryOrder};
+use sea_orm::sea_query::Expr; // Import Expr to build expressions
+use sea_orm::{ColumnTrait, Condition, EntityTrait, PaginatorTrait, QueryFilter, QueryOrder};
+use sea_query::extension::postgres::PgExpr;
+use serde::{Deserialize, Serialize};
+
+#[derive(Deserialize, Serialize)]
+pub struct ModelPagination {
+    pagination: PaginateResult,
+    data: Vec<Option<ReferenceDataObject>>,
+}
 
 #[debug_handler]
 pub async fn index(State(_ctx): State<AppContext>) -> Result<Response> {
@@ -45,10 +59,101 @@ pub async fn index_unit(
 
 #[debug_handler]
 pub async fn index_institution(
-    State(_ctx): State<AppContext>,
-    Path(_institution_id): Path<Uuid>,
+    State(ctx): State<AppContext>,
+    Path(institution_id): Path<Uuid>,
+    Json(paginate_input): Json<PaginateInput>,
 ) -> Result<Response> {
-    format::empty()
+    let unit_type_id: Uuid = uuid::uuid!("019759fd-36e8-4f43-80ed-4f687a48145d");
+    let unit_opt = InstitutionMasterUnit::Entity::find()
+        .filter(InstitutionMasterUnit::Column::DeletedAt.is_null())
+        .filter(InstitutionMasterUnit::Column::InstitutionId.eq(institution_id))
+        .filter(InstitutionMasterUnit::Column::UnitTypeId.eq(unit_type_id))
+        .all(&ctx.db)
+        .await?;
+
+    // Extract unit IDs from the found units
+    let unit_ids: Vec<Uuid> = unit_opt.iter().map(|unit| unit.id).collect();
+
+    // If no units found, return empty response
+    if unit_ids.is_empty() {
+        return format::json(Vec::<AcademicStudentCampaignActivity::Model>::new());
+    }
+
+    // Query students that belong to these units
+    let students_opt = AcademicStudentMasterStudent::Entity::find()
+        .filter(AcademicStudentMasterStudent::Column::DeletedAt.is_null())
+        .filter(AcademicStudentMasterStudent::Column::UnitId.is_in(unit_ids))
+        .all(&ctx.db)
+        .await?;
+    let student_ids: Vec<Uuid> = students_opt.iter().map(|student| student.id).collect();
+
+    if student_ids.is_empty() {
+        return format::json(Vec::<AcademicStudentCampaignActivity::Model>::new());
+    }
+
+    // start pagination
+
+    let mut query = AcademicStudentCampaignActivity::Entity::find();
+    query = query.filter(AcademicStudentCampaignActivity::Column::DeletedAt.is_null());
+
+    // Apply search filters
+    if let Some(search) = &paginate_input.search {
+        let search_pattern = format!("%{search}%");
+        query = query.filter(Condition::any().add(
+            Expr::col(AcademicStudentCampaignActivity::Column::Name).ilike(search_pattern.clone()),
+        ));
+    }
+
+    // Apply sorting
+    if let Some(sort_by) = &paginate_input.sort_by {
+        match (sort_by.as_str(), paginate_input.sort_dir.as_deref()) {
+            ("name", Some("asc")) => {
+                query = query.order_by_asc(AcademicStudentCampaignActivity::Column::Name);
+            }
+            ("name", Some("desc")) => {
+                query = query.order_by_desc(AcademicStudentCampaignActivity::Column::Name);
+            }
+            _ => query = query.order_by_asc(AcademicStudentCampaignActivity::Column::Name),
+        }
+    }
+
+    // Pagination logic
+    let page = paginate_input.page;
+    let per_page = paginate_input.per_page;
+
+    let paginator = query.paginate(&ctx.db, per_page);
+    let total_data = paginator.num_items().await?;
+    let total_page = paginator.num_pages().await?;
+    // let items = paginator.fetch_page(page - 1).await?;
+    let datas = paginator.fetch_page(page - 1).await?;
+
+    let mut items = Vec::new();
+    for data in datas {
+        let item_object = ReferenceDataObject::get_by_id(&ctx, data.id, false).await?;
+        items.push(item_object);
+    }
+
+    // Create the pagination metadata
+    let result = PaginateResult {
+        search: paginate_input.search,
+        sort_by: paginate_input.sort_by,
+        column: paginate_input.column,
+        sort_dir: paginate_input.sort_dir,
+        page,
+        per_page,
+        total_page,
+        last_page: total_page,
+        total_data,
+    };
+
+    // Combine the data and pagination result
+    let response = ModelPagination {
+        pagination: result,
+        data: items,
+    };
+
+    // Return the response as JSON
+    format::json(response)
 }
 
 #[debug_handler]
@@ -132,6 +237,10 @@ pub fn routes(ctx: &AppContext) -> Routes {
         .add(
             "/print_activity_result/{activity_id}",
             get(print_activity_result),
+        )
+        .add(
+            "/index_institution/{institution_id}",
+            post(index_institution).layer(AuthenticatedLayer::new(ctx.clone())),
         )
         .add(
             "/show_student/{id}",
