@@ -94,7 +94,9 @@ pub async fn index_institution(
     // start pagination
 
     let mut query = AcademicStudentCampaignActivity::Entity::find();
-    query = query.filter(AcademicStudentCampaignActivity::Column::DeletedAt.is_null());
+    query = query
+        .filter(AcademicStudentCampaignActivity::Column::DeletedAt.is_null())
+        .filter(AcademicStudentCampaignActivity::Column::StudentId.is_in(student_ids));
 
     // Apply search filters
     if let Some(search) = &paginate_input.search {
