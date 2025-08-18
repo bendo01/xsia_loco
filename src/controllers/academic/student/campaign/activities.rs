@@ -6,12 +6,15 @@ use crate::models::academic::student::campaign::activities::_entities::activitie
 use crate::models::academic::student::campaign::activities::_entities::activities as AcademicStudentCampaignActivity;
 use crate::models::academic::student::campaign::activities::data_objects::DataObject as ReferenceDataObject;
 use crate::models::academic::student::master::students::_entities::students as AcademicStudentMasterStudent;
+use crate::models::auth::users::_entities::users as AuthUser;
 use crate::models::institution::master::units::_entities::units as InstitutionMasterUnit;
 use crate::services::pdf::institution_092010::student::activity::plan::activity_plan as Institution092010StudentActivityPlan;
 use crate::services::pdf::institution_092010::student::activity::result::activity_result as Institution092010StudentActivityResult;
 use crate::vendor::paginate::pagination::{PaginateInput, PaginateResult};
 // use crate::vendor::validation::common::format_validation_errors;
+use axum::extract::Extension;
 use axum::{debug_handler, extract::Path};
+use chrono::Utc;
 use loco_rs::prelude::*;
 use sea_orm::sea_query::Expr; // Import Expr to build expressions
 use sea_orm::{ColumnTrait, Condition, EntityTrait, PaginatorTrait, QueryFilter, QueryOrder};
@@ -22,6 +25,12 @@ use serde::{Deserialize, Serialize};
 pub struct ModelPagination {
     pagination: PaginateResult,
     data: Vec<Option<ReferenceDataObject>>,
+}
+
+#[derive(Deserialize, Serialize)]
+pub struct StatusUpdateInput {
+    id: Uuid,
+    status_id: Uuid,
 }
 
 #[debug_handler]
@@ -55,6 +64,31 @@ pub async fn index_unit(
     Path(_unit_id): Path<Uuid>,
 ) -> Result<Response> {
     format::empty()
+}
+
+pub async fn update_status(
+    State(ctx): State<AppContext>,
+    Json(input): Json<StatusUpdateInput>,
+    Extension(user): Extension<AuthUser::Model>,
+) -> Result<Response> {
+    let activity_opt = AcademicStudentCampaignActivity::Entity::find_by_id(input.id)
+        .filter(InstitutionMasterUnit::Column::DeletedAt.is_null())
+        .one(&ctx.db)
+        .await?;
+
+    if let Some(activity) = activity_opt {
+        // Create an active model from the existing item
+        let mut item = activity.clone().into_active_model();
+        let now = Utc::now().naive_utc();
+        item.status_id = Set(input.status_id);
+        item.updated_at = Set(Some(now));
+        item.updated_by = Set(Some(user.id));
+        let updated_item = item.update(&ctx.db).await?;
+        format::json(updated_item)
+    } else {
+        // Return an error response when activity is not found
+        Err(Error::NotFound)
+    }
 }
 
 #[debug_handler]
