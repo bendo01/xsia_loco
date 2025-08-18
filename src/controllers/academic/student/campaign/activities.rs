@@ -73,7 +73,7 @@ pub async fn update_status(
     Json(input): Json<StatusUpdateInput>,
 ) -> Result<Response> {
     let activity_opt = AcademicStudentCampaignActivity::Entity::find_by_id(input.id)
-        .filter(InstitutionMasterUnit::Column::DeletedAt.is_null())
+        .filter(AcademicStudentCampaignActivity::Column::DeletedAt.is_null())
         .one(&ctx.db)
         .await?;
 
