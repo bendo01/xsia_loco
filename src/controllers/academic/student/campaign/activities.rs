@@ -13,7 +13,7 @@ use crate::services::pdf::institution_092010::student::activity::result::activit
 use crate::vendor::paginate::pagination::{PaginateInput, PaginateResult};
 // use crate::vendor::validation::common::format_validation_errors;
 use axum::extract::Extension;
-use axum::{debug_handler, extract::Path};
+use axum::{Json, debug_handler, extract::Path};
 use chrono::Utc;
 use loco_rs::prelude::*;
 use sea_orm::sea_query::Expr; // Import Expr to build expressions
@@ -66,10 +66,11 @@ pub async fn index_unit(
     format::empty()
 }
 
+#[debug_handler]
 pub async fn update_status(
     State(ctx): State<AppContext>,
-    Json(input): Json<StatusUpdateInput>,
     Extension(user): Extension<AuthUser::Model>,
+    Json(input): Json<StatusUpdateInput>,
 ) -> Result<Response> {
     let activity_opt = AcademicStudentCampaignActivity::Entity::find_by_id(input.id)
         .filter(InstitutionMasterUnit::Column::DeletedAt.is_null())
@@ -202,11 +203,13 @@ pub async fn show(State(_ctx): State<AppContext>) -> Result<Response> {
     format::empty()
 }
 
+#[debug_handler]
 pub async fn show_student(State(ctx): State<AppContext>, Path(id): Path<Uuid>) -> Result<Response> {
     let activity = ReferenceDataObject::get_by_id(&ctx, id, true).await?;
     format::json(activity)
 }
 
+#[debug_handler]
 pub async fn print_activity_plan(
     State(ctx): State<AppContext>,
     Path(activity_id): Path<Uuid>,
@@ -223,6 +226,7 @@ pub async fn print_activity_plan(
     Ok(response)
 }
 
+#[debug_handler]
 pub async fn print_activity_result(
     State(ctx): State<AppContext>,
     Path(activity_id): Path<Uuid>,
@@ -281,5 +285,9 @@ pub fn routes(ctx: &AppContext) -> Routes {
         .add(
             "/show_student/{id}",
             get(show_student).layer(AuthenticatedLayer::new(ctx.clone())),
+        )
+        .add(
+            "/update_status",
+            post(update_status).layer(AuthenticatedLayer::new(ctx.clone())),
         )
 }
