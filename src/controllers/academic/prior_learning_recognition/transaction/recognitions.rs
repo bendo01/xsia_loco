@@ -26,9 +26,17 @@ use serde::Serialize;
 use serde_json::json;
 use uuid::Uuid;
 // use validator::ValidationErrors;
+
 #[derive(Serialize)]
 struct ReturnMessage {
     message: String,
+}
+
+#[derive(Serialize)]
+struct ReturnCandidateRecognition {
+    candidate: AcademicCandidateMasterCandidate::Model,
+    recognition: AcademicPriorLearningRecognitionTransactionRecognition::Model,
+    curriculum: AcademicMasterCurriculum::Model,
 }
 
 #[debug_handler]
@@ -36,7 +44,7 @@ pub async fn store(
     State(ctx): State<AppContext>,
     Extension(user): Extension<AuthUser::Model>,
     JsonValidateWithMessage(payload): JsonValidateWithMessage<ModelValidator>,
-    
+
 ) -> Result<Response> {
     // println!("{:#?}", payload);
     // let validation_errors = ValidationErrors::new();
@@ -110,8 +118,50 @@ pub async fn store(
 }
 
 #[debug_handler]
-pub async fn show(Path(_id): Path<Uuid>, State(_ctx): State<AppContext>) -> Result<Response> {
-    format::empty()
+pub async fn show(
+    Path(id): Path<Uuid>,
+    State(ctx): State<AppContext>
+) -> Result<Response> {
+
+    let recognition_opt = AcademicPriorLearningRecognitionTransactionRecognition::Entity::find_by_id(id)
+        .filter(AcademicPriorLearningRecognitionTransactionRecognition::Column::DeletedAt.is_null())
+        .one(&ctx.db)
+        .await?;
+
+    if let Some(recognition_data) = recognition_opt {
+        // Find the related candidate
+        let candidate_opt = AcademicCandidateMasterCandidate::Entity::find_by_id(recognition_data.candidate_id)
+            .filter(AcademicCandidateMasterCandidate::Column::DeletedAt.is_null())
+            .one(&ctx.db)
+            .await?;
+
+        // Find the related curriculum
+        let curriculum_opt = AcademicMasterCurriculum::Entity::find_by_id(recognition_data.curriculum_id)
+            .filter(AcademicMasterCurriculum::Column::DeletedAt.is_null())
+            .one(&ctx.db)
+            .await?;
+
+        if let (Some(candidate), Some(curriculum)) = (candidate_opt, curriculum_opt) {
+            let response = ReturnCandidateRecognition {
+                candidate,
+                recognition: recognition_data,
+                curriculum,
+            };
+            return Ok((StatusCode::OK, Json(response)).into_response());
+        }
+
+        // If candidate or curriculum not found, return an error
+        let msg = ReturnMessage {
+            message: "Related data not found".to_string(),
+        };
+        return Ok((StatusCode::NOT_FOUND, Json(msg)).into_response());
+    }
+
+    // If recognition not found
+    let msg = ReturnMessage {
+        message: "Recognition not found".to_string(),
+    };
+    Ok((StatusCode::NOT_FOUND, Json(msg)).into_response())
 }
 
 pub fn routes(ctx: &AppContext) -> Routes {
@@ -120,5 +170,9 @@ pub fn routes(ctx: &AppContext) -> Routes {
         .add(
             "/store",
             post(store).layer(AuthenticatedLayer::new(ctx.clone())),
+        )
+        .add(
+            "/show/:id",
+            get(show).layer(AuthenticatedLayer::new(ctx.clone())),
         )
 }
