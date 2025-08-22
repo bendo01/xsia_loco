@@ -5,7 +5,7 @@ sudo dnf update && sudo dnf upgrade
 sudo dnf install epel-release
 sudo dnf config-manager --set-enabled crb
 sudo dnf update && sudo dnf upgrade
-sudo dnf install git bind-utils make gcc patch zlib-devel bzip2 bzip2-devel readline-devel sqlite sqlite-devel openssl-devel tk-devel libffi-devel xz-devel libuuid-devel gdbm-libs libnsl2 fzf bat helix fd-find wget readline-devel net-tools firewalld nano dnf-utils glibc-langpack-en fontawesome-fonts btop pkgconf perl-FindBin perl-IPC-Cmd openssl-devel opendkim opendkim-tools perl-core zlib-devel valkey -y
+sudo dnf install git bind-utils make gcc patch zlib-devel bzip2 bzip2-devel readline-devel sqlite sqlite-devel openssl-devel tk-devel libffi-devel xz-devel libuuid-devel gdbm-libs libnsl2 fzf bat wget readline-devel net-tools firewalld nano dnf-utils glibc-langpack-en fontawesome-fonts btop pkgconf perl-FindBin perl-IPC-Cmd openssl-devel opendkim opendkim-tools perl-core zlib-devel valkey -y
 
 sudo dnf install git bind-utils make gcc patch zlib-devel bzip2 bzip2-devel readline-devel sqlite sqlite-devel openssl-devel tk-devel libffi-devel xz-devel libuuid-devel gdbm-libs libnsl2 fzf bat helix fd-find wget readline-devel net-tools firewalld nano dnf-utils glibc-langpack-en fontawesome-fonts btop pkgconf perl-FindBin perl-IPC-Cmd openssl-devel perl-core zlib-devel valkey -y
 sudo dnf group install "Development Tools"
@@ -388,3 +388,9 @@ YAAK = YKD9F9-3KT3PT-YMTH2Q-FYJRCC-H3CRR1-7Z42Y2-9RS1H7-906163-8N2K6G
 BARRACUDA MAIL
 Your confirmation number is BBR21755611820-33406-3405.
 
+Username: postmaster@xsia.app
+Password: B47u7453
+
+appleID
+email: bendo01@gmail.com
+pass: #B47u7453
