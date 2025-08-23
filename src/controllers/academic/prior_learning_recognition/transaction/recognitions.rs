@@ -21,9 +21,9 @@ use axum::{Json, debug_handler, extract::Path, http::StatusCode};
 use axum::extract::Extension;
 use chrono::Utc;
 use loco_rs::prelude::*;
-use sea_orm::{ColumnTrait, EntityTrait, QueryFilter};
+// use sea_orm::{ColumnTrait, EntityTrait, QueryFilter};
 // use sea_orm::sea_query::Expr; // Import Expr to build expressions
-// use sea_orm::{ColumnTrait, Condition, EntityTrait, PaginatorTrait, QueryFilter, QueryOrder};
+use sea_orm::{ColumnTrait, EntityTrait, QueryFilter, QueryOrder};
 // use sea_query::extension::postgres::PgExpr;
 // use random_string::generate;
 use serde::Serialize;
@@ -162,6 +162,7 @@ pub async fn show(Path(id): Path<Uuid>, State(ctx): State<AppContext>) -> Result
                     AcademicCourseMasterCurriculumDetail::Column::CurriculumId.eq(curriculum.id),
                 )
                 .filter(AcademicCourseMasterCurriculumDetail::Column::DeletedAt.is_null())
+                .order_by_asc(AcademicCourseMasterCurriculumDetail::Column::Code)
                 .all(&ctx.db)
                 .await?;
 

@@ -85,6 +85,7 @@ use academic::prior_learning_recognition::transaction::m20250628_013351_schema_p
 use academic::prior_learning_recognition::transaction::m20250712_232734_schema_prior_learning_recognition_transaction_create_evaluations;
 use academic::prior_learning_recognition::transaction::m20250712_233151_schema_prior_learning_recognition_transaction_create_evaluation_details;
 use academic::prior_learning_recognition::transaction::m20250716_053017_schema_prior_learning_recognition_transaction_create_recognitions;
+use academic::prior_learning_recognition::transaction::m20250718_092644_schema_prior_learning_recognition_transaction_create_evaluators;
 
 use academic::student::adviser::m20241030_192659_schema_academic_student_adviser_counsellors;
 use academic::student::adviser::m20241030_192712_schema_academic_student_adviser_decrees;
@@ -278,6 +279,7 @@ impl MigratorTrait for Migrator {
             Box::new(m20250712_232734_schema_prior_learning_recognition_transaction_create_evaluations::Migration),
             Box::new(m20250712_233151_schema_prior_learning_recognition_transaction_create_evaluation_details::Migration),
             Box::new(m20250716_053017_schema_prior_learning_recognition_transaction_create_recognitions::Migration),
+            Box::new(m20250718_092644_schema_prior_learning_recognition_transaction_create_evaluators::Migration),
 
             Box::new(m20241030_192659_schema_academic_student_adviser_counsellors::Migration),
             Box::new(m20241030_192712_schema_academic_student_adviser_decrees::Migration),
