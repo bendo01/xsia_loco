@@ -17,7 +17,7 @@ impl MigrationTrait for Migration {
         .await?;
         db.execute_unprepared(
             "
-            CREATE TABLE IF NOT EXISTS academic_prior_learning_recognition_reference.professionalisms
+            CREATE TABLE IF NOT EXISTS academic_prior_learning_recognition_reference.evidence_categories
             (
                 id uuid DEFAULT uuid_generate_v7(),
                 code integer NOT NULL DEFAULT 0,
@@ -30,7 +30,7 @@ impl MigrationTrait for Migration {
                 sync_at timestamp without time zone,
                 created_by uuid DEFAULT '00000000-0000-0000-0000-000000000000'::uuid,
                 updated_by uuid DEFAULT '00000000-0000-0000-0000-000000000000'::uuid,
-                CONSTRAINT academic_prior_learning_recognition_reference_professionalisms_pkey PRIMARY KEY (id)
+                CONSTRAINT academic_prior_learning_recognition_reference_evidence_categories_pkey PRIMARY KEY (id)
             )
             ",
         )
@@ -42,7 +42,7 @@ impl MigrationTrait for Migration {
         manager
             .get_connection()
             .execute_unprepared(
-                "DROP TABLE IF EXISTS academic_prior_learning_recognition_reference.professionalisms",
+                "DROP TABLE IF EXISTS academic_prior_learning_recognition_reference.evidence_categories",
             )
             .await?;
 

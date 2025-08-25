@@ -23,6 +23,7 @@ impl MigrationTrait for Migration {
                 code integer NOT NULL DEFAULT 0,
                 alphabet_code character varying(255) NOT NULL,
                 name character varying(255) NOT NULL,
+                description text,
                 created_at timestamp(0) without time zone DEFAULT now(),
                 updated_at timestamp(0) without time zone DEFAULT now(),
                 deleted_at timestamp(0) with time zone,
