@@ -6762,6 +6762,7 @@ dependencies = [
  "axum",
  "base64",
  "chrono",
+ "colored 3.0.0",
  "dotenvy",
  "fluent-templates",
  "futures-util",

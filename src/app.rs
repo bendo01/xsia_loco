@@ -194,6 +194,7 @@ impl Hooks for App {
             .add_route(controllers::broadcast::transmit::routes())
     }
     async fn connect_workers(ctx: &AppContext, queue: &Queue) -> Result<()> {
+        queue.register(crate::workers::report_worker::Worker::build(ctx)).await?;
         queue.register(DownloadWorker::build(ctx)).await?;
         Ok(())
     }
