@@ -43,6 +43,8 @@ impl RequestData {
             }
         };
 
+        // tracing::info!("Sending request to Feeder Dikti TOKEN with token: {}", token.clone());
+
         // Now complete the implementation with the token
         if let Some(settings) = &ctx.config.settings {
             let settings = Settings::from_json(settings)?;
@@ -57,8 +59,8 @@ impl RequestData {
                 offset: None,
             };
 
-            tracing::info!("Sending request to Feeder Dikti API with action: {}", action);
-            tracing::debug!("Request data: {:?}", request_data);
+            // tracing::info!("Sending request to Feeder Dikti API with action: {}", action);
+            // tracing::debug!("Request data: {:?}", request_data);
 
             let http_client: Client = Client::new();
             let response = match http_client
@@ -70,23 +72,23 @@ impl RequestData {
             {
                 Ok(res) => {
                     // Get the response status first
-                    let status = res.status();
-                    tracing::debug!("HTTP response status: {}", status);
+                    let _status = res.status();
+                    // tracing::debug!("HTTP response status: {}", status);
 
                     // Get the raw response text for debugging
                     match res.text().await {
                         Ok(response_text) => {
-                            tracing::debug!("Raw response text: {}", response_text);
+                            // tracing::debug!("Raw response text: {}", response_text);
 
                             // Try to parse the response text as JSON
                             match serde_json::from_str::<ReturnData<T>>(&response_text) {
                                 Ok(data) => {
-                                    tracing::info!("Successfully parsed response for action: {}", action);
+                                    // tracing::info!("Successfully parsed response for action: {}", action);
                                     data
                                 }
                                 Err(err) => {
-                                    tracing::error!("JSON parsing failed for action: {}. Error: {}. Response: {}",
-                                        action, err, response_text);
+                                    // tracing::error!("JSON parsing failed for action: {}. Error: {}. Response: {}",
+                                    //     action, err, response_text);
                                     return Err(Error::Message(format!(
                                         "Failed to parse response JSON for action '{}': {}. Response was: {}",
                                         action, err, response_text
@@ -102,7 +104,7 @@ impl RequestData {
                     }
                 },
                 Err(err) => {
-                    tracing::error!("HTTP request failed for action: {}. Error: {}", action, err);
+                    // tracing::error!("HTTP request failed for action: {}. Error: {}", action, err);
                     return Err(Error::Message(format!("Failed to send request: {err}")));
                 }
             };

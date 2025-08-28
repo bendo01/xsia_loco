@@ -210,6 +210,9 @@ impl Hooks for App {
         tasks.register(
             tasks::feeder_dikti::downstream::referensi::get_jabatan_fungsional::GetJabatanFungsional,
         );
+        tasks.register(
+            tasks::feeder_dikti::downstream::referensi::get_jalur_masuk::GetJalurMasuk,
+        );
         tasks.register(tasks::tui::generate_hash_password::GenerateHashPassword);
         tasks.register(
             tasks::tui::regenerate_all_student_detail_activities::RegenerateAllStudentDetailActivities

@@ -17,7 +17,7 @@ impl MigrationTrait for Migration {
         .await?;
         db.execute_unprepared(
             "
-            CREATE TABLE IF NOT EXISTS academic_course_master.curriculum_graduate_profiles
+            CREATE TABLE IF NOT EXISTS academic_course_master.curriculum_matrix_graduate_profile_study_materials
             (
                 id uuid DEFAULT uuid_generate_v7(),
                 created_at timestamp(0) without time zone DEFAULT now(),
@@ -26,7 +26,7 @@ impl MigrationTrait for Migration {
                 sync_at timestamp(0) without time zone,
                 created_by uuid DEFAULT '00000000-0000-0000-0000-000000000000'::uuid,
                 updated_by uuid DEFAULT '00000000-0000-0000-0000-000000000000'::uuid,
-                CONSTRAINT acm_curriculum_graduate_profiles_pkey PRIMARY KEY (id)
+                CONSTRAINT acm_curriculum_matrix_graduate_profile_study_materials_pkey PRIMARY KEY (id)
             )
             ",
         )
@@ -37,7 +37,7 @@ impl MigrationTrait for Migration {
     async fn down(&self, manager: &SchemaManager) -> Result<(), DbErr> {
         manager
             .get_connection()
-            .execute_unprepared("DROP TABLE IF EXISTS academic_course_master.curriculum_graduate_profiles")
+            .execute_unprepared("DROP TABLE IF EXISTS academic_course_master.curriculum_matrix_graduate_profile_study_materials")
             .await?;
 
         Ok(())
