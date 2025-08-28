@@ -109,7 +109,7 @@ impl Task for GetIkatanKerjaSDM {
     }
 
     async fn run(&self, ctx: &AppContext, _vars: &task::Vars) -> Result<(), Error> {
-        let req_option = RequestData::get::<Data>(ctx, "GetIkatanKerjaSDM".to_string()).await;
+        let req_option = RequestData::get::<Data>(ctx, "GetIkatanKerjaSdm".to_string()).await;
         // Handle the datas option properly
         if let Ok(req) = req_option {
             if let Some(data_vec) = req.data {

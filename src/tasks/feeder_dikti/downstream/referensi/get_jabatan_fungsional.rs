@@ -1,9 +1,8 @@
-use crate::common::settings::Settings;
+use crate::tasks::feeder_dikti::downstream::request_data::RequestData;
 use crate::models::feeder::referensi::jabatan_fungsional::_entities::jabatan_fungsional as FeederReferensiJabatanFungsional;
 use crate::services::feeder_dikti::requester::token::Token;
 use chrono::Local;
 use loco_rs::prelude::*;
-use reqwest::Client;
 use sea_orm::{ColumnTrait, EntityTrait, QueryFilter};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
@@ -12,82 +11,6 @@ use uuid::Uuid;
 pub struct Data {
     pub id_jabatan_fungsional: String,
     pub nama_jabatan_fungsional: String,
-}
-
-#[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct RequestData {
-    pub act: String,
-    pub token: String,
-    pub filter: Option<String>,
-    pub order: Option<String>,
-    pub limit: Option<i32>,
-    pub offset: Option<i32>,
-}
-
-#[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct ReturnData {
-    pub error_code: i32,
-    pub error_desc: Option<String>,
-    pub jumlah: i32,
-    pub data: Option<Vec<Data>>,
-}
-
-impl RequestData {
-    /// Fetches religion data from the Feeder Dikti API
-    ///
-    /// # Errors
-    ///
-    /// This function will return an error if:
-    /// - Failed to get a token from the token service
-    /// - Settings are not properly loaded
-    /// - HTTP request to Feeder API fails
-    /// - Response parsing fails
-    pub async fn get(ctx: &AppContext) -> Result<ReturnData, Error> {
-        let token = match Token::get(ctx.clone()).await {
-            Ok(token) => token,
-            Err(err) => {
-                return Err(Error::Message(format!("Fail To Request: {err}")));
-            }
-        };
-
-        // Now complete the implementation with the token
-        if let Some(settings) = &ctx.config.settings {
-            let settings = Settings::from_json(settings)?;
-            let feeder_url = settings.feeder_url;
-
-            let request_data = Self {
-                act: "GetJabfung".to_string(),
-                token,
-                filter: None,
-                order: None,
-                limit: None,
-                offset: None,
-            };
-
-            let http_client: Client = Client::new();
-            let response = match http_client
-                .post(feeder_url)
-                .timeout(tokio::time::Duration::from_secs(10))
-                .json(&request_data)
-                .send()
-                .await
-            {
-                Ok(res) => match res.json::<ReturnData>().await {
-                    Ok(data) => data,
-                    Err(err) => {
-                        return Err(Error::Message(format!(
-                            "Failed to parse response JSON: {err}",
-                        )));
-                    }
-                },
-                Err(err) => return Err(Error::Message(format!("Failed to send request: {err}"))),
-            };
-            // println!("Response: {response:#?}");
-            Ok(response)
-        } else {
-            Err(Error::Message("Settings not loaded".to_string()))
-        }
-    }
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -192,7 +115,7 @@ impl Task for GetJabatanFungsional {
     }
 
     async fn run(&self, ctx: &AppContext, _vars: &task::Vars) -> Result<(), Error> {
-        let req_option = RequestData::get(ctx).await;
+        let req_option = RequestData::get::<Data>(ctx, "GetJabfung".to_string()).await;
         // Handle the datas option properly
         if let Ok(req) = req_option {
             if let Some(data_vec) = req.data {
