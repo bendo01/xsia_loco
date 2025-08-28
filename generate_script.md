@@ -39,12 +39,12 @@ cargo loco task RegenerateAllStudentDetailActivities "student_register_academic_
 
 # Membuat Detail KRS Data Tahun Akademik 20251 Gizi Angkatan 20231 Semester 5
 ```sh
-cargo loco task RegenerateAllStudentDetailActivities "student_register_academic_year_id:cea55274-4be3-4311-8c68-cc788e988c1b" "curriculum_id:9b6511d2-341d-4d7c-8033-ffe7c33a2d96" "unit_activity_id:95d042c5-6e76-44c5-b9e5-8d422c379f85" "semester_id:73dca4f4-afa5-484d-b437-6ca945e691e9"
+cargo loco task RegenerateAllStudentDetailActivities "student_register_academic_year_id:cea55274-4be3-4311-8c68-cc788e988c1b" "curriculum_id:9b6511d2-341d-4d7c-8033-ffe7c33a2d96" "unit_activity_id:b9885c06-e327-449c-b54f-88a0fdd65cb1" "semester_id:73dca4f4-afa5-484d-b437-6ca945e691e9"
 ```
 
 # Membuat Detail KRS Data Tahun Akademik 20251 Gizi Angkatan 20241 Semester 3
 ```sh
-cargo loco task RegenerateAllStudentDetailActivities "student_register_academic_year_id:5884b8d6-bab3-4e5e-99bc-739a114596f2" "curriculum_id:9b6511d2-341d-4d7c-8033-ffe7c33a2d96" "unit_activity_id:95d042c5-6e76-44c5-b9e5-8d422c379f85" "semester_id:3f7493cd-e782-4b41-bcb6-9e9d2d1b3cfc"
+cargo loco task RegenerateAllStudentDetailActivities "student_register_academic_year_id:5884b8d6-bab3-4e5e-99bc-739a114596f2" "curriculum_id:9b6511d2-341d-4d7c-8033-ffe7c33a2d96" "unit_activity_id:b9885c06-e327-449c-b54f-88a0fdd65cb1" "semester_id:3f7493cd-e782-4b41-bcb6-9e9d2d1b3cfc"
 
 # Membuat Detail KRS Data Tahun Akademik 20251 Teknik Keselamatan Angkatan 20231 Semester 5
 ```sh
