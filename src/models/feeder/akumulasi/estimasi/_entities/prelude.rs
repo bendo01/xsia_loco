@@ -1,2 +1,1 @@
-pub mod estimasi;
-pub mod prelude;
+pub use super::estimasi::Entity as FeederAkumulasiEstimasi;
