@@ -5,7 +5,7 @@ use reqwest::Client;
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct RequestData {
+pub struct RequestDataAkumulasi {
     pub act: String,
     pub token: String,
     pub filter: Option<String>,
@@ -15,13 +15,13 @@ pub struct RequestData {
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct ReturnData {
+pub struct ReturnDataAkumulasi {
     pub error_code: i32,
     pub error_desc: Option<String>,
     pub data: i32,
 }
 
-impl RequestData {
+impl RequestDataAkumulasi {
     /// Fetches data from the Feeder Dikti API
     ///
     /// # Errors
@@ -31,7 +31,7 @@ impl RequestData {
     /// - Settings are not properly loaded
     /// - HTTP request to Feeder API fails
     /// - Response parsing fails
-    pub async fn get(ctx: &AppContext, action: String) -> Result<ReturnData, Error> {
+    pub async fn get(ctx: &AppContext, action: String) -> Result<ReturnDataAkumulasi, Error> {
         let token = match Token::get(ctx.clone()).await {
             Ok(token) => token,
             Err(err) => {
@@ -77,7 +77,7 @@ impl RequestData {
                             // tracing::debug!("Raw response text: {}", response_text);
 
                             // Try to parse the response text as JSON
-                            match serde_json::from_str::<ReturnData>(&response_text) {
+                            match serde_json::from_str::<ReturnDataAkumulasi>(&response_text) {
                                 Ok(data) => {
                                     // tracing::info!("Successfully parsed response for action: {}", action);
                                     data
