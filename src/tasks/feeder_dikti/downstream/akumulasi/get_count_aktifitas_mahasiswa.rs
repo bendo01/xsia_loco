@@ -34,10 +34,7 @@ impl GetCountAktifitasMahasiswa {
         let data_result = FeederAkumulasiJumlahData::Entity::find()
             .filter(FeederAkumulasiJumlahData::Column::DeletedAt.is_null())
             .filter(FeederAkumulasiJumlahData::Column::InstitutionId.eq(institution_id))
-            .filter(
-                FeederAkumulasiJumlahData::Column::Name
-                    .eq("FA0001GetCountAktivitasMahasiswa".to_string()),
-            )
+            .filter(FeederAkumulasiJumlahData::Column::Name.eq("FA0001GetCountAktivitasMahasiswa".to_string()))
             .one(&ctx.db)
             .await;
 
@@ -71,7 +68,7 @@ impl GetCountAktifitasMahasiswa {
             let pk_id = Uuid::parse_str(&uuidv7_string).expect("Invalid UUID format");
             let new_reference = FeederAkumulasiJumlahData::ActiveModel {
                 id: Set(pk_id),
-                name: Set("FA0003GetCountAktifitasMahasiswa".to_string()),
+                name: Set("FA0001GetCountAktivitasMahasiswa".to_string()),
                 institution_id: Set(institution_id),
                 total_feeder: Set(total_feeder), // Don't forget to set this field
                 created_at: Set(Local::now().naive_local()),
@@ -109,9 +106,9 @@ impl Task for GetCountAktifitasMahasiswa {
     }
 
     async fn run(&self, ctx: &AppContext, _vars: &task::Vars) -> Result<(), Error> {
-        let req_option =
-            RequestDataAkumulasi::get(ctx, "GetCountAktifitasMahasiswa".to_string()).await;
+        let req_option = RequestDataAkumulasi::get(ctx, "GetCountAktivitasMahasiswa".to_string()).await;
         if let Ok(req) = req_option {
+            println!("Data: {:#?}", req.clone());
             println!("Data Akumulasi: {:#?}", req.clone().data);
             match Self::upsert(ctx, req.clone().data).await {
                 Ok(()) => {
