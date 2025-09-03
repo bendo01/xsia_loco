@@ -204,31 +204,16 @@ impl Hooks for App {
         // tasks-inject (do not remove)
         tasks.register(tasks::example::Example);
         tasks.register(tasks::feeder_dikti::downstream::referensi::get_agama::GetAgama);
-        tasks.register(
-            tasks::feeder_dikti::downstream::referensi::get_ikatan_kerja_sdm::GetIkatanKerjaSDM,
-        );
-        tasks.register(
-            tasks::feeder_dikti::downstream::referensi::get_jabatan_fungsional::GetJabatanFungsional,
-        );
-        tasks.register(
-            tasks::feeder_dikti::downstream::referensi::get_jalur_masuk::GetJalurMasuk,
-        );
-        tasks.register(
-            tasks::feeder_dikti::downstream::akumulasi::get_count_mahasiswa::GetCountMahasiswa,
-        );
+        tasks.register(tasks::feeder_dikti::downstream::referensi::get_ikatan_kerja_sdm::GetIkatanKerjaSDM);
+        tasks.register(tasks::feeder_dikti::downstream::referensi::get_jabatan_fungsional::GetJabatanFungsional);
+        tasks.register(tasks::feeder_dikti::downstream::referensi::get_jalur_masuk::GetJalurMasuk);
+        tasks.register(tasks::feeder_dikti::downstream::akumulasi::get_count_mahasiswa::GetCountMahasiswa);
+        tasks.register(tasks::feeder_dikti::downstream::akumulasi::get_count_aktifitas_mahasiswa::GetCountAktifitasMahasiswa);
         tasks.register(tasks::tui::generate_hash_password::GenerateHashPassword);
-        tasks.register(
-            tasks::tui::regenerate_all_student_detail_activities::RegenerateAllStudentDetailActivities
-        );
-        tasks.register(
-            tasks::tui::generate_institution_unit_campaign_activities::GenerateInstitutionUnitCampaignActivities
-        );
-        tasks.register(
-            tasks::tui::generate_student_campaign_activities::GenerateUnitStudentCampaignActivities,
-        );
-        tasks.register(
-            tasks::tui::generate_student_payment_midtrans_transaction::GenerateStudentPaymentMidtransTransaction,
-        );
+        tasks.register(tasks::tui::regenerate_all_student_detail_activities::RegenerateAllStudentDetailActivities);
+        tasks.register(tasks::tui::generate_institution_unit_campaign_activities::GenerateInstitutionUnitCampaignActivities);
+        tasks.register(tasks::tui::generate_student_campaign_activities::GenerateUnitStudentCampaignActivities);
+        tasks.register(tasks::tui::generate_student_payment_midtrans_transaction::GenerateStudentPaymentMidtransTransaction);
     }
     async fn truncate(ctx: &AppContext) -> Result<()> {
         truncate_table(&ctx.db, users::Entity).await?;
