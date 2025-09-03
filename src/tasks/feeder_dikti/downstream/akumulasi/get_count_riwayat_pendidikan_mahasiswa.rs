@@ -10,9 +10,9 @@ use crate::models::feeder::akumulasi::jumlah_data::_entities::jumlah_data as Fee
 use crate::tasks::feeder_dikti::downstream::request_data_akumulasi::RequestDataAkumulasi;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct GetCountPrestasiMahasiswa;
+pub struct GetCountRiwayatPendidikanMahasiswa;
 
-impl GetCountPrestasiMahasiswa {
+impl GetCountRiwayatPendidikanMahasiswa {
     pub async fn upsert(ctx: &AppContext, total_feeder: i32) -> Result<(), Error> {
         let institution_id: Uuid = if let Some(current_settings) = &ctx.config.settings {
             println!("Settings loaded");
@@ -34,7 +34,7 @@ impl GetCountPrestasiMahasiswa {
         let data_result = FeederAkumulasiJumlahData::Entity::find()
             .filter(FeederAkumulasiJumlahData::Column::DeletedAt.is_null())
             .filter(FeederAkumulasiJumlahData::Column::InstitutionId.eq(institution_id))
-            .filter(FeederAkumulasiJumlahData::Column::Name.eq("FA0002GetCountPrestasiMahasiswa".to_string()))
+            .filter(FeederAkumulasiJumlahData::Column::Name.eq("FA0004GetCountRiwayatPendidikanMahasiswa".to_string()))
             .one(&ctx.db)
             .await;
 
@@ -68,7 +68,7 @@ impl GetCountPrestasiMahasiswa {
             let pk_id = Uuid::parse_str(&uuidv7_string).expect("Invalid UUID format");
             let new_reference = FeederAkumulasiJumlahData::ActiveModel {
                 id: Set(pk_id),
-                name: Set("FA0002GetCountPrestasiMahasiswa".to_string()),
+                name: Set("FA0004GetCountRiwayatPendidikanMahasiswa".to_string()),
                 institution_id: Set(institution_id),
                 total_feeder: Set(total_feeder), // Don't forget to set this field
                 created_at: Set(Local::now().naive_local()),
@@ -97,16 +97,16 @@ impl GetCountPrestasiMahasiswa {
 // Rest of the code remains the same...
 
 #[async_trait]
-impl Task for GetCountPrestasiMahasiswa {
+impl Task for GetCountRiwayatPendidikanMahasiswa {
     fn task(&self) -> TaskInfo {
         TaskInfo {
-            name: "GetCountPrestasiMahasiswa".to_string(),
+            name: "GetCountRiwayatPendidikanMahasiswa".to_string(),
             detail: "get periode estimate count data mahasiswa from feeder".to_string(),
         }
     }
 
     async fn run(&self, ctx: &AppContext, _vars: &task::Vars) -> Result<(), Error> {
-        let req_option = RequestDataAkumulasi::get(ctx, "GetCountPrestasiMahasiswa".to_string()).await;
+        let req_option = RequestDataAkumulasi::get(ctx, "GetCountRiwayatPendidikanMahasiswa".to_string()).await;
         if let Ok(req) = req_option {
             println!("Data: {:#?}", req.clone());
             println!("Data Akumulasi: {:#?}", req.clone().data);
