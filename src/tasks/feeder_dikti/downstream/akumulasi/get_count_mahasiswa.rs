@@ -15,16 +15,13 @@ pub struct GetCountMahasiswa;
 impl GetCountMahasiswa {
     pub async fn upsert(ctx: &AppContext, total_feeder: i32) -> Result<(), Error> {
         // Initialize with default UUID, will be updated from settings
-        let mut institution_id: Uuid =
-            Uuid::parse_str("00000000-0000-0000-0000-000000000000").expect("Invalid default UUID");
-
-        if let Some(current_settings) = &ctx.config.settings {
+        let institution_id: Uuid = if let Some(current_settings) = &ctx.config.settings {
             println!("Settings loaded");
             let settings = Settings::from_json(current_settings)?;
             match Uuid::parse_str(settings.current_institution_id.as_str()) {
                 Ok(parsed_id) => {
                     println!("Successfully parsed institution id");
-                    institution_id = parsed_id; // Actually assign the parsed value
+                    parsed_id
                 }
                 Err(_) => {
                     println!("Failed to parse institution id");
@@ -33,7 +30,7 @@ impl GetCountMahasiswa {
             }
         } else {
             return Err(Error::Message("Setting not loaded".to_string()));
-        }
+        };
 
         let data_result = FeederAkumulasiJumlahData::Entity::find()
             .filter(FeederAkumulasiJumlahData::Column::DeletedAt.is_null())
@@ -62,7 +59,7 @@ impl GetCountMahasiswa {
             reference.sync_at = Set(Some(Local::now().naive_local()));
             match reference.update(&ctx.db).await {
                 Ok(_updated_model) => {
-                    println!("Data updated successfully");
+                    println!("{}", "Data updated successfully".green());
                     Ok(())
                 }
                 Err(err) => {
@@ -87,7 +84,7 @@ impl GetCountMahasiswa {
                 .await
             {
                 Ok(_insert_result) => {
-                    println!("Data inserted successfully");
+                    println!("{}", "Data inserted successfully".green());
                     Ok(())
                 }
                 Err(err) => {
