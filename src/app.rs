@@ -92,9 +92,7 @@ impl Hooks for App {
             .add_route(controllers::academic::course::reference::groups::routes(ctx))
             .add_route(controllers::academic::course::reference::semesters::routes(ctx))
             .add_route(controllers::academic::course::reference::varieties::routes(ctx))
-            .add_route(
-                controllers::academic::general::reference::academic_year_categories::routes(ctx),
-            )
+            .add_route(controllers::academic::general::reference::academic_year_categories::routes(ctx))
             .add_route(controllers::academic::general::reference::academic_years::routes())
             .add_route(controllers::academic::lecturer::master::lecturers::routes(ctx))
             .add_route(controllers::academic::lecturer::reference::contracts::routes(ctx))
