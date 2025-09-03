@@ -3,7 +3,7 @@ use colored::Colorize;
 use loco_rs::prelude::*;
 use sea_orm::{ColumnTrait, EntityTrait, QueryFilter};
 use serde::{Deserialize, Serialize};
-use uuid::{Uuid, uuid};
+use uuid::Uuid; // Removed unused `uuid` macro import
 
 use crate::common::settings::Settings;
 use crate::models::feeder::akumulasi::jumlah_data::_entities::jumlah_data as FeederAkumulasiJumlahData;
@@ -14,17 +14,25 @@ pub struct GetCountMahasiswa;
 
 impl GetCountMahasiswa {
     pub async fn upsert(ctx: &AppContext, total_feeder: i32) -> Result<(), Error> {
-        let mut institution_id: Uuid = uuid!("00000000-0000-0000-0000-000000000000");
+        // Initialize with default UUID, will be updated from settings
+        let mut institution_id: Uuid =
+            Uuid::parse_str("00000000-0000-0000-0000-000000000000").expect("Invalid default UUID");
+
         if let Some(current_settings) = &ctx.config.settings {
             println!("Settings loaded");
             let settings = Settings::from_json(current_settings)?;
-            if let Ok(institution_id) = Uuid::parse_str(settings.current_institution_id.as_str()) {
-                println!("Successfully parsed institution id");
-            } else {
-                println!("Failed to parse institution id");
+            match Uuid::parse_str(settings.current_institution_id.as_str()) {
+                Ok(parsed_id) => {
+                    println!("Successfully parsed institution id");
+                    institution_id = parsed_id; // Actually assign the parsed value
+                }
+                Err(_) => {
+                    println!("Failed to parse institution id");
+                    return Err(Error::Message("Invalid institution ID format".to_string()));
+                }
             }
         } else {
-            return Err(Error::Message(format!("Setting not loaded")));
+            return Err(Error::Message("Setting not loaded".to_string()));
         }
 
         let data_result = FeederAkumulasiJumlahData::Entity::find()
@@ -35,6 +43,7 @@ impl GetCountMahasiswa {
             )
             .one(&ctx.db)
             .await;
+
         // Then handle the Result
         let data_opt = match data_result {
             Ok(opt) => opt,
@@ -53,8 +62,8 @@ impl GetCountMahasiswa {
             reference.sync_at = Set(Some(Local::now().naive_local()));
             match reference.update(&ctx.db).await {
                 Ok(_updated_model) => {
-                    println!("Settings loaded");
-                    Ok(()) // Return Ok(()) here
+                    println!("Data updated successfully");
+                    Ok(())
                 }
                 Err(err) => {
                     return Err(Error::Message(format!("Failed to update reference: {err}")));
@@ -67,17 +76,20 @@ impl GetCountMahasiswa {
                 id: Set(pk_id),
                 name: Set("FA0003GetCountMahasiswa".to_string()),
                 institution_id: Set(institution_id),
+                total_feeder: Set(total_feeder), // Don't forget to set this field
                 created_at: Set(Local::now().naive_local()),
                 updated_at: Set(Local::now().naive_local()),
                 sync_at: Set(Some(Local::now().naive_local())),
-                // Set other required fields
                 ..Default::default()
             };
             match FeederAkumulasiJumlahData::Entity::insert(new_reference)
                 .exec(&ctx.db)
                 .await
             {
-                Ok(_insert_result) => (), // Use _ to ignore the insert result
+                Ok(_insert_result) => {
+                    println!("Data inserted successfully");
+                    Ok(())
+                }
                 Err(err) => {
                     return Err(Error::Message(format!(
                         "Failed to insert new reference: {err}"
@@ -87,6 +99,8 @@ impl GetCountMahasiswa {
         }
     }
 }
+
+// Rest of the code remains the same...
 
 #[async_trait]
 impl Task for GetCountMahasiswa {
