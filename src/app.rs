@@ -17,7 +17,7 @@ use std::path::Path;
 use crate::{
     controllers, initializers, models::auth::users::_entities::users,
     models::person::reference::hair_colors::_entities::hair_colors as PersonReferenceHairColor,
-    tasks, workers::downloader::DownloadWorker,
+    tasks, workers,
 };
 
 pub struct App;
@@ -192,23 +192,19 @@ impl Hooks for App {
             .add_route(controllers::broadcast::transmit::routes())
     }
     async fn connect_workers(ctx: &AppContext, queue: &Queue) -> Result<()> {
-        queue.register(crate::workers::report_worker::Worker::build(ctx)).await?;
-        queue.register(DownloadWorker::build(ctx)).await?;
+        queue.register(crate::workers::akumulasi_get_count_data::Worker::build(ctx)).await?;
         Ok(())
     }
 
     #[allow(unused_variables)]
     fn register_tasks(tasks: &mut Tasks) {
+        tasks.register(tasks::execute_worker_get_count_data::ExecuteWorkerGetCountData);
         // tasks-inject (do not remove)
         tasks.register(tasks::example::Example);
         tasks.register(tasks::feeder_dikti::downstream::referensi::get_agama::GetAgama);
         tasks.register(tasks::feeder_dikti::downstream::referensi::get_ikatan_kerja_sdm::GetIkatanKerjaSDM);
         tasks.register(tasks::feeder_dikti::downstream::referensi::get_jabatan_fungsional::GetJabatanFungsional);
         tasks.register(tasks::feeder_dikti::downstream::referensi::get_jalur_masuk::GetJalurMasuk);
-        // tasks.register(tasks::feeder_dikti::downstream::akumulasi::get_count_aktifitas_mahasiswa::GetCountAktifitasMahasiswa);
-        // tasks.register(tasks::feeder_dikti::downstream::akumulasi::get_count_mahasiswa::GetCountMahasiswa);
-        // tasks.register(tasks::feeder_dikti::downstream::akumulasi::get_count_prestasi_mahasiswa::GetCountPrestasiMahasiswa);
-        // tasks.register(tasks::feeder_dikti::downstream::akumulasi::get_count_riwayat_pendidikan_mahasiswa::GetCountRiwayatPendidikanMahasiswa);
         tasks.register(tasks::feeder_dikti::downstream::akumulasi::get_count_data::GetCountData);
         tasks.register(tasks::tui::generate_hash_password::GenerateHashPassword);
         tasks.register(tasks::tui::regenerate_all_student_detail_activities::RegenerateAllStudentDetailActivities);

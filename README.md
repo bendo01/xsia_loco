@@ -107,3 +107,5 @@ socket.on("broadcasting", (arg) => {
 example successful_payment
 
 https://8d38-104-28-217-187.ngrok-free.app/api/payment/midtrans/student/successful_payment?order_id=019732d7-05e0-7584-850d-f2f13d4ef5c7&status_code=200&transaction_status=settlement
+
+cargo loco task GetCountData "table_column_name:FA0003GetCountMahasiswa" "action_name:GetCountMahasiswa"

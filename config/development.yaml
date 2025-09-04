@@ -55,6 +55,7 @@ queue:
   uri: {{ get_env(name="DATABASE_URL", default="postgres://bendo01:talaso@localhost:5432/xsia_rust_v1") }}
   # Dangerously flush all data in Redis on startup. dangerous operation, make sure that you using this flag only on dev environments or test mode
   dangerously_flush: false
+  num_workers: 2
 
 # Mailer Configuration.
 mailer:
