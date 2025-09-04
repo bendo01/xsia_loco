@@ -192,7 +192,7 @@ impl Hooks for App {
             .add_route(controllers::broadcast::transmit::routes())
     }
     async fn connect_workers(ctx: &AppContext, queue: &Queue) -> Result<()> {
-        queue.register(crate::workers::akumulasi_get_count_data::Worker::build(ctx)).await?;
+        queue.register(crate::workers::feeder_dikti::downstream::akumulasi::get_count_data::Worker::build(ctx)).await?;
         Ok(())
     }
 

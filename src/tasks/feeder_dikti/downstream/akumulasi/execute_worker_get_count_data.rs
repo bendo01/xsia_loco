@@ -5,7 +5,7 @@ pub struct ExecuteWorkerGetCountData;
 impl Task for ExecuteWorkerGetCountData {
     fn task(&self) -> TaskInfo {
         TaskInfo {
-            name: "execute_worker_get_count_data".to_string(),
+            name: "ExecuteWorkerGetCountData".to_string(),
             detail: "Task generator".to_string(),
         }
     }
