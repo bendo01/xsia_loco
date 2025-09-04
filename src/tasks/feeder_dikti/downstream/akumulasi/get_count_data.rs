@@ -127,7 +127,23 @@ impl Task for GetCountData {
         let req_option = RequestDataAkumulasi::get(ctx, action_name).await;
         if let Ok(req) = req_option {
             println!("Data Akumulasi: {:#?}", req.clone().data);
-            match Self::upsert(ctx, table_column_name.clone(), req.clone().data).await {
+
+            // Convert StringOrInt to i32
+            let total_feeder = match req.data.to_i32() {
+                Ok(parsed_value) => parsed_value,
+                Err(parse_err) => {
+                    eprintln!(
+                        "Error parsing data to i32: {parse_err}. Data: '{}'",
+                        req.data
+                    );
+                    return Err(Error::Message(format!(
+                        "Failed to parse data '{}' to i32: {parse_err}",
+                        req.data
+                    )));
+                }
+            };
+
+            match Self::upsert(ctx, table_column_name.clone(), total_feeder).await {
                 Ok(()) => {
                     // Upsert succeeded, continue to next item
                 }
@@ -139,6 +155,7 @@ impl Task for GetCountData {
                 }
             }
         }
+
         Ok(())
     }
 }

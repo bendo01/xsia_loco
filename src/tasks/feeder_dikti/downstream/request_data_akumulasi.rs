@@ -3,6 +3,37 @@ use crate::services::feeder_dikti::requester::token::Token;
 use loco_rs::prelude::*;
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
+use std::fmt;
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum StringOrInt {
+    Int(i32),
+    Str(String),
+}
+
+impl fmt::Display for StringOrInt {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            StringOrInt::Int(i) => write!(f, "{}", i),
+            StringOrInt::Str(s) => write!(f, "{}", s),
+        }
+    }
+}
+
+impl StringOrInt {
+    /// Converts StringOrInt to i32
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the string variant cannot be parsed as i32
+    pub fn to_i32(&self) -> Result<i32, std::num::ParseIntError> {
+        match self {
+            StringOrInt::Int(i) => Ok(*i),
+            StringOrInt::Str(s) => s.parse::<i32>(),
+        }
+    }
+}
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct RequestDataAkumulasi {
@@ -18,7 +49,7 @@ pub struct RequestDataAkumulasi {
 pub struct ReturnDataAkumulasi {
     pub error_code: i32,
     pub error_desc: Option<String>,
-    pub data: i32,
+    pub(crate) data: StringOrInt,
 }
 
 impl RequestDataAkumulasi {
@@ -48,11 +79,10 @@ impl RequestDataAkumulasi {
 
             let request_data = Self {
                 act: action.clone(),
-                token
-                // filter: None,
-                // order: None,
-                // limit: None,
-                // offset: None,
+                token, // filter: None,
+                       // order: None,
+                       // limit: None,
+                       // offset: None,
             };
 
             // tracing::info!("Sending request to Feeder Dikti API with action: {}", action);

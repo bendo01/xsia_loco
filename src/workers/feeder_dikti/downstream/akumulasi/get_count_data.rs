@@ -100,7 +100,6 @@ impl GetCountData {
     }
 }
 
-
 pub struct GetCountDataWorker {
     pub ctx: AppContext,
 }
@@ -153,8 +152,26 @@ impl BackgroundWorker<GetCountDataWorkerWorkerArgs> for GetCountDataWorker {
         println!("Action name: {}", args.action_name.clone());
         let req_option = RequestDataAkumulasi::get(&self.ctx, args.action_name.clone()).await;
         if let Ok(req) = req_option {
-            println!("Data Akumulasi: {:#?}", req.clone().data);
-            match GetCountData::upsert(&self.ctx, args.table_column_name.clone(), req.clone().data).await {
+            // println!("Data Akumulasi: {:#?}", req.clone().data);
+            // convert to i32 if needed
+
+            let total_feeder = match req.data.to_i32() {
+                Ok(parsed_value) => parsed_value,
+                Err(parse_err) => {
+                    eprintln!(
+                        "Error parsing data to i32: {parse_err}. Data: '{}'",
+                        req.data
+                    );
+                    return Err(Error::Message(format!(
+                        "Failed to parse data '{}' to i32: {parse_err}",
+                        req.data
+                    )));
+                }
+            };
+
+            match GetCountData::upsert(&self.ctx, args.table_column_name.clone(), total_feeder)
+                .await
+            {
                 Ok(()) => {
                     // Upsert succeeded, continue to next item
                 }
