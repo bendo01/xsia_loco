@@ -151,7 +151,7 @@ impl BackgroundWorker<GetCountDataWorkerWorkerArgs> for GetCountDataWorker {
         // TODO: Some actual work goes here...
         println!("Table column name: {}", args.table_column_name.clone());
         println!("Action name: {}", args.action_name.clone());
-        let req_option = RequestDataAkumulasi::get(&self.ctx, args.table_column_name.clone()).await;
+        let req_option = RequestDataAkumulasi::get(&self.ctx, args.action_name.clone()).await;
         if let Ok(req) = req_option {
             println!("Data Akumulasi: {:#?}", req.clone().data);
             match GetCountData::upsert(&self.ctx, args.table_column_name.clone(), req.clone().data).await {
