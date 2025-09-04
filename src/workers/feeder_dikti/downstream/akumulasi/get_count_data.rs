@@ -1,18 +1,18 @@
 use loco_rs::prelude::*;
 use serde::{Deserialize, Serialize};
 
-pub struct Worker {
+pub struct GetCountDataWorker {
     pub ctx: AppContext,
 }
 
 #[derive(Deserialize, Debug, Serialize)]
-pub struct WorkerArgs {
+pub struct GetCountDataWorkerWorkerArgs {
     pub table_column_name: String,
     pub action_name: String,
 }
 
 #[async_trait]
-impl BackgroundWorker<WorkerArgs> for Worker {
+impl BackgroundWorker<GetCountDataWorkerWorkerArgs> for GetCountDataWorker {
     /// Creates a new instance of the Worker with the given application context.
     ///
     /// This function is called when registering the worker with the queue system.
@@ -46,7 +46,7 @@ impl BackgroundWorker<WorkerArgs> for Worker {
     ///
     /// # Returns
     /// * `Result<()>` - Ok if the job completed successfully, Err otherwise
-    async fn perform(&self, args: WorkerArgs) -> Result<()> {
+    async fn perform(&self, args: GetCountDataWorkerWorkerArgs) -> Result<()> {
         println!("=================AkumulasiGetCountData=======================");
         // TODO: Some actual work goes here...
         println!("Table column name: {}", args.table_column_name);
