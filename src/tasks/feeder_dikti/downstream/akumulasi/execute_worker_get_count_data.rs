@@ -1,6 +1,6 @@
 use loco_rs::prelude::*;
 use crate::workers::feeder_dikti::downstream::akumulasi::get_count_data::{GetCountDataWorker, GetCountDataWorkerWorkerArgs};
-
+use tokio::time::{sleep, Duration};
 pub struct ExecuteWorkerGetCountData;
 #[async_trait]
 impl Task for ExecuteWorkerGetCountData {
@@ -68,6 +68,7 @@ impl Task for ExecuteWorkerGetCountData {
                     // Continue with other combinations or return error based on your needs
                 }
             }
+            sleep(Duration::from_secs(5)).await;
         }
 
         println!("Task ExecuteWorkerGetCountData completed - all workers enqueued");
