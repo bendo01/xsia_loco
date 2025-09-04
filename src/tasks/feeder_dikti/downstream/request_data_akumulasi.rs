@@ -8,10 +8,10 @@ use serde::{Deserialize, Serialize};
 pub struct RequestDataAkumulasi {
     pub act: String,
     pub token: String,
-    pub filter: Option<String>,
-    pub order: Option<String>,
-    pub limit: Option<i32>,
-    pub offset: Option<i32>,
+    // pub filter: Option<String>,
+    // pub order: Option<String>,
+    // pub limit: Option<i32>,
+    // pub offset: Option<i32>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -48,11 +48,11 @@ impl RequestDataAkumulasi {
 
             let request_data = Self {
                 act: action.clone(),
-                token,
-                filter: None,
-                order: None,
-                limit: None,
-                offset: None,
+                token
+                // filter: None,
+                // order: None,
+                // limit: None,
+                // offset: None,
             };
 
             // tracing::info!("Sending request to Feeder Dikti API with action: {}", action);

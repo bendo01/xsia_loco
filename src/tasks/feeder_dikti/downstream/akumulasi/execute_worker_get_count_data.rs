@@ -24,29 +24,29 @@ impl Task for ExecuteWorkerGetCountData {
             ("FA0004GetCountRiwayatPendidikanMahasiswa", "GetCountRiwayatPendidikanMahasiswa"),
             ("FA0005GetCountNilaiTransferPendidikanMahasiswa", "GetCountNilaiTransferPendidikanMahasiswa"),
             ("FA0006GetCountRiwayatNilaiMahasiswa", "GetCountRiwayatNilaiMahasiswa"),
-            ("FA0007GetCountDosen", "GetCountDosen"),
-            ("FA0008GetCountPenugasanSemuaDosen", "GetCountPenugasanSemuaDosen"),
-            ("FA0009GetCountAktivitasMengajarDosen", "GetCountAktivitasMengajarDosen"),
-            ("FA0010GetCountSkalaNilaiProdi", "GetCountSkalaNilaiProdi"),
-            ("FA0011GetCountPeriodePerkuliahan", "GetCountPeriodePerkuliahan"),
-            ("FA0012GetCountDosenPembimbing", "GetCountDosenPembimbing"),
-            ("FA0013GetCountKelasKuliah", "GetCountKelasKuliah"),
-            ("FA0014GetCountKurikulum", "GetCountKurikulum"),
-            ("FA0015GetCountMataKuliah", "GetCountMataKuliah"),
-            ("FA0016GetCountMatkulKurikulum", "GetCountMatkulKurikulum"),
-            ("FA0017GetCountNilaiPerkuliahanKelas", "GetCountNilaiPerkuliahanKelas"),
-            ("FA0018GetCountSubstansiKuliah", "GetCountSubstansiKuliah"),
-            ("FA0019GetCountPerguruanTinggi", "GetCountPerguruanTinggi"),
-            ("FA0020GetCountProdi", "GetCountProdi"),
-            ("FA0021GetCountDosenPengajarKelasKuliah", "GetCountDosenPengajarKelasKuliah"),
-            ("FA0022GetCountMahasiswaLulusDO", "GetCountMahasiswaLulusDO"),
-            ("FA0023GetCountPesertaKelasKuliah", "GetCountPesertaKelasKuliah"),
-            ("FA0024GetCountPerkuliahanMahasiswa", "GetCountPerkuliahanMahasiswa"),
-            ("FA0025GetCountMahasiswaBimbinganDosen", "GetCountMahasiswaBimbinganDosen"),
-            ("FA0026GetCountKonversiKampusMerdeka", "GetCountKonversiKampusMerdeka"),
-            ("FA0027GetCountRencanaPembelajaran", "GetCountRencanaPembelajaran"),
-            ("FA0028GetCountRencanaEvaluasi", "GetCountRencanaEvaluasi"),
-            ("FA0029GetCountBiodataMahasiswa", "GetCountBiodataMahasiswa"),
+            // ("FA0007GetCountDosen", "GetCountDosen"),
+            // ("FA0008GetCountPenugasanSemuaDosen", "GetCountPenugasanSemuaDosen"),
+            // ("FA0009GetCountAktivitasMengajarDosen", "GetCountAktivitasMengajarDosen"),
+            // ("FA0010GetCountSkalaNilaiProdi", "GetCountSkalaNilaiProdi"),
+            // ("FA0011GetCountPeriodePerkuliahan", "GetCountPeriodePerkuliahan"),
+            // ("FA0012GetCountDosenPembimbing", "GetCountDosenPembimbing"),
+            // ("FA0013GetCountKelasKuliah", "GetCountKelasKuliah"),
+            // ("FA0014GetCountKurikulum", "GetCountKurikulum"),
+            // ("FA0015GetCountMataKuliah", "GetCountMataKuliah"),
+            // ("FA0016GetCountMatkulKurikulum", "GetCountMatkulKurikulum"),
+            // ("FA0017GetCountNilaiPerkuliahanKelas", "GetCountNilaiPerkuliahanKelas"),
+            // ("FA0018GetCountSubstansiKuliah", "GetCountSubstansiKuliah"),
+            // ("FA0019GetCountPerguruanTinggi", "GetCountPerguruanTinggi"),
+            // ("FA0020GetCountProdi", "GetCountProdi"),
+            // ("FA0021GetCountDosenPengajarKelasKuliah", "GetCountDosenPengajarKelasKuliah"),
+            // ("FA0022GetCountMahasiswaLulusDO", "GetCountMahasiswaLulusDO"),
+            // ("FA0023GetCountPesertaKelasKuliah", "GetCountPesertaKelasKuliah"),
+            // ("FA0024GetCountPerkuliahanMahasiswa", "GetCountPerkuliahanMahasiswa"),
+            // ("FA0025GetCountMahasiswaBimbinganDosen", "GetCountMahasiswaBimbinganDosen"),
+            // ("FA0026GetCountKonversiKampusMerdeka", "GetCountKonversiKampusMerdeka"),
+            // ("FA0027GetCountRencanaPembelajaran", "GetCountRencanaPembelajaran"),
+            // ("FA0028GetCountRencanaEvaluasi", "GetCountRencanaEvaluasi"),
+            // ("FA0029GetCountBiodataMahasiswa", "GetCountBiodataMahasiswa"),
             // Add more combinations as needed
         ];
 
@@ -68,7 +68,7 @@ impl Task for ExecuteWorkerGetCountData {
                     // Continue with other combinations or return error based on your needs
                 }
             }
-            sleep(Duration::from_secs(5)).await;
+            sleep(Duration::from_secs(35)).await;
         }
 
         println!("Task ExecuteWorkerGetCountData completed - all workers enqueued");

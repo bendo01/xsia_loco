@@ -166,7 +166,7 @@ impl BackgroundWorker<GetCountDataWorkerWorkerArgs> for GetCountDataWorker {
                 }
             }
         } else {
-            println!("{}", "Data failed to get".red());
+            println!("Failed To Get Data {:#?}", req_option);
         }
         Ok(())
     }
