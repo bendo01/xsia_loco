@@ -58,6 +58,8 @@ impl ModelData {
             reference.id_jenis_evaluasi = Set(input.id_jenis_evaluasi);
             reference.nomor_urut = Set(input.nomor_urut);
             reference.bobot_evaluasi = Set(input.bobot_evaluasi);
+            reference.nama = Set(input.nama);
+            reference.nama_inggris = Set(input.nama_inggris);
             match reference.update(&ctx.db).await {
                 Ok(_updated_model) => {
                     println!("{}", "Data updated successfully".green());
@@ -76,6 +78,8 @@ impl ModelData {
                 id_kelas_kuliah: Set(input.id_kelas_kuliah),
                 id_jenis_evaluasi: Set(input.id_jenis_evaluasi),
                 nomor_urut: Set(input.nomor_urut),
+                nama: Set(input.nama),
+                nama_inggris: Set(input.nama_inggris),
                 bobot_evaluasi: Set(input.bobot_evaluasi),
                 created_at: Set(Local::now().naive_local()),
                 updated_at: Set(Local::now().naive_local()),
