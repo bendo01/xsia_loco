@@ -193,6 +193,7 @@ impl Hooks for App {
     }
     async fn connect_workers(ctx: &AppContext, queue: &Queue) -> Result<()> {
         queue.register(crate::workers::feeder_dikti::downstream::akumulasi::get_count_data::GetCountDataWorker::build(ctx)).await?;
+        queue.register(crate::workers::feeder_dikti::downstream::master::get_list_komponen_evaluasi_kelas::Worker::build(ctx)).await?;
         Ok(())
     }
 

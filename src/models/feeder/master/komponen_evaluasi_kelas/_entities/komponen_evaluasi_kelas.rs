@@ -1,3 +1,4 @@
+use chrono::NaiveDate;
 use sea_orm::entity::prelude::*;
 use serde::{Deserialize, Serialize};
 
@@ -8,13 +9,13 @@ pub struct Model {
     pub id: Uuid,
     pub id_komponen_evaluasi: Uuid,
     pub id_kelas_kuliah: Uuid,
-    pub id_jenis_evaluasi: Uuid,
+    pub id_jenis_evaluasi: i32,
     pub nama: Option<String>,
     pub nama_inggris: Option<String>,
     pub nomor_urut: i32,
     pub bobot_evaluasi: String,
-    pub last_update: Date,
-    pub tgl_create: Date,
+    pub last_update: NaiveDate,
+    pub tgl_create: NaiveDate,
     pub created_at: DateTime,
     pub updated_at: DateTime,
     pub sync_at: Option<DateTime>,

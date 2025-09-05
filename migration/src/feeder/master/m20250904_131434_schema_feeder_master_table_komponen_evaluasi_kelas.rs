@@ -22,7 +22,7 @@ impl MigrationTrait for Migration {
                 id uuid DEFAULT uuid_generate_v7(),
                 id_komponen_evaluasi uuid,
                 id_kelas_kuliah uuid,
-                id_jenis_evaluasi uuid,
+                id_jenis_evaluasi integer,
                 nama character varying(255),
                 nama_inggris character varying(255),
                 nomor_urut integer DEFAULT 0,

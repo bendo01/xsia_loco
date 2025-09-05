@@ -2,6 +2,7 @@ use loco_rs::prelude::*;
 use serde::{Deserialize, Serialize};
 
 use chrono::Local;
+use chrono::NaiveDate;
 use colored::Colorize;
 use sea_orm::{ColumnTrait, EntityTrait, QueryFilter};
 use uuid::Uuid; // Removed unused `uuid` macro import
@@ -9,17 +10,27 @@ use uuid::Uuid; // Removed unused `uuid` macro import
 use crate::models::feeder::master::komponen_evaluasi_kelas::_entities::komponen_evaluasi_kelas as FeederMasterKomponenEvaluasiKelas;
 use crate::tasks::feeder_dikti::downstream::request_only_data::{InputRequestData, RequestData};
 
+fn deserialize_date<'de, D>(deserializer: D) -> Result<NaiveDate, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    let s: String = Deserialize::deserialize(deserializer)?;
+    NaiveDate::parse_from_str(&s, "%d-%m-%Y").map_err(serde::de::Error::custom)
+}
+
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct ModelInput {
     pub id_komponen_evaluasi: Uuid,
     pub id_kelas_kuliah: Uuid,
-    pub id_jenis_evaluasi: Uuid,
+    pub id_jenis_evaluasi: i32,
     pub nama: Option<String>,
     pub nama_inggris: Option<String>,
     pub nomor_urut: i32,
     pub bobot_evaluasi: String,
-    pub last_update: Date,
-    pub tgl_create: Date,
+    #[serde(deserialize_with = "deserialize_date")]
+    pub last_update: NaiveDate,
+    #[serde(deserialize_with = "deserialize_date")]
+    pub tgl_create: NaiveDate,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -60,6 +71,8 @@ impl ModelData {
             reference.bobot_evaluasi = Set(input.bobot_evaluasi);
             reference.nama = Set(input.nama);
             reference.nama_inggris = Set(input.nama_inggris);
+            reference.last_update = Set(input.last_update); // <- Now NaiveDate
+            reference.tgl_create = Set(input.tgl_create); // <- Now NaiveDate
             match reference.update(&ctx.db).await {
                 Ok(_updated_model) => {
                     println!("{}", "Data updated successfully".green());
@@ -81,6 +94,8 @@ impl ModelData {
                 nama: Set(input.nama),
                 nama_inggris: Set(input.nama_inggris),
                 bobot_evaluasi: Set(input.bobot_evaluasi),
+                last_update: Set(input.last_update), // <- NaiveDate
+                tgl_create: Set(input.tgl_create),   // <- NaiveDate
                 created_at: Set(Local::now().naive_local()),
                 updated_at: Set(Local::now().naive_local()),
                 sync_at: Set(Some(Local::now().naive_local())),
