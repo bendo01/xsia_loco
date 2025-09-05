@@ -49,14 +49,14 @@ impl RequestData {
         if let Some(settings) = &ctx.config.settings {
             let settings = Settings::from_json(settings)?;
             let feeder_url = settings.feeder_url;
-
+            
             let request_data = Self {
                 act: input.act.clone(),
                 token,
-                filter: None,
-                order: None,
-                limit: None,
-                offset: None,
+                filter: input.filter.clone(),
+                order: input.order.clone(),
+                limit: input.limit,
+                offset: input.offset,
             };
 
             // tracing::info!("Sending request to Feeder Dikti API with action: {}", action);
