@@ -65,7 +65,7 @@ impl RequestData {
             let http_client: Client = Client::new();
             let response = match http_client
                 .post(&feeder_url)
-                .timeout(tokio::time::Duration::from_secs(10))
+                .timeout(tokio::time::Duration::from_secs(15))
                 .json(&request_data)
                 .send()
                 .await
