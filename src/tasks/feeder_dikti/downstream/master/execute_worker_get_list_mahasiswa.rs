@@ -5,6 +5,7 @@ use crate::workers::feeder_dikti::downstream::master::get_list_mahasiswa::{
 use crate::models::feeder::akumulasi::jumlah_data::_entities::jumlah_data as FeederAkumulasiJumlahData;
 use crate::common::settings::Settings;
 
+use tokio::time::{sleep, Duration};
 use loco_rs::prelude::*;
 // use tokio::time::{Duration, sleep};
 pub struct ExecuteWorkerGetListMahasiswa;
@@ -59,14 +60,29 @@ impl Task for ExecuteWorkerGetListMahasiswa {
             // Enqueue the worker
             
             //  loop through based on 
+            let limit = 100;
+            for offset in (0..existing_reference.total_feeder).step_by(limit as usize) {
+                let worker_args = WorkerArgs {
+                    act: "GetListMahasiswa".to_string(),
+                    filter: None,
+                    order: Some("nipd ASC".to_string()),
+                    limit: Some(limit.clone()),
+                    offset: Some(offset.clone())
+                };
+
+                match Worker::perform_later(app_context, worker_args) {
+                    Ok(_) => {
+                    println!("✅ Enqueued worker for GetListMahasiswa: limit{} offset: {}", limit.clone(), offset.clone());
+                    }
+                    Err(err) => {
+                        eprintln!("❌ Failed to enqueue worker for limit{} offset: {}", limit.clone(), offset.clone());
+                        // Continue with other combinations or return error based on your needs
+                    }
+                }
+                sleep(Duration::from_secs(20)).await;
+            }
             
-            // Worker::perform_later(app_context, WorkerArgs {
-            //     act: "GetListMahasiswa".to_string(),
-            //     filter: None,
-            //     order: Some("nipd ASC".to_string()),
-            //     limit: todo!(),
-            //     offset: todo!()
-            // }).await?;
+            
         } else {
             println!("There is No Data Provided");
         }
