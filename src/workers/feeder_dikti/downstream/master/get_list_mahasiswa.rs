@@ -49,9 +49,10 @@ impl BackgroundWorker<WorkerArgs> for Worker {
     /// 
     /// # Returns
     /// * `Result<()>` - Ok if the job completed successfully, Err otherwise
-    async fn perform(&self, _args: WorkerArgs) -> Result<()> {
+    async fn perform(&self, args: WorkerArgs) -> Result<()> {
         println!("=================GetListMahasiswa=======================");
         // TODO: Some actual work goes here...
+        println!("ARGS Data {:#?}", args);
         Ok(())
     }
 }
