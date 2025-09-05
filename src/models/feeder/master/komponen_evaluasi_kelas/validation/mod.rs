@@ -1,1 +1,1 @@
-pub mod substansi_matakuliah;
+pub mod komponen_evaluasi_kelas;

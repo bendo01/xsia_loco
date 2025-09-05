@@ -44,3 +44,4 @@ pub mod substansi_matakuliah;
 pub mod transfer_pendidikan_mahasiswa;
 pub mod transkrip_mahasiswa;
 pub mod uji_mahasiswa;
+pub mod komponen_evaluasi_kelas;

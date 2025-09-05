@@ -19,7 +19,7 @@ impl MigrationTrait for Migration {
             "
             CREATE TABLE IF NOT EXISTS feeder_rekapitulasi.indeks_prestasi_sementara_mahasiswa
             (
-                id uuid DEFAULT uuid_generate_v7(),\
+                id uuid DEFAULT uuid_generate_v7(),
                 id_prodi uuid,
                 aktif character varying(255),
                 cuti character varying(255),
