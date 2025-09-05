@@ -1,1 +1,2 @@
 pub mod get_list_komponen_evaluasi_kelas;
+pub mod get_list_mahasiswa;
