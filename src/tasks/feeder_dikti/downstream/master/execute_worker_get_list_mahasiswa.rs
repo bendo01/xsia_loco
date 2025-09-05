@@ -61,26 +61,25 @@ impl Task for ExecuteWorkerGetListMahasiswa {
             
             //  loop through based on 
             let limit = 100;
-            for offset in (0..existing_reference.total_feeder).step_by(limit as usize) {
+            let total_feeder = existing_reference.total_feeder;
+            for offset in (0..total_feeder).step_by(limit as usize) {
                 let worker_args = WorkerArgs {
                     act: "GetListMahasiswa".to_string(),
                     filter: None,
                     order: Some("nipd ASC".to_string()),
-                    limit: Some(limit.clone()),
-                    offset: Some(offset.clone())
+                    limit: Some(limit),
+                    offset: Some(offset),
                 };
-
-                match Worker::perform_later(app_context, worker_args) {
+                match Worker::perform_later(app_context, worker_args).await {
                     Ok(_) => {
-                    println!("✅ Enqueued worker for GetListMahasiswa: limit{} offset: {}", limit.clone(), offset.clone());
+                        println!("✅ Enqueued worker for GetListMahasiswa: limit {} offset: {}", limit, offset);
                     }
                     Err(err) => {
-                        eprintln!("❌ Failed to enqueue worker for limit{} offset: {}", limit.clone(), offset.clone());
-                        // Continue with other combinations or return error based on your needs
+                        eprintln!("❌ Failed to enqueue worker for limit {} offset: {}. Error: {:?}", limit, offset, err);
                     }
                 }
-                sleep(Duration::from_secs(20)).await;
             }
+            sleep(Duration::from_secs(20)).await;
             
             
         } else {
