@@ -8,7 +8,6 @@ pub struct Worker {
 #[derive(Deserialize, Debug, Serialize)]
 pub struct WorkerArgs {
     pub act: String,
-    pub token: String,
     pub filter: Option<String>,
     pub order: Option<String>,
     pub limit: Option<i32>,

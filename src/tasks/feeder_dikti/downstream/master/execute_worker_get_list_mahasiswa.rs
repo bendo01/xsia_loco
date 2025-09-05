@@ -1,6 +1,10 @@
-use crate::workers::feeder_dikti::downstream::master::get_list_komponen_evaluasi_kelas::{
+use crate::workers::feeder_dikti::downstream::master::get_list_mahasiswa::{
     Worker, WorkerArgs,
 };
+
+use crate::models::feeder::akumulasi::jumlah_data::_entities::jumlah_data as FeederAkumulasiJumlahData;
+use crate::common::settings::Settings;
+
 use loco_rs::prelude::*;
 // use tokio::time::{Duration, sleep};
 pub struct ExecuteWorkerGetListMahasiswa;
@@ -14,8 +18,57 @@ impl Task for ExecuteWorkerGetListMahasiswa {
     }
     async fn run(&self, app_context: &AppContext, _vars: &task::Vars) -> Result<()> {
         println!("Task ExecuteWorkerGetListMahasiswa generated");
+        // Initialize with default UUID, will be updated from settings
+        let institution_id: Uuid = if let Some(current_settings) = &app_context.config.settings {
+            println!("Settings loaded");
+            let settings = Settings::from_json(current_settings)?;
+            match Uuid::parse_str(settings.current_institution_id.as_str()) {
+                Ok(parsed_id) => {
+                    println!("Successfully parsed institution id");
+                    parsed_id
+                }
+                Err(_) => {
+                    println!("Failed to parse institution id");
+                    return Err(Error::Message("Invalid institution ID format".to_string()));
+                }
+            }
+        } else {
+            return Err(Error::Message("Setting not loaded".to_string()));
+        };
+
+        let data_result = FeederAkumulasiJumlahData::Entity::find()
+            .filter(FeederAkumulasiJumlahData::Column::DeletedAt.is_null())
+            .filter(FeederAkumulasiJumlahData::Column::InstitutionId.eq(institution_id))
+            .filter(FeederAkumulasiJumlahData::Column::Name.eq("FA0003GetCountMahasiswa".to_string()))
+            .one(&app_context.db)
+            .await;
+
+        // Then handle the Result
+        let data_opt = match data_result {
+            Ok(opt) => opt,
+            Err(db_err) => {
+                return Err(Error::Message(format!(
+                    "Database error while querying reference: {db_err}"
+                )));
+            }
+        };
+
+        if let Some(existing_reference) = data_opt {
+            // calculate pagination base on data from existing_reference.total_feeder
+            // exmaple total_feeder = 680
+        } else {
+
+        }
+
+
         // Enqueue the worker
-        Worker::perform_later(app_context, WorkerArgs {}).await?;
+        Worker::perform_later(app_context, WorkerArgs {
+            act: "GetListMahasiswa".to_string(),
+            filter: None,
+            order: Some("nipd ASC".to_string()),
+            limit: todo!(),
+            offset: todo!()
+        }).await?;
         println!("Task ExecuteWorkerGetListMahasiswa completed - all workers enqueued");
         Ok(())
     }

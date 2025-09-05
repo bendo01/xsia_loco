@@ -5,6 +5,15 @@ use reqwest::Client;
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct InputRequestData {
+    pub act: String,
+    pub filter: Option<String>,
+    pub order: Option<String>,
+    pub limit: Option<i32>,
+    pub offset: Option<i32>,
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct RequestData {
     pub act: String,
     pub token: String,
@@ -32,7 +41,7 @@ impl RequestData {
     /// - Settings are not properly loaded
     /// - HTTP request to Feeder API fails
     /// - Response parsing fails
-    pub async fn get<T>(ctx: &AppContext, input: RequestData) -> Result<ReturnData<T>, Error>
+    pub async fn get<T>(ctx: &AppContext, input: InputRequestData) -> Result<ReturnData<T>, Error>
     where
         T: for<'de> Deserialize<'de>,
     {
