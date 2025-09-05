@@ -54,21 +54,25 @@ impl Task for ExecuteWorkerGetListMahasiswa {
         };
 
         if let Some(existing_reference) = data_opt {
-            // calculate pagination base on data from existing_reference.total_feeder
-            // exmaple total_feeder = 680
+            // calculate pagination limit offset base on data from existing_reference.total_feeder
+            // example total_feeder = 680 limit is 100;
+            // Enqueue the worker
+            
+            //  loop through based on 
+            
+            // Worker::perform_later(app_context, WorkerArgs {
+            //     act: "GetListMahasiswa".to_string(),
+            //     filter: None,
+            //     order: Some("nipd ASC".to_string()),
+            //     limit: todo!(),
+            //     offset: todo!()
+            // }).await?;
         } else {
-
+            println!("There is No Data Provided");
         }
 
 
-        // Enqueue the worker
-        Worker::perform_later(app_context, WorkerArgs {
-            act: "GetListMahasiswa".to_string(),
-            filter: None,
-            order: Some("nipd ASC".to_string()),
-            limit: todo!(),
-            offset: todo!()
-        }).await?;
+        
         println!("Task ExecuteWorkerGetListMahasiswa completed - all workers enqueued");
         Ok(())
     }
