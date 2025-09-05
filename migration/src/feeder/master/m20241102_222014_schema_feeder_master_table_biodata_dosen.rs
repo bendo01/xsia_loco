@@ -11,27 +11,27 @@ impl MigrationTrait for Migration {
         let db = manager.get_connection();
         db.execute_unprepared(
             "
-            CREATE SCHEMA IF NOT EXISTS person_reference;
+            CREATE SCHEMA IF NOT EXISTS feeder_master;
             ",
         )
         .await?;
         db.execute_unprepared(
             "
-            CREATE TABLE IF NOT EXISTS person_reference.age_classifications
+            CREATE TABLE IF NOT EXISTS feeder_master.biodata_dosen
             (
                 id uuid DEFAULT uuid_generate_v7(),
                 id_dosen character varying(255),
-                nama_dosen character varying(255) ,
-                tempat_lahir character varying(255) ,
+                nama_dosen character varying(255),
+                tempat_lahir character varying(255),
                 tanggal_lahir date,
                 jenis_kelamin character varying(255),
                 id_agama character varying(255),
                 nama_agama character varying(255) ,
                 id_status_aktif character varying(255),
-                nama_status_aktif character varying(255) ,
+                nama_status_aktif character varying(255),
                 nidn character varying(255),
-                nama_ibu_kandung character varying(255) ,
-                nik character varying(255,
+                nama_ibu_kandung character varying(255),
+                nik character varying(255),
                 nip character varying(255),
                 npwp character varying(255),
                 id_jenis_sdm character varying(255),
@@ -49,7 +49,7 @@ impl MigrationTrait for Migration {
                 jalan character varying(255),
                 dusun character varying(255),
                 rt character varying(255),
-                rw character varying(255)
+                rw character varying(255),
                 ds_kel character varying(255),
                 kode_pos character varying(255) ,
                 id_wilayah character varying(255),
@@ -69,7 +69,7 @@ impl MigrationTrait for Migration {
                 sync_at timestamp(0) without time zone,
                 created_by uuid DEFAULT '00000000-0000-0000-0000-000000000000'::uuid,
                 updated_by uuid DEFAULT '00000000-0000-0000-0000-000000000000'::uuid,
-                CONSTRAINT person_reference_age_classifications_pkey PRIMARY KEY (id)
+                CONSTRAINT feeder_master_biodata_dosen_pkey PRIMARY KEY (id)
             )
             ",
         )
@@ -80,7 +80,7 @@ impl MigrationTrait for Migration {
     async fn down(&self, manager: &SchemaManager) -> Result<(), DbErr> {
         manager
             .get_connection()
-            .execute_unprepared("DROP TABLE IF EXISTS person_reference.age_classifications")
+            .execute_unprepared("DROP TABLE IF EXISTS feeder_master.biodata_dosen")
             .await?;
 
         Ok(())

@@ -28,7 +28,7 @@ impl MigrationTrait for Migration {
                 sync_at timestamp(0) without time zone,
                 created_by uuid DEFAULT '00000000-0000-0000-0000-000000000000'::uuid,
                 updated_by uuid DEFAULT '00000000-0000-0000-0000-000000000000'::uuid,
-                CONSTRAINTfeeder_referensi_agama_pkey PRIMARY KEY (id)
+                CONSTRAINT feeder_referensi_agama_pkey PRIMARY KEY (id)
             )
             ",
         )

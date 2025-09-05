@@ -68,7 +68,7 @@ impl Task for ExecuteWorkerGetCountData {
                     // Continue with other combinations or return error based on your needs
                 }
             }
-            sleep(Duration::from_secs(5)).await;
+            sleep(Duration::from_secs(10)).await;
         }
 
         println!("Task ExecuteWorkerGetCountData completed - all workers enqueued");

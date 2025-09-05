@@ -29,7 +29,7 @@ impl MigrationTrait for Migration {
                 nama_mata_kuliah character varying(255),
                 sks_mata_kuliah integer,
                 nilai_angka integer,
-                nilai_huruf varying(255),
+                nilai_huruf character varying(255),
                 nilai_indeks integer,
                 sks_x_indeks integer,
                 created_at timestamp(0) without time zone DEFAULT now(),

@@ -42,7 +42,6 @@ impl MigrationTrait for Migration {
                 created_at timestamp(0) without time zone DEFAULT now(),
                 updated_at timestamp(0) without time zone DEFAULT now(),
                 deleted_at timestamp(0) without time zone,
-                sync_at timestamp(0) without time zone,
                 created_by uuid DEFAULT '00000000-0000-0000-0000-000000000000'::uuid,
                 updated_by uuid DEFAULT '00000000-0000-0000-0000-000000000000'::uuid,
                 CONSTRAINT feeder_master_matakuliah_kurikulum_pkey PRIMARY KEY (id)
