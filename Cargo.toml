@@ -18,19 +18,19 @@ openssl-sys = "0.9"
 loco-rs = { workspace = true }
 serde = { version = "1", features = ["derive"] }
 serde_json = { version = "1" }
-tokio = { version = "1.44", default-features = false, features = [
+tokio = { version = "1.45", default-features = false, features = [
     "rt-multi-thread",
     "full",
 ] }
-async-trait = { version = "0.1.88" }
-axum = { version = "0.8.3" }
-tracing = { version = "0.1.41" }
+async-trait = { version = "0.1" }
+axum = { version = "0.8" }
+tracing = { version = "0.1" }
 tracing-subscriber = { version = "0.3.19", features = ["env-filter", "json"] }
 tracing-opentelemetry = "0.31.0"
 opentelemetry = "0.30"
 opentelemetry-otlp = "0.30"
 opentelemetry-semantic-conventions = "0.30"
-regex = { version = "1.11.1" }
+regex = { version = "1.11" }
 migration = { path = "migration" }
 sea-orm = { version = "1.1", features = [
     "sqlx-sqlite",
@@ -41,7 +41,7 @@ sea-orm = { version = "1.1", features = [
 sea-query = "0.32"
 chrono = { version = "0.4" }
 validator = { version = "0.20" }
-uuid = { version = "1.16.0", features = ["v4"] }
+uuid = { version = "1.16", features = ["v4"] }
 uuid7 = "1.1.0"
 include_dir = { version = "0.7" }
 pgvector = { version = "0.4", features = ["postgres"] }
