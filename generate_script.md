@@ -75,3 +75,8 @@ cargo loco task RegenerateAllStudentDetailActivities "student_register_academic_
 ```sh
 cargo loco task RegenerateAllStudentDetailActivities "student_register_academic_year_id:6d03bd17-d3b5-4241-bd1b-e47034687837" "curriculum_id:a43de229-8f63-4496-9a64-f9ea27c6f104" "unit_activity_id:95d042c5-6e76-44c5-b9e5-8d422c379f85" "semester_id:a9a4f4e2-864a-429f-a8fb-1bd84e17f571"
 ```
+
+
+# Membuat Detail KRS Data Tahun Akademik 20251 ARS Angkatan 20221 Semester 7
+```sh
+cargo loco task RegenerateAllStudentDetailActivities "student_register_academic_year_id:6d03bd17-d3b5-4241-bd1b-e47034687837" "curriculum_id:b7d9f9d9-1bd1-4c92-a928-58720cf0a214" "unit_activity_id:cbef7f93-c76b-4572-bef3-e577bcd77108" "semester_id:a9a4f4e2-864a-429f-a8fb-1bd84e17f571"
