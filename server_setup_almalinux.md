@@ -11,6 +11,9 @@ sudo dnf install git bind-utils make gcc patch zlib-devel bzip2 bzip2-devel read
 sudo dnf group install "Development Tools"
 sudo timedatectl set-timezone Asia/Makassar
 sudo hostnamectl set-hostname yourdomain.com
+
+sudo dnf install 'dnf-command(copr)' -y
+sudo dnf copr enable @caddy/caddy -y
 ```
 
 ## Install zsh
@@ -388,7 +391,8 @@ YAAK = YKD9F9-3KT3PT-YMTH2Q-FYJRCC-H3CRR1-7Z42Y2-9RS1H7-906163-8N2K6G
 BARRACUDA MAIL
 Your confirmation number is BBR21755611820-33406-3405.
 
-Username: postmaster@xsia.app
+[Mail Server](https://box.xsia.app/admin)]
+Username: bendo01@xsia.app
 Password: B47u7453
 
 appleID
