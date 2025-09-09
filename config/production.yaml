@@ -63,14 +63,14 @@ mailer:
     # Enable/Disable smtp mailer.
     enable: true
     # SMTP server host. e.x localhost, smtp.gmail.com
-    host: {{ get_env(name="SMTP_HOST", default="mail.xsia.app") }}
+    host: {{ get_env(name="SMTP_HOST", default="box.xsia.app") }}
     # SMTP server port
     port: {{ get_env(name="SMTP_PORT", default=587) }}
     # Use secure connection (SSL/TLS).
     secure: {{ get_env(name="SMTP_SECURE", default=true) }}
     auth:
-      user: {{ get_env(name="SMTP_USER", default="no-reply@xsia.app") }}
-      password: {{ get_env(name="SMTP_PASSWORD", default="B47u7453#") }}
+      user: {{ get_env(name="SMTP_USER", default="bendo01@xsia.app") }}
+      password: {{ get_env(name="SMTP_PASSWORD", default="B47u7453") }}
     # Override the SMTP hello name (default is the machine's hostname)
     # hello_name: {{ get_env(name="SMTP_SENDER", default="localhost") }}
 
