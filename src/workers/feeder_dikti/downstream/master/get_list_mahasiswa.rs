@@ -34,8 +34,7 @@ where
     use serde_json::Value;
     let v = Option::<Value>::deserialize(deserializer)?;
     match v {
-        None => Ok(None),
-        Some(Value::Null) => Ok(None),
+        None | Some(Value::Null) => Ok(None),
         Some(Value::Number(n)) => n
             .as_u64()
             .map(|x| Some(x as u32))
@@ -88,28 +87,31 @@ pub struct ModelInput {
     pub nama_mahasiswa: String,
     pub jenis_kelamin: Option<String>,
 
-    // was Option<String>, now parsed to Option<NaiveDate> "DD-MM-YYYY" or null
     #[serde(deserialize_with = "deserialize_date_opt")]
     pub tanggal_lahir: Option<NaiveDate>,
 
     pub id_perguruan_tinggi: Option<String>,
     pub nipd: Option<String>,
 
-    // tolerate null, number, or string
     #[serde(deserialize_with = "de_opt_f32")]
     pub ipk: Option<f32>,
 
-    // tolerate null, number, or string like "36"
     #[serde(deserialize_with = "de_opt_u32")]
     pub total_sks: Option<u32>,
 
     pub id_sms: Option<String>,
     pub id_mahasiswa: String,
-    pub id_agama: Option<u32>,
+
+    #[serde(deserialize_with = "de_opt_u32")]
+    pub id_agama: Option<u32>,   // FIXED
+
     pub nama_agama: Option<String>,
     pub id_prodi: Option<String>,
     pub nama_program_studi: Option<String>,
-    pub id_status_mahasiswa: Option<u32>,
+
+    #[serde(deserialize_with = "de_opt_u32")]
+    pub id_status_mahasiswa: Option<u32>,   // FIXED
+
     pub nama_status_mahasiswa: Option<String>,
     pub nim: Option<String>,
     pub id_periode: Option<String>,
@@ -117,11 +119,9 @@ pub struct ModelInput {
     pub id_registrasi_mahasiswa: Option<String>,
     pub id_periode_keluar: Option<String>,
 
-    // was Option<String>, now real date or None
     #[serde(deserialize_with = "deserialize_date_opt")]
     pub tanggal_keluar: Option<NaiveDate>,
 
-    // previously non-optional; must be optional to handle nulls
     #[serde(deserialize_with = "deserialize_date_opt")]
     pub last_update: Option<NaiveDate>,
 
