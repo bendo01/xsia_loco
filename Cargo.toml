@@ -82,3 +82,4 @@ serial_test = { version = "3.2" }
 rstest = { version = "0.25" }
 insta = { version = "1.42", features = ["redactions", "yaml", "filters"] }
 chrono = "0.4"
+fake = { version = "4", features = ["derive"] }
