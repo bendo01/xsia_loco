@@ -261,12 +261,12 @@ impl BackgroundWorker<WorkerArgs> for Worker {
             match response.data {
                 Some(data_vec) if !data_vec.is_empty() => {
                     // println!("Processing {} items", data_vec.len());
-                    println!("{:#?}", data_vec);
-                    // for item in data_vec {
-                    //     if let Err(e) = ModelData::upsert(&self.ctx, item).await {
-                    //         println!("Failed to upsert item: {}", e);
-                    //     }
-                    // }
+                    // println!("{:#?}", data_vec);
+                    for item in data_vec {
+                        if let Err(e) = ModelData::upsert(&self.ctx, item).await {
+                            println!("Failed to upsert item: {}", e);
+                        }
+                    }
                 }
                 Some(_) => println!("Received empty data vector"),
                 None => println!("No data in response"),
