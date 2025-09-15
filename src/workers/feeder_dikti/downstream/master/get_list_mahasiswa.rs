@@ -12,7 +12,7 @@ use crate::tasks::feeder_dikti::downstream::request_data_pagination::{
 };
 
 use crate::library::deserialization::{
-    deserialize_date_opt, de_opt_f32, de_opt_u32,
+    deserialize_date_opt, de_opt_f32, de_opt_i32, // <-- use i32 version
 };
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -23,33 +23,45 @@ pub struct ModelInput {
     #[serde(deserialize_with = "deserialize_date_opt")]
     pub tanggal_lahir: Option<NaiveDate>,
 
-    pub id_perguruan_tinggi: Option<String>,
+    // uuid in DB -> Uuid here (serde can parse from string)
+    pub id_perguruan_tinggi: Option<Uuid>,
     pub nipd: Option<String>,
 
     #[serde(deserialize_with = "de_opt_f32")]
     pub ipk: Option<f32>,
 
-    #[serde(deserialize_with = "de_opt_u32")]
-    pub total_sks: Option<u32>,
+    // integer in DB -> i32
+    #[serde(deserialize_with = "de_opt_i32")]
+    pub total_sks: Option<i32>,
 
-    pub id_sms: Option<String>,
-    pub id_mahasiswa: String,
+    // uuid in DB
+    pub id_sms: Option<Uuid>,
 
-    #[serde(deserialize_with = "de_opt_u32")]
-    pub id_agama: Option<u32>,   // FIXED
+    // uuid in DB, required
+    pub id_mahasiswa: Uuid,
+
+    // integer in DB -> i32
+    #[serde(deserialize_with = "de_opt_i32")]
+    pub id_agama: Option<i32>,
 
     pub nama_agama: Option<String>,
+
+    // varchar in DB
     pub id_prodi: Option<String>,
     pub nama_program_studi: Option<String>,
 
-    #[serde(deserialize_with = "de_opt_u32")]
-    pub id_status_mahasiswa: Option<u32>,   // FIXED
+    // integer in DB -> i32
+    #[serde(deserialize_with = "de_opt_i32")]
+    pub id_status_mahasiswa: Option<i32>,
 
     pub nama_status_mahasiswa: Option<String>,
     pub nim: Option<String>,
     pub id_periode: Option<String>,
     pub nama_periode_masuk: Option<String>,
-    pub id_registrasi_mahasiswa: Option<String>,
+
+    // uuid in DB
+    pub id_registrasi_mahasiswa: Option<Uuid>,
+
     pub id_periode_keluar: Option<String>,
 
     #[serde(deserialize_with = "deserialize_date_opt")]
@@ -69,14 +81,15 @@ pub struct ModelData;
 
 impl ModelData {
     pub async fn upsert(ctx: &AppContext, input: ModelInput) -> Result<(), Error> {
-        let data_result = FeederMasterMahasiswa::Entity::find()
-            .filter(FeederMasterMahasiswa::Column::DeletedAt.is_null())
-            .filter(
-                FeederMasterMahasiswa::Column::IdRegistrasiMahasiswa
-                    .eq(input.id_registrasi_mahasiswa.clone()),
-            )
-            .one(&ctx.db)
-            .await;
+        let mut find = FeederMasterMahasiswa::Entity::find()
+            .filter(FeederMasterMahasiswa::Column::DeletedAt.is_null());
+
+        if let Some(idreg) = input.id_registrasi_mahasiswa {
+            find = find.filter(FeederMasterMahasiswa::Column::IdRegistrasiMahasiswa.eq(idreg));
+        }
+
+        // then .one(&ctx.db).await as before
+        let data_result = find.one(&ctx.db).await;
 
         // Then handle the Result
         let data_opt = match data_result {
@@ -231,7 +244,7 @@ impl BackgroundWorker<WorkerArgs> for Worker {
     async fn perform(&self, args: WorkerArgs) -> Result<()> {
         println!("=================GetListMahasiswa=======================");
         // TODO: Some actual work goes here...
-        println!("ARGS Data {:#?}", args);
+        // println!("ARGS Data {:#?}", args);
 
         let req_result = RequestData::get::<ModelInput>(
             &self.ctx,
@@ -247,8 +260,13 @@ impl BackgroundWorker<WorkerArgs> for Worker {
         if let Ok(response) = req_result {
             match response.data {
                 Some(data_vec) if !data_vec.is_empty() => {
-                    println!("Processing {} items", data_vec.len());
-                    // ...
+                    // println!("Processing {} items", data_vec.len());
+                    println!("{:#?}", data_vec);
+                    // for item in data_vec {
+                    //     if let Err(e) = ModelData::upsert(&self.ctx, item).await {
+                    //         println!("Failed to upsert item: {}", e);
+                    //     }
+                    // }
                 }
                 Some(_) => println!("Received empty data vector"),
                 None => println!("No data in response"),

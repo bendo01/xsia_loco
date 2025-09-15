@@ -39,6 +39,24 @@ where
     }
 }
 
+pub fn de_opt_i32<'de, D>(de: D) -> Result<Option<i32>, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    use serde::de::{Error, Unexpected};
+    Ok(Some(match serde_json::Value::deserialize(de)? {
+        serde_json::Value::Number(n) => n
+            .as_i64()
+            .ok_or_else(|| Error::invalid_type(Unexpected::Other("number"), &"i32"))?
+            as i32,
+        serde_json::Value::String(s) => s.trim().parse::<i32>().map_err(|_| {
+            Error::invalid_value(Unexpected::Str(&s), &"numeric string for i32")
+        })?,
+        serde_json::Value::Null => return Ok(None),
+        v => return Err(Error::invalid_type(Unexpected::Other(v.to_string().as_str()), &"i32 or numeric string")),
+    }))
+}
+
 /// Deserialize optional `f32` from number, string, or null.
 pub fn de_opt_f32<'de, D>(deserializer: D) -> Result<Option<f32>, D::Error>
 where
