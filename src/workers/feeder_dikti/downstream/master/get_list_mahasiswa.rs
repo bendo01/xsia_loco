@@ -11,8 +11,9 @@ use crate::tasks::feeder_dikti::downstream::request_data_pagination::{
     InputRequestData, RequestData,
 };
 
-// --- Deserializers ---
+// use crate::library::deserialization::LibraryDeserialization {de};
 
+// --- Deserializers ---
 fn deserialize_date_opt<'de, D>(deserializer: D) -> Result<Option<NaiveDate>, D::Error>
 where
     D: serde::Deserializer<'de>,
@@ -82,6 +83,7 @@ where
     }
 }
 
+
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct ModelInput {
     pub nama_mahasiswa: String,
@@ -135,7 +137,116 @@ pub struct ModelInput {
 pub struct ModelData;
 
 impl ModelData {
-    // pub async fn upsert(ctx: &AppContext, input: ModelInput) -> Result<(), Error> {}
+    pub async fn upsert(ctx: &AppContext, input: ModelInput) -> Result<(), Error> {
+        let data_result = FeederMasterMahasiswa::Entity::find()
+            .filter(FeederMasterMahasiswa::Column::DeletedAt.is_null())
+            .filter(
+                FeederMasterMahasiswa::Column::IdRegistrasiMahasiswa
+                    .eq(input.id_registrasi_mahasiswa.clone()),
+            )
+            .one(&ctx.db)
+            .await;
+
+        // Then handle the Result
+        let data_opt = match data_result {
+            Ok(opt) => opt,
+            Err(db_err) => {
+                return Err(Error::Message(format!(
+                    "Database error while querying reference: {db_err}"
+                )));
+            }
+        };
+
+        // If the record exists, update it; otherwise, insert a new one
+        if let Some(existing_reference) = data_opt {
+            let mut reference: FeederMasterMahasiswa::ActiveModel =
+                existing_reference.into();
+            // reference.id_komponen_evaluasi = Set(input.id_komponen_evaluasi);
+            reference.nama_mahasiswa = Set(input.nama_mahasiswa);
+            reference.jenis_kelamin = Set(input.jenis_kelamin);
+            reference.tanggal_lahir = Set(input.tanggal_lahir);
+            reference.id_perguruan_tinggi = Set(input.id_perguruan_tinggi);
+            reference.ipk = Set(input.ipk);
+            reference.total_sks = Set(input.total_sks);
+            reference.id_sms = Set(input.id_sms);
+            reference.id_mahasiswa = Set(input.id_mahasiswa);
+            reference.id_agama = Set(input.id_agama);
+            reference.nama_agama = Set(input.nama_agama);
+            reference.id_prodi = Set(input.id_prodi);
+            reference.nama_program_studi = Set(input.nama_program_studi);
+            reference.id_status_mahasiswa = Set(input.id_status_mahasiswa);
+            reference.nama_status_mahasiswa = Set(input.nama_status_mahasiswa);
+            reference.nim = Set(input.nim);
+            reference.id_periode = Set(input.id_periode);
+            reference.nama_periode_masuk = Set(input.nama_periode_masuk);
+            reference.id_registrasi_mahasiswa = Set(input.id_registrasi_mahasiswa);
+            reference.id_periode_keluar = Set(input.id_periode_keluar);
+            reference.tanggal_keluar = Set(input.tanggal_keluar);
+            reference.last_update = Set(input.last_update);
+            reference.tgl_create = Set(input.tgl_create);
+            reference.status_sync = Set(input.status_sync);
+
+
+            match reference.update(&ctx.db).await {
+                Ok(_updated_model) => {
+                    println!("{}", "Data updated successfully");
+                    Ok(())
+                }
+                Err(err) => {
+                    return Err(Error::Message(format!("Failed to update reference: {err}")));
+                }
+            }
+        } else {
+            let uuidv7_string = uuid7::uuid7().to_string();
+            let pk_id = Uuid::parse_str(&uuidv7_string).expect("Invalid UUID format");
+            let new_reference = FeederMasterMahasiswa::ActiveModel {
+                id: Set(pk_id),
+                
+                nama_mahasiswa: Set(input.nama_mahasiswa),
+                jenis_kelamin: Set(input.jenis_kelamin),
+                tanggal_lahir: Set(input.tanggal_lahir),
+                id_perguruan_tinggi: Set(input.id_perguruan_tinggi),
+                ipk: Set(input.ipk),
+                total_sks: Set(input.total_sks),
+                id_sms: Set(input.id_sms),
+                id_mahasiswa: Set(input.id_mahasiswa),
+                id_agama: Set(input.id_agama),
+                nama_agama: Set(input.nama_agama),
+                id_prodi: Set(input.id_prodi),
+                nama_program_studi: Set(input.nama_program_studi),
+                id_status_mahasiswa: Set(input.id_status_mahasiswa),
+                nama_status_mahasiswa: Set(input.nama_status_mahasiswa),
+                nim: Set(input.nim),
+                id_periode: Set(input.id_periode),
+                nama_periode_masuk: Set(input.nama_periode_masuk),
+                id_registrasi_mahasiswa: Set(input.id_registrasi_mahasiswa),
+                id_periode_keluar: Set(input.id_periode_keluar),
+                tanggal_keluar: Set(input.tanggal_keluar),
+                last_update: Set(input.last_update),
+                tgl_create: Set(input.tgl_create),
+                status_sync: Set(input.status_sync),
+                created_at: Set(Some(Local::now().naive_local())),
+                updated_at: Set(Some(Local::now().naive_local())),
+                sync_at: Set(Some(Local::now().naive_local())),
+                ..Default::default()
+            };
+            match FeederMasterMahasiswa::Entity::insert(new_reference)
+                .exec(&ctx.db)
+                .await
+            {
+                Ok(_insert_result) => {
+                    println!("{}", "Data inserted successfully".to_string());
+                    Ok(())
+                }
+                Err(err) => {
+                    return Err(Error::Message(format!(
+                        "Failed to insert new reference: {err}"
+                    )));
+                }
+            }
+        }
+
+    }
 }
 
 pub struct Worker {

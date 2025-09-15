@@ -2,6 +2,7 @@ pub mod app;
 pub mod common;
 pub mod controllers;
 pub mod initializers;
+pub mod library;
 pub mod mailers;
 pub mod middleware;
 pub mod models;
