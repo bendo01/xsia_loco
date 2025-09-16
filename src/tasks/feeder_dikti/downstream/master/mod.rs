@@ -1,2 +1,3 @@
 pub mod execute_worker_get_list_komponen_evaluasi_kelas;
 pub mod execute_worker_get_list_mahasiswa;
+pub mod execute_worker_get_biodata_mahasiswa;
