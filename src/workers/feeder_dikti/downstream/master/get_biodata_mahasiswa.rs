@@ -59,9 +59,11 @@ pub struct ModelInput {
     pub tanggal_lahir_ayah: Option<Date>,
     pub id_pendidikan_ayah: Option<String>,
     pub nama_pendidikan_ayah: Option<String>,
-    pub id_pekerjaan_ayah: Option<String>,
+    #[serde(deserialize_with = "de_opt_i32")]
+    pub id_pekerjaan_ayah: Option<i32>,
     pub nama_pekerjaan_ayah: Option<String>,
-    pub id_penghasilan_ayah: Option<String>,
+    #[serde(deserialize_with = "de_opt_i32")]
+    pub id_penghasilan_ayah: Option<i32>,
     pub nama_penghasilan_ayah: Option<String>,
     pub nik_ibu: Option<String>,
     pub nama_ibu_kandung: Option<String>,
@@ -69,9 +71,11 @@ pub struct ModelInput {
     pub tanggal_lahir_ibu: Option<Date>,
     pub id_pendidikan_ibu: Option<String>,
     pub nama_pendidikan_ibu: Option<String>,
-    pub id_pekerjaan_ibu: Option<String>,
+    #[serde(deserialize_with = "de_opt_i32")]
+    pub id_pekerjaan_ibu: Option<i32>,
     pub nama_pekerjaan_ibu: Option<String>,
-    pub id_penghasilan_ibu: Option<String>,
+    #[serde(deserialize_with = "de_opt_i32")]
+    pub id_penghasilan_ibu: Option<i32>,
     pub nama_penghasilan_ibu: Option<String>,
     pub nama_wali: Option<String>,
     pub tanggal_lahir_wali: Option<String>,
