@@ -60,7 +60,7 @@ impl Task for ExecuteWorkerGetListMahasiswa {
             // Enqueue the worker
             
             //  loop through based on 
-            let limit = 100;
+            let limit = 10;
             let total_feeder = existing_reference.total_feeder;
             for offset in (0..total_feeder).step_by(limit as usize) {
                 let worker_args = WorkerArgs {

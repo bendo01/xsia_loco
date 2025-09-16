@@ -5,6 +5,8 @@ use crate::library::deserialization::{
     // de_opt_f32,
     de_opt_i32, // <-- use i32 version
     deserialize_date_opt,
+    de_opt_boolish
+
 };
 use crate::tasks::feeder_dikti::downstream::request_data_pagination::{
     InputRequestData, RequestData,
@@ -48,8 +50,9 @@ pub struct ModelInput {
     pub telepon: Option<String>,
     pub handphone: Option<String>,
     pub email: Option<String>,
-    pub penerima_kps: Option<String>,
-    pub nomor_kps: Option<bool>,
+    #[serde(deserialize_with = "de_opt_boolish")]
+    pub penerima_kps: Option<bool>,
+    pub nomor_kps: Option<String>,
     pub nik_ayah: Option<String>,
     pub nama_ayah: Option<String>,
     #[serde(deserialize_with = "deserialize_date_opt")]
@@ -78,11 +81,11 @@ pub struct ModelInput {
     pub nama_pekerjaan_wali: Option<String>,
     pub id_penghasilan_wali: Option<String>,
     pub nama_penghasilan_wali: Option<String>,
-    pub id_kebutuhan_khusus_mahasiswa: Option<String>,
+    pub id_kebutuhan_khusus_mahasiswa: Option<i32>,
     pub nama_kebutuhan_khusus_mahasiswa: Option<String>,
-    pub id_kebutuhan_khusus_ayah: Option<String>,
+    pub id_kebutuhan_khusus_ayah: Option<i32>,
     pub nama_kebutuhan_khusus_ayah: Option<String>,
-    pub id_kebutuhan_khusus_ibu: Option<String>,
+    pub id_kebutuhan_khusus_ibu: Option<i32>,
     pub nama_kebutuhan_khusus_ibu: Option<String>,
     pub status_sync: Option<String>,
 }
