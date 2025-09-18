@@ -192,6 +192,7 @@ use feeder::master::m20241102_223157_schema_feeder_master_table_prestasi_mahasis
 use feeder::master::m20241102_223214_schema_feeder_master_table_profil_perguruan_tinggi;
 use feeder::master::m20241103_090128_schema_feeder_master_table_profil_program_studi;
 use feeder::master::m20241103_090145_schema_feeder_master_table_profil_rencana_evaluasi;
+use feeder::master::m20250918_035440_schema_feeder_master_table_riwayat_pendidikan_mahasiswa;
 use feeder::master::m20241103_090202_schema_feeder_master_table_riwayat_fungsional_dosen;
 use feeder::master::m20241103_090216_schema_feeder_master_table_riwayat_nilai_mahasiswa;
 use feeder::master::m20241103_090230_schema_feeder_master_table_riwayat_pangkat_dosen;
@@ -491,6 +492,7 @@ impl MigratorTrait for Migrator {
             Box::new(m20241103_090359_schema_feeder_master_table_transkrip_mahasiswa::Migration),
             Box::new(m20241103_090410_schema_feeder_master_table_uji_mahasiswa::Migration),
             Box::new(m20250904_131434_schema_feeder_master_table_komponen_evaluasi_kelas::Migration),
+            Box::new(m20250918_035440_schema_feeder_master_table_riwayat_pendidikan_mahasiswa::Migration),
 
             Box::new(m20241103_090507_schema_feeder_referensi_table_agama::Migration),
             Box::new(m20241104_211659_schema_feeder_referensi_table_alat_transportasi::Migration),

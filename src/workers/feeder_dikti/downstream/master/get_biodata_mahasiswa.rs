@@ -8,7 +8,7 @@ use crate::library::deserialization::{
     de_opt_boolish
 
 };
-use crate::tasks::feeder_dikti::downstream::request_data_pagination::{
+use crate::tasks::feeder_dikti::downstream::request_only_data::{
     InputRequestData, RequestData,
 };
 use chrono::Local;
@@ -23,8 +23,8 @@ pub struct ModelInput {
     pub jenis_kelamin: Option<String>,
     pub tempat_lahir: Option<String>,
     #[serde(deserialize_with = "deserialize_date_opt")]
-    pub tanggal_lahir: Option<Date>,
-    pub id_mahasiswa: Option<Uuid>,
+    pub tanggal_lahir: Option<chrono::NaiveDate>,
+    pub id_mahasiswa: Option<uuid::Uuid>,
     #[serde(deserialize_with = "de_opt_i32")]
     pub id_agama: Option<i32>,
     pub nama_agama: Option<String>,
@@ -56,7 +56,7 @@ pub struct ModelInput {
     pub nik_ayah: Option<String>,
     pub nama_ayah: Option<String>,
     #[serde(deserialize_with = "deserialize_date_opt")]
-    pub tanggal_lahir_ayah: Option<Date>,
+    pub tanggal_lahir_ayah: Option<chrono::NaiveDate>,
     pub id_pendidikan_ayah: Option<String>,
     pub nama_pendidikan_ayah: Option<String>,
     #[serde(deserialize_with = "de_opt_i32")]
@@ -68,7 +68,7 @@ pub struct ModelInput {
     pub nik_ibu: Option<String>,
     pub nama_ibu_kandung: Option<String>,
     #[serde(deserialize_with = "deserialize_date_opt")]
-    pub tanggal_lahir_ibu: Option<Date>,
+    pub tanggal_lahir_ibu: Option<chrono::NaiveDate>,
     pub id_pendidikan_ibu: Option<String>,
     pub nama_pendidikan_ibu: Option<String>,
     #[serde(deserialize_with = "de_opt_i32")]
@@ -78,17 +78,23 @@ pub struct ModelInput {
     pub id_penghasilan_ibu: Option<i32>,
     pub nama_penghasilan_ibu: Option<String>,
     pub nama_wali: Option<String>,
-    pub tanggal_lahir_wali: Option<String>,
+    #[serde(deserialize_with = "deserialize_date_opt")]
+    pub tanggal_lahir_wali: Option<chrono::NaiveDate>,
     pub id_pendidikan_wali: Option<String>,
     pub nama_pendidikan_wali: Option<String>,
-    pub id_pekerjaan_wali: Option<String>,
+    #[serde(deserialize_with = "de_opt_i32")]
+    pub id_pekerjaan_wali: Option<i32>,
     pub nama_pekerjaan_wali: Option<String>,
-    pub id_penghasilan_wali: Option<String>,
+    #[serde(deserialize_with = "de_opt_i32")]
+    pub id_penghasilan_wali: Option<i32>,
     pub nama_penghasilan_wali: Option<String>,
+    #[serde(deserialize_with = "de_opt_i32")]
     pub id_kebutuhan_khusus_mahasiswa: Option<i32>,
     pub nama_kebutuhan_khusus_mahasiswa: Option<String>,
+    #[serde(deserialize_with = "de_opt_i32")]
     pub id_kebutuhan_khusus_ayah: Option<i32>,
     pub nama_kebutuhan_khusus_ayah: Option<String>,
+    #[serde(deserialize_with = "de_opt_i32")]
     pub id_kebutuhan_khusus_ibu: Option<i32>,
     pub nama_kebutuhan_khusus_ibu: Option<String>,
     pub status_sync: Option<String>,

@@ -35,6 +35,7 @@ pub mod profil_program_studi;
 pub mod profil_rencana_evaluasi;
 pub mod riwayat_fungsional_dosen;
 pub mod riwayat_nilai_mahasiswa;
+pub mod riwayat_pendidikan_mahasiswa;
 pub mod riwayat_pangkat_dosen;
 pub mod riwayat_pendidikan_dosen;
 pub mod riwayat_penelitian_dosen;
