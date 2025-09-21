@@ -1,4 +1,4 @@
-use crate::library::deserialization::{de_opt_date_dmy, de_opt_i32, de_opt_string_or_int};
+use crate::library::deserialization::{de_opt_date_dmy, de_opt_i32};
 use chrono::NaiveDate;
 use sea_orm::entity::prelude::*;
 use serde::{Deserialize, Serialize};
@@ -18,57 +18,69 @@ pub struct Model {
     pub id_perguruan_tinggi: Uuid,
     pub id_prodi: Uuid,
 
-    // Basic strings
+    // Identifiers / names
     pub nim: String,
     pub nama_mahasiswa: String,
     pub nama_perguruan_tinggi: String,
     pub nama_program_studi: String,
-    pub nama_ibu_kandung: String,
-    pub nama_pembiayaan_awal: String,
-    pub nama_jenis_daftar: String,
+    pub nama_jenis_daftar: Option<String>,
+    pub keterangan_keluar: Option<String>,
+    pub nama_program_studi_asal: Option<String>,
+    pub nama_perguruan_tinggi_asal: Option<String>,
     pub nama_periode_masuk: String,
+    pub nm_bidang_minat: Option<String>,
+    pub nama_pembiayaan_awal: Option<String>,
+    pub nama_ibu_kandung: String,
     pub status_sync: String,
+
+    // Numeric codes (accept number | numeric string | null)
+    #[serde(deserialize_with = "de_opt_i32")]
+    pub id_jenis_daftar: Option<i32>,
+
+    #[serde(deserialize_with = "de_opt_i32")]
+    pub id_jalur_daftar: Option<i32>,
+
+    // Period codes often come as strings in source; treat as numeric code if you prefer
+    #[serde(deserialize_with = "de_opt_i32")]
+    pub id_periode_masuk: Option<i32>,
+
+    #[serde(deserialize_with = "de_opt_i32")]
+    pub id_jenis_keluar: Option<i32>,
+
+    #[serde(deserialize_with = "de_opt_i32")]
+    pub id_pembiayaan: Option<i32>,
+
+    #[serde(deserialize_with = "de_opt_i32")]
+    pub id_periode_keluar: Option<i32>,
+
+    // Optional UUIDs (may be null)
+    pub id_perguruan_tinggi_asal: Option<Uuid>,
+    pub id_prodi_asal: Option<Uuid>,
+
+    // Other enums/flags stored as short strings in source
     pub jenis_kelamin: String,
 
-    // Mixed “code” fields that may come as number or string → keep as String but robustly parse
-    #[serde(deserialize_with = "de_opt_string_or_int")]
-    pub id_jenis_daftar: Option<String>, // e.g., "1"
-    #[serde(deserialize_with = "de_opt_string_or_int")]
-    pub id_jalur_daftar: Option<String>, // e.g., "12"
-    #[serde(deserialize_with = "de_opt_string_or_int")]
-    pub id_periode_masuk: Option<String>, // e.g., "20251"
-    #[serde(deserialize_with = "de_opt_string_or_int")]
-    pub id_pembiayaan: Option<String>, // e.g., "1"
-
-    // Optional exits
-    pub id_jenis_keluar: Option<String>,
-    pub keterangan_keluar: Option<String>,
-    pub id_periode_keluar: Option<String>,
-
-    // Origin campus/program (nullable UUIDs)
-    pub id_perguruan_tinggi_asal: Option<Uuid>,
-    pub nama_perguruan_tinggi_asal: Option<String>,
-    pub id_prodi_asal: Option<Uuid>,
-    pub nama_program_studi_asal: Option<String>,
-
-    // Optional bidang minat (null in sample, but make it UUID if present)
-    pub id_bidang_minat: Option<Uuid>,
-    pub nm_bidang_minat: Option<String>,
-
-    // Numbers with potential string inputs
+    // Credits recognized: string digits or null in source → numeric here
     #[serde(deserialize_with = "de_opt_i32")]
-    pub sks_diakui: Option<i32>, // sample shows "0" -> Some(0)
+    pub sks_diakui: Option<i32>,
 
-    // biaya_masuk appears as a plain number in sample; keep i64
-    pub biaya_masuk: i64,
+    // Money/amount (source may send "0" or numbers). If values can exceed i32, consider adding a de_opt_i64 helper and switching to i64.
+    #[serde(deserialize_with = "de_opt_i32")]
+    pub biaya_masuk: Option<i32>,
 
-    // Dates (accept dd-MM-YYYY or YYYY-MM-DD or null)
+    // Optional fields that look like categorical codes
+    pub id_bidang_minat: Option<String>, // keep as String if it’s alphanumeric
+
+    // Dates (accept dd-MM-yyyy, then fallback yyyy-MM-dd), or null/empty
     #[serde(deserialize_with = "de_opt_date_dmy")]
     pub tanggal_daftar: Option<NaiveDate>,
+
     #[serde(deserialize_with = "de_opt_date_dmy")]
     pub tanggal_keluar: Option<NaiveDate>,
+
     #[serde(deserialize_with = "de_opt_date_dmy")]
     pub last_update: Option<NaiveDate>,
+
     #[serde(deserialize_with = "de_opt_date_dmy")]
     pub tgl_create: Option<NaiveDate>,
 

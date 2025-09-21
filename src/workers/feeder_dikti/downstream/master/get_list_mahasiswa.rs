@@ -12,7 +12,7 @@ use crate::tasks::feeder_dikti::downstream::request_data_pagination::{
 };
 
 use crate::library::deserialization::{
-    deserialize_date_opt, de_opt_f32, de_opt_i32, // <-- use i32 version
+    de_opt_date_dmy, de_opt_f32, de_opt_i32, // <-- use i32 version
 };
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -20,7 +20,7 @@ pub struct ModelInput {
     pub nama_mahasiswa: String,
     pub jenis_kelamin: Option<String>,
 
-    #[serde(deserialize_with = "deserialize_date_opt")]
+    #[serde(deserialize_with = "de_opt_date_dmy")]
     pub tanggal_lahir: Option<NaiveDate>,
 
     // uuid in DB -> Uuid here (serde can parse from string)
@@ -64,13 +64,13 @@ pub struct ModelInput {
 
     pub id_periode_keluar: Option<String>,
 
-    #[serde(deserialize_with = "deserialize_date_opt")]
+    #[serde(deserialize_with = "de_opt_date_dmy")]
     pub tanggal_keluar: Option<NaiveDate>,
 
-    #[serde(deserialize_with = "deserialize_date_opt")]
+    #[serde(deserialize_with = "de_opt_date_dmy")]
     pub last_update: Option<NaiveDate>,
 
-    #[serde(deserialize_with = "deserialize_date_opt")]
+    #[serde(deserialize_with = "de_opt_date_dmy")]
     pub tgl_create: Option<NaiveDate>,
 
     pub status_sync: Option<String>,

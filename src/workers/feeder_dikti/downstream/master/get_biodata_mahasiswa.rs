@@ -4,8 +4,8 @@ use serde::{Deserialize, Serialize};
 use crate::library::deserialization::{
     // de_opt_f32,
     de_opt_i32, // <-- use i32 version
-    deserialize_date_opt,
-    de_opt_boolish
+    de_opt_boolish,
+    de_opt_date_dmy
 
 };
 use crate::tasks::feeder_dikti::downstream::request_only_data::{
@@ -22,7 +22,7 @@ pub struct ModelInput {
     pub nama_mahasiswa: Option<String>,
     pub jenis_kelamin: Option<String>,
     pub tempat_lahir: Option<String>,
-    #[serde(deserialize_with = "deserialize_date_opt")]
+    #[serde(deserialize_with = "de_opt_date_dmy")]
     pub tanggal_lahir: Option<chrono::NaiveDate>,
     pub id_mahasiswa: Option<uuid::Uuid>,
     #[serde(deserialize_with = "de_opt_i32")]
@@ -55,7 +55,7 @@ pub struct ModelInput {
     pub nomor_kps: Option<String>,
     pub nik_ayah: Option<String>,
     pub nama_ayah: Option<String>,
-    #[serde(deserialize_with = "deserialize_date_opt")]
+    #[serde(deserialize_with = "de_opt_date_dmy")]
     pub tanggal_lahir_ayah: Option<chrono::NaiveDate>,
     pub id_pendidikan_ayah: Option<String>,
     pub nama_pendidikan_ayah: Option<String>,
@@ -67,7 +67,7 @@ pub struct ModelInput {
     pub nama_penghasilan_ayah: Option<String>,
     pub nik_ibu: Option<String>,
     pub nama_ibu_kandung: Option<String>,
-    #[serde(deserialize_with = "deserialize_date_opt")]
+    #[serde(deserialize_with = "de_opt_date_dmy")]
     pub tanggal_lahir_ibu: Option<chrono::NaiveDate>,
     pub id_pendidikan_ibu: Option<String>,
     pub nama_pendidikan_ibu: Option<String>,
@@ -78,7 +78,7 @@ pub struct ModelInput {
     pub id_penghasilan_ibu: Option<i32>,
     pub nama_penghasilan_ibu: Option<String>,
     pub nama_wali: Option<String>,
-    #[serde(deserialize_with = "deserialize_date_opt")]
+    #[serde(deserialize_with = "de_opt_date_dmy")]
     pub tanggal_lahir_wali: Option<chrono::NaiveDate>,
     pub id_pendidikan_wali: Option<String>,
     pub nama_pendidikan_wali: Option<String>,
