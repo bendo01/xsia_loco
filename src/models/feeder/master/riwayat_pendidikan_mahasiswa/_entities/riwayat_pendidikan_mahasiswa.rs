@@ -41,8 +41,9 @@ pub struct Model {
     pub id_jalur_daftar: Option<i32>,
 
     // Period codes often come as strings in source; treat as numeric code if you prefer
-    #[serde(deserialize_with = "de_opt_i32")]
-    pub id_periode_masuk: Option<i32>,
+    // #[serde(deserialize_with = "de_opt_i32")]
+    // pub id_periode_masuk: Option<i32>,
+    pub id_periode_masuk: Option<String>,
 
     #[serde(deserialize_with = "de_opt_i32")]
     pub id_jenis_keluar: Option<i32>,
@@ -50,8 +51,9 @@ pub struct Model {
     #[serde(deserialize_with = "de_opt_i32")]
     pub id_pembiayaan: Option<i32>,
 
-    #[serde(deserialize_with = "de_opt_i32")]
-    pub id_periode_keluar: Option<i32>,
+    // #[serde(deserialize_with = "de_opt_i32")]
+    // pub id_periode_keluar: Option<i32>,
+    pub id_periode_keluar: Option<String>,
 
     // Optional UUIDs (may be null)
     pub id_perguruan_tinggi_asal: Option<Uuid>,

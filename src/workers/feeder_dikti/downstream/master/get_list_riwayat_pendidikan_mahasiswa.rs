@@ -42,8 +42,9 @@ pub struct ModelInput {
     pub id_jalur_daftar: Option<i32>,
 
     // Period codes often come as strings in source; treat as numeric code if you prefer
-    #[serde(deserialize_with = "de_opt_i32")]
-    pub id_periode_masuk: Option<i32>,
+    // #[serde(deserialize_with = "de_opt_i32")]
+    // pub id_periode_masuk: Option<i32>,
+    pub id_periode_masuk: Option<String>,
 
     #[serde(deserialize_with = "de_opt_i32")]
     pub id_jenis_keluar: Option<i32>,
@@ -51,8 +52,9 @@ pub struct ModelInput {
     #[serde(deserialize_with = "de_opt_i32")]
     pub id_pembiayaan: Option<i32>,
 
-    #[serde(deserialize_with = "de_opt_i32")]
-    pub id_periode_keluar: Option<i32>,
+    // #[serde(deserialize_with = "de_opt_i32")]
+    // pub id_periode_keluar: Option<i32>,
+    pub id_periode_keluar: Option<String>,
 
     // Optional UUIDs (may be null)
     pub id_perguruan_tinggi_asal: Option<Uuid>,
@@ -290,13 +292,13 @@ impl BackgroundWorker<WorkerArgs> for Worker {
         if let Ok(response) = req_result {
             match response.data {
                 Some(data_vec) if !data_vec.is_empty() => {
-                    println!("Processing {} items", data_vec.len());
+                    // println!("Processing {} items", data_vec.len());
                     // println!("{:#?}", data_vec);
-                    // for item in data_vec {
-                    //     if let Err(e) = ModelData::upsert(&self.ctx, item).await {
-                    //         println!("Failed to upsert item: {}", e);
-                    //     }
-                    // }
+                    for item in data_vec {
+                        if let Err(e) = ModelData::upsert(&self.ctx, item).await {
+                            println!("Failed to upsert item: {}", e);
+                        }
+                    }
                 }
                 Some(_) => println!("Received empty data vector"),
                 None => println!("No data in response"),
