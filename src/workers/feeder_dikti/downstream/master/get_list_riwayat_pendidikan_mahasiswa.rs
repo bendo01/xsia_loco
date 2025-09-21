@@ -7,56 +7,71 @@ use sea_orm::{ColumnTrait, EntityTrait, QueryFilter, Set};
 use uuid::Uuid; // Removed unused `uuid` macro import
 
 use crate::models::feeder::master::riwayat_pendidikan_mahasiswa::_entities::riwayat_pendidikan_mahasiswa as FeederMasterRiwayatPendidikanMahasiswa;
-use crate::tasks::feeder_dikti::downstream::request_only_data::{
-    InputRequestData, RequestData,
-};
+use crate::tasks::feeder_dikti::downstream::request_only_data::{InputRequestData, RequestData};
 
-use crate::library::deserialization::{de_opt_i32, deserialize_date_opt};
+use crate::library::deserialization::{de_opt_date_dmy, de_opt_i32, de_opt_string_or_int};
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct ModelInput {
-    id_registrasi_mahasiswa: Option<Uuid>,
-    id_mahasiswa: Option<Uuid>,
-    nim: Option<String>,
-    nama_mahasiswa: Option<String>,
+    // UUIDs
+    pub id_registrasi_mahasiswa: Uuid,
+    pub id_mahasiswa: Uuid,
+    pub id_perguruan_tinggi: Uuid,
+    pub id_prodi: Uuid,
+
+    // Basic strings
+    pub nim: String,
+    pub nama_mahasiswa: String,
+    pub nama_perguruan_tinggi: String,
+    pub nama_program_studi: String,
+    pub nama_ibu_kandung: String,
+    pub nama_pembiayaan_awal: String,
+    pub nama_jenis_daftar: String,
+    pub nama_periode_masuk: String,
+    pub status_sync: String,
+    pub jenis_kelamin: String,
+
+    // Mixed "code" fields that may come as number or string → keep as String but robustly parse
+    #[serde(deserialize_with = "de_opt_string_or_int")]
+    pub id_jenis_daftar: Option<String>, // e.g., "1"
+    #[serde(deserialize_with = "de_opt_string_or_int")]
+    pub id_jalur_daftar: Option<String>, // e.g., "12"
+    #[serde(deserialize_with = "de_opt_string_or_int")]
+    pub id_periode_masuk: Option<String>, // e.g., "20251"
+    #[serde(deserialize_with = "de_opt_string_or_int")]
+    pub id_pembiayaan: Option<String>, // e.g., "1"
+
+    // Optional exits
+    pub id_jenis_keluar: Option<String>,
+    pub keterangan_keluar: Option<String>,
+    pub id_periode_keluar: Option<String>,
+
+    // Origin campus/program (nullable UUIDs)
+    pub id_perguruan_tinggi_asal: Option<Uuid>,
+    pub nama_perguruan_tinggi_asal: Option<String>,
+    pub id_prodi_asal: Option<Uuid>,
+    pub nama_program_studi_asal: Option<String>,
+
+    // Optional bidang minat (null in sample, but make it UUID if present)
+    pub id_bidang_minat: Option<Uuid>,
+    pub nm_bidang_minat: Option<String>,
+
+    // Numbers with potential string inputs
     #[serde(deserialize_with = "de_opt_i32")]
-    id_jenis_daftar: Option<i32>,
-    nama_jenis_daftar: Option<String>,
-    #[serde(deserialize_with = "de_opt_i32")]
-    id_jalur_daftar: Option<i32>,
-    id_periode_masuk: Option<String>,
-    nama_periode_masuk: Option<String>,
-    #[serde(deserialize_with = "de_opt_i32")]
-    id_jenis_keluar: Option<i32>,
-    keterangan_keluar: Option<String>,
-    id_perguruan_tinggi: Option<Uuid>,
-    nama_perguruan_tinggi: Option<String>,
-    id_prodi: Option<Uuid>,
-    nama_program_studi: Option<String>,
-    #[serde(deserialize_with = "de_opt_i32")]
-    sks_diakui: Option<i32>,
-    id_perguruan_tinggi_asal: Option<Uuid>,
-    nama_perguruan_tinggi_asal: Option<String>,
-    id_prodi_asal: Option<Uuid>,
-    nama_program_studi_asal: Option<String>,
-    jenis_kelamin: Option<String>,
-    tanggal_daftar: Option<NaiveDate>,
-    nama_ibu_kandung: Option<String>,
-    #[serde(deserialize_with = "de_opt_i32")]
-    id_pembiayaan: Option<i32>,
-    nama_pembiayaan_awal: Option<String>,
-    #[serde(deserialize_with = "de_opt_i32")]
-    biaya_masuk: Option<i32>,
-    id_bidang_minat: Option<String>,
-    nm_bidang_minat: Option<String>,
-    id_periode_keluar: Option<String>,
-    #[serde(deserialize_with = "deserialize_date_opt")]
-    tanggal_keluar: Option<NaiveDate>,
-    #[serde(deserialize_with = "deserialize_date_opt")]
-    last_update: Option<NaiveDate>,
-    #[serde(deserialize_with = "deserialize_date_opt")]
-    tgl_create: Option<NaiveDate>,
-    status_sync: Option<String>,
+    pub sks_diakui: Option<i32>, // sample shows "0" -> Some(0)
+
+    // biaya_masuk appears as a plain number in sample; keep i64
+    pub biaya_masuk: i64,
+
+    // Dates (accept dd-MM-YYYY or YYYY-MM-DD or null)
+    #[serde(deserialize_with = "de_opt_date_dmy")]
+    pub tanggal_daftar: Option<NaiveDate>,
+    #[serde(deserialize_with = "de_opt_date_dmy")]
+    pub tanggal_keluar: Option<NaiveDate>,
+    #[serde(deserialize_with = "de_opt_date_dmy")]
+    pub last_update: Option<NaiveDate>,
+    #[serde(deserialize_with = "de_opt_date_dmy")]
+    pub tgl_create: Option<NaiveDate>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -64,14 +79,12 @@ pub struct ModelData;
 
 impl ModelData {
     pub async fn upsert(ctx: &AppContext, input: ModelInput) -> Result<(), Error> {
-        let mut find = FeederMasterRiwayatPendidikanMahasiswa::Entity::find()
-            .filter(FeederMasterRiwayatPendidikanMahasiswa::Column::DeletedAt.is_null());
-
-        if let Some(idreg) = input.id_registrasi_mahasiswa {
-            find = find.filter(
-                FeederMasterRiwayatPendidikanMahasiswa::Column::IdRegistrasiMahasiswa.eq(idreg),
+        let find = FeederMasterRiwayatPendidikanMahasiswa::Entity::find()
+            .filter(FeederMasterRiwayatPendidikanMahasiswa::Column::DeletedAt.is_null())
+            .filter(
+                FeederMasterRiwayatPendidikanMahasiswa::Column::IdRegistrasiMahasiswa
+                    .eq(input.id_registrasi_mahasiswa),
             );
-        }
 
         // then .one(&ctx.db).await as before
         let data_result = find.one(&ctx.db).await;
@@ -124,7 +137,7 @@ impl ModelData {
             reference.last_update = Set(input.last_update);
             reference.tgl_create = Set(input.tgl_create);
             reference.status_sync = Set(input.status_sync);
-            reference.updated_at = Set(Local::now().naive_local());
+            reference.updated_at = Set(Some(Local::now().naive_local()));
             reference.sync_at = Set(Some(Local::now().naive_local()));
 
             match reference.update(&ctx.db).await {
@@ -174,9 +187,9 @@ impl ModelData {
                 last_update: Set(input.last_update),
                 tgl_create: Set(input.tgl_create),
                 status_sync: Set(input.status_sync),
-                created_at: Set(Local::now().naive_local()), // DateTime, not Option<DateTime>
-                updated_at: Set(Local::now().naive_local()), // DateTime, not Option<DateTime>
-                sync_at: Set(Some(Local::now().naive_local())), // Option<DateTime>
+                created_at: Set(Some(Local::now().naive_local())), // Option<DateTime>
+                updated_at: Set(Some(Local::now().naive_local())), // Option<DateTime>
+                sync_at: Set(Some(Local::now().naive_local())),    // Option<DateTime>
                 ..Default::default()
             };
             match FeederMasterRiwayatPendidikanMahasiswa::Entity::insert(new_reference)
@@ -227,7 +240,7 @@ impl BackgroundWorker<WorkerArgs> for Worker {
     /// This name is used when enqueueing jobs and identifying the worker in logs.
     /// The implementation returns the struct name as a string.
     fn class_name() -> String {
-        "GetListMahasiswa".to_string()
+        "GetListRiwayatPendidikanMahasiswa".to_string()
     }
 
     /// Returns tags associated with this worker.
@@ -265,13 +278,13 @@ impl BackgroundWorker<WorkerArgs> for Worker {
         if let Ok(response) = req_result {
             match response.data {
                 Some(data_vec) if !data_vec.is_empty() => {
-                    // println!("Processing {} items", data_vec.len());
+                    println!("Processing {} items", data_vec.len());
                     // println!("{:#?}", data_vec);
-                    for item in data_vec {
-                        if let Err(e) = ModelData::upsert(&self.ctx, item).await {
-                            println!("Failed to upsert item: {}", e);
-                        }
-                    }
+                    // for item in data_vec {
+                    //     if let Err(e) = ModelData::upsert(&self.ctx, item).await {
+                    //         println!("Failed to upsert item: {}", e);
+                    //     }
+                    // }
                 }
                 Some(_) => println!("Received empty data vector"),
                 None => println!("No data in response"),

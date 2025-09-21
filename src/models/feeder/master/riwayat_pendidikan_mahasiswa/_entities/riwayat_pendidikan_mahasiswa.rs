@@ -1,64 +1,84 @@
+use crate::library::deserialization::{de_opt_date_dmy, de_opt_i32, de_opt_string_or_int};
+use chrono::NaiveDate;
 use sea_orm::entity::prelude::*;
 use serde::{Deserialize, Serialize};
-use chrono::NaiveDate;
 use uuid::Uuid;
-use crate::library::deserialization::{
-    deserialize_date_opt, de_opt_i32,
-};
 
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel, Eq, Serialize, Deserialize)]
-#[sea_orm(schema_name = "feeder_master", table_name = "riwayat_pendidikan_mahasiswa")]
+#[sea_orm(
+    schema_name = "feeder_master",
+    table_name = "riwayat_pendidikan_mahasiswa"
+)]
 pub struct Model {
     #[sea_orm(primary_key, auto_increment = false)]
     pub id: Uuid,
-    id_registrasi_mahasiswa: Option<Uuid>,
-    id_mahasiswa: Option<Uuid>,
-    nim: Option<String>,
-    nama_mahasiswa: Option<String>,
+    // UUIDs
+    pub id_registrasi_mahasiswa: Uuid,
+    pub id_mahasiswa: Uuid,
+    pub id_perguruan_tinggi: Uuid,
+    pub id_prodi: Uuid,
+
+    // Basic strings
+    pub nim: String,
+    pub nama_mahasiswa: String,
+    pub nama_perguruan_tinggi: String,
+    pub nama_program_studi: String,
+    pub nama_ibu_kandung: String,
+    pub nama_pembiayaan_awal: String,
+    pub nama_jenis_daftar: String,
+    pub nama_periode_masuk: String,
+    pub status_sync: String,
+    pub jenis_kelamin: String,
+
+    // Mixed “code” fields that may come as number or string → keep as String but robustly parse
+    #[serde(deserialize_with = "de_opt_string_or_int")]
+    pub id_jenis_daftar: Option<String>, // e.g., "1"
+    #[serde(deserialize_with = "de_opt_string_or_int")]
+    pub id_jalur_daftar: Option<String>, // e.g., "12"
+    #[serde(deserialize_with = "de_opt_string_or_int")]
+    pub id_periode_masuk: Option<String>, // e.g., "20251"
+    #[serde(deserialize_with = "de_opt_string_or_int")]
+    pub id_pembiayaan: Option<String>, // e.g., "1"
+
+    // Optional exits
+    pub id_jenis_keluar: Option<String>,
+    pub keterangan_keluar: Option<String>,
+    pub id_periode_keluar: Option<String>,
+
+    // Origin campus/program (nullable UUIDs)
+    pub id_perguruan_tinggi_asal: Option<Uuid>,
+    pub nama_perguruan_tinggi_asal: Option<String>,
+    pub id_prodi_asal: Option<Uuid>,
+    pub nama_program_studi_asal: Option<String>,
+
+    // Optional bidang minat (null in sample, but make it UUID if present)
+    pub id_bidang_minat: Option<Uuid>,
+    pub nm_bidang_minat: Option<String>,
+
+    // Numbers with potential string inputs
     #[serde(deserialize_with = "de_opt_i32")]
-    id_jenis_daftar: Option<i32>,
-    nama_jenis_daftar: Option<String>,
-    #[serde(deserialize_with = "de_opt_i32")]
-    id_jalur_daftar: Option<i32>,
-    id_periode_masuk: Option<String>,
-    nama_periode_masuk: Option<String>,
-    #[serde(deserialize_with = "de_opt_i32")]
-    id_jenis_keluar: Option<i32>,
-    keterangan_keluar: Option<String>,
-    id_perguruan_tinggi: Option<Uuid>,
-    nama_perguruan_tinggi: Option<String>,
-    id_prodi: Option<Uuid>,
-    nama_program_studi: Option<String>,
-    #[serde(deserialize_with = "de_opt_i32")]
-    sks_diakui: Option<i32>,
-    id_perguruan_tinggi_asal: Option<Uuid>,
-    nama_perguruan_tinggi_asal: Option<String>,
-    id_prodi_asal: Option<Uuid>,
-    nama_program_studi_asal: Option<String>,
-    jenis_kelamin: Option<String>,
-    tanggal_daftar: Option<NaiveDate>,
-    nama_ibu_kandung: Option<String>,
-    #[serde(deserialize_with = "de_opt_i32")]
-    id_pembiayaan: Option<i32>,
-    nama_pembiayaan_awal: Option<String>,
-    #[serde(deserialize_with = "de_opt_i32")]
-    biaya_masuk: Option<i32>,
-    id_bidang_minat: Option<String>,
-    nm_bidang_minat: Option<String>,
-    id_periode_keluar: Option<String>,
-    #[serde(deserialize_with = "deserialize_date_opt")]
-    tanggal_keluar: Option<NaiveDate>,
-    #[serde(deserialize_with = "deserialize_date_opt")]
-    last_update: Option<NaiveDate>,
-    #[serde(deserialize_with = "deserialize_date_opt")]
-    tgl_create: Option<NaiveDate>,
-    status_sync: Option<String>,
-    pub created_at: DateTime,
-    pub updated_at: DateTime,
+    pub sks_diakui: Option<i32>, // sample shows "0" -> Some(0)
+
+    // biaya_masuk appears as a plain number in sample; keep i64
+    pub biaya_masuk: i64,
+
+    // Dates (accept dd-MM-YYYY or YYYY-MM-DD or null)
+    #[serde(deserialize_with = "de_opt_date_dmy")]
+    pub tanggal_daftar: Option<NaiveDate>,
+    #[serde(deserialize_with = "de_opt_date_dmy")]
+    pub tanggal_keluar: Option<NaiveDate>,
+    #[serde(deserialize_with = "de_opt_date_dmy")]
+    pub last_update: Option<NaiveDate>,
+    #[serde(deserialize_with = "de_opt_date_dmy")]
+    pub tgl_create: Option<NaiveDate>,
+
+    // timestamps (NaiveDateTime)
     pub sync_at: Option<DateTime>,
-    pub deleted_at: Option<DateTime>,
     pub created_by: Option<Uuid>,
     pub updated_by: Option<Uuid>,
+    pub created_at: Option<DateTime>,
+    pub updated_at: Option<DateTime>,
+    pub deleted_at: Option<DateTime>,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
