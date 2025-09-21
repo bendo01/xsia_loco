@@ -1,1 +1,0 @@
-pub mod transfer_pendidikan_mahasiswa;
