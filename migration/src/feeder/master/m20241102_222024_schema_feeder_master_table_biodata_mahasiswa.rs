@@ -57,7 +57,7 @@ impl MigrationTrait for Migration {
                 nama_pendidikan_ayah character varying(255),
                 id_pekerjaan_ayah integer,
                 nama_pekerjaan_ayah character varying(255),
-                id_penghasilan_ayah character varying(255),
+                id_penghasilan_ayah integer,
                 nama_penghasilan_ayah character varying(255),
                 
                 nik_ibu character varying(255),
@@ -67,7 +67,7 @@ impl MigrationTrait for Migration {
                 nama_pendidikan_ibu character varying(255),
                 id_pekerjaan_ibu integer,
                 nama_pekerjaan_ibu character varying(255),
-                id_penghasilan_ibu character varying(255),
+                id_penghasilan_ibu integer,
                 nama_penghasilan_ibu character varying(255),
                 
                 nama_wali character varying(255),
@@ -76,7 +76,7 @@ impl MigrationTrait for Migration {
                 nama_pendidikan_wali character varying(255),
                 id_pekerjaan_wali integer,
                 nama_pekerjaan_wali character varying(255),
-                id_penghasilan_wali character varying(255),
+                id_penghasilan_wali integer,
                 nama_penghasilan_wali character varying(255),
                 
                 id_kebutuhan_khusus_mahasiswa integer,

@@ -57,6 +57,7 @@ pub struct ModelInput {
     pub nama_ayah: Option<String>,
     #[serde(deserialize_with = "de_opt_date_dmy")]
     pub tanggal_lahir_ayah: Option<chrono::NaiveDate>,
+    #[serde(deserialize_with = "de_opt_i32")]
     pub id_pendidikan_ayah: Option<i32>,
     pub nama_pendidikan_ayah: Option<String>,
     #[serde(deserialize_with = "de_opt_i32")]
@@ -69,6 +70,7 @@ pub struct ModelInput {
     pub nama_ibu_kandung: Option<String>,
     #[serde(deserialize_with = "de_opt_date_dmy")]
     pub tanggal_lahir_ibu: Option<chrono::NaiveDate>,
+    #[serde(deserialize_with = "de_opt_i32")]
     pub id_pendidikan_ibu: Option<i32>,
     pub nama_pendidikan_ibu: Option<String>,
     #[serde(deserialize_with = "de_opt_i32")]
@@ -80,6 +82,7 @@ pub struct ModelInput {
     pub nama_wali: Option<String>,
     #[serde(deserialize_with = "de_opt_date_dmy")]
     pub tanggal_lahir_wali: Option<chrono::NaiveDate>,
+    #[serde(deserialize_with = "de_opt_i32")]
     pub id_pendidikan_wali: Option<i32>,
     pub nama_pendidikan_wali: Option<String>,
     #[serde(deserialize_with = "de_opt_i32")]
