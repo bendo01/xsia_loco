@@ -7,7 +7,7 @@ use sea_orm::{ColumnTrait, EntityTrait, QueryFilter, Set};
 use uuid::Uuid; // Removed unused `uuid` macro import
 
 use crate::models::feeder::master::riwayat_pendidikan_mahasiswa::_entities::riwayat_pendidikan_mahasiswa as FeederMasterRiwayatPendidikanMahasiswa;
-use crate::tasks::feeder_dikti::downstream::request_data_pagination::{
+use crate::tasks::feeder_dikti::downstream::request_only_data::{
     InputRequestData, RequestData,
 };
 

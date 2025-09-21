@@ -66,7 +66,7 @@ impl Task for ExecuteWorkerGetListRiwayatPendidikanMahasiswa {
                 let worker_args = WorkerArgs {
                     act: "GetListRiwayatPendidikanMahasiswa".to_string(),
                     filter: None,
-                    order: Some("nipd ASC".to_string()),
+                    order: Some("nim ASC".to_string()),
                     limit: Some(limit),
                     offset: Some(offset),
                 };
