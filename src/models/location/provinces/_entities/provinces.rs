@@ -2,6 +2,9 @@ use crate::models::location::countries::_entities::countries as LocationCountry;
 use crate::models::location::regencies::_entities::regencies as LocationRegency;
 use sea_orm::entity::prelude::*;
 use serde::{Deserialize, Serialize};
+// use loco_openapi::prelude::*;
+use loco_rs::prelude::*;
+use uuid::Uuid;
 
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel, Serialize, Deserialize)]
 #[sea_orm(schema_name = "location", table_name = "provinces")]

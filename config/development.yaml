@@ -112,6 +112,22 @@ auth:
     # Token expiration time in seconds
     expiration: 604800 # 7 days
 
+
+initializers:
+  openapi:
+    redoc:
+      url: /redoc
+      # spec_json_url: /redoc/openapi.json
+      # spec_yaml_url: /redoc/openapi.yaml
+    scalar:
+      url: /scalar
+      # spec_json_url: /scalar/openapi.json
+      # spec_yaml_url: /scalar/openapi.yaml
+    swagger:
+      url: /swagger
+      spec_json_url: /api-docs/openapi.json # spec_json_url is required for swagger-ui
+      # spec_yaml_url: /api-docs/openapi.yaml
+
 # Application Settings
 settings:
   current_student_admission_academic_year_id: {{ get_env(name="CURRENT_STUDENT_ADMISSION_ACADEMIC_YEAR_ID", default="7fb68ca8-3376-4aef-b158-4c43f1b0f177") }}

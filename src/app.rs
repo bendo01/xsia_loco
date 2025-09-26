@@ -1,4 +1,5 @@
 use async_trait::async_trait;
+use loco_openapi::prelude::*;
 use loco_rs::{
     Result,
     app::{AppContext, Hooks, Initializer},
@@ -49,6 +50,27 @@ impl Hooks for App {
         Ok(vec![
             Box::new(initializers::websocket::WebSocketInitializer),
             Box::new(initializers::view_engine::ViewEngineInitializer),
+            Box::new(loco_openapi::OpenapiInitializerWithSetup::new(
+                |ctx| {
+                    #[derive(OpenApi)]
+                    #[openapi(
+                            modifiers(&SecurityAddon),
+                            info(
+                                title = "xSIA API",
+                                description = "this xSIA API Documentation"
+                            )
+                        )]
+                    struct ApiDoc;
+                    set_jwt_location(ctx.into());
+
+                    ApiDoc::openapi()
+                },
+                // When using automatic schema collection only
+                None,
+                // When using manual schema collection
+                // Manual schema collection can also be used at the same time as automatic schema collection
+                // Some(vec![controllers::album::api_routes()]),
+            )),
         ])
     }
 
@@ -194,7 +216,13 @@ impl Hooks for App {
     async fn connect_workers(ctx: &AppContext, queue: &Queue) -> Result<()> {
         queue.register(crate::workers::feeder_dikti::downstream::akumulasi::get_count_data::GetCountDataWorker::build(ctx)).await?;
         queue.register(crate::workers::feeder_dikti::downstream::master::get_list_komponen_evaluasi_kelas::Worker::build(ctx)).await?;
-        queue.register(crate::workers::feeder_dikti::downstream::master::get_list_mahasiswa::Worker::build(ctx)).await?;
+        queue
+            .register(
+                crate::workers::feeder_dikti::downstream::master::get_list_mahasiswa::Worker::build(
+                    ctx,
+                ),
+            )
+            .await?;
         queue.register(crate::workers::feeder_dikti::downstream::master::get_biodata_mahasiswa::Worker::build(ctx)).await?;
         queue.register(crate::workers::feeder_dikti::downstream::master::get_list_riwayat_pendidikan_mahasiswa::Worker::build(ctx)).await?;
         Ok(())
@@ -205,7 +233,9 @@ impl Hooks for App {
         tasks.register(tasks::feeder_dikti::downstream::akumulasi::execute_worker_get_count_data::ExecuteWorkerGetCountData);
         // tasks-inject (do not remove)
         tasks.register(tasks::feeder_dikti::downstream::referensi::get_agama::GetAgama);
-        tasks.register(tasks::feeder_dikti::downstream::referensi::get_ikatan_kerja_sdm::GetIkatanKerjaSDM);
+        tasks.register(
+            tasks::feeder_dikti::downstream::referensi::get_ikatan_kerja_sdm::GetIkatanKerjaSDM,
+        );
         tasks.register(tasks::feeder_dikti::downstream::referensi::get_jabatan_fungsional::GetJabatanFungsional);
         tasks.register(tasks::feeder_dikti::downstream::referensi::get_jalur_masuk::GetJalurMasuk);
         tasks.register(tasks::feeder_dikti::downstream::akumulasi::get_count_data::GetCountData);
@@ -216,7 +246,9 @@ impl Hooks for App {
         tasks.register(tasks::tui::generate_hash_password::GenerateHashPassword);
         tasks.register(tasks::tui::regenerate_all_student_detail_activities::RegenerateAllStudentDetailActivities);
         tasks.register(tasks::tui::generate_institution_unit_campaign_activities::GenerateInstitutionUnitCampaignActivities);
-        tasks.register(tasks::tui::generate_student_campaign_activities::GenerateUnitStudentCampaignActivities);
+        tasks.register(
+            tasks::tui::generate_student_campaign_activities::GenerateUnitStudentCampaignActivities,
+        );
         tasks.register(tasks::tui::generate_student_payment_midtrans_transaction::GenerateStudentPaymentMidtransTransaction);
     }
     async fn truncate(ctx: &AppContext) -> Result<()> {

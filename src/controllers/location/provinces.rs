@@ -3,14 +3,14 @@
 #![allow(clippy::unused_async)]
 use crate::models::location::provinces::_entities::provinces as ReferenceModel;
 use axum::{Json, debug_handler, response::Response};
+use loco_openapi::prelude::*;
 use loco_rs::prelude::*;
 use sea_orm::{ColumnTrait, EntityTrait, QueryFilter, QueryOrder, QuerySelect};
-use serde::Serialize;
-use uuid::Uuid;
+use serde::{Deserialize, Serialize};
 
-#[derive(sea_orm::FromQueryResult, Serialize)]
+#[derive(sea_orm::FromQueryResult, Clone, Debug, Serialize, Deserialize, ToSchema)]
 struct SelectedData {
-    id: Uuid,
+    id: String,
     name: String,
 }
 
@@ -43,6 +43,13 @@ pub async fn update(State(_ctx): State<AppContext>) -> Result<Response> {
 ///
 /// # Errors
 /// Returns an error if unable to retrieve model from database.
+#[utoipa::path(
+    get,
+    path = "/api/region/provinces",
+    responses(
+        (status = 200, description = "Pilihan provinsi", body = [SelectedData]),
+    ),
+)]
 pub async fn list(State(ctx): State<AppContext>) -> Result<Response> {
     // Build and execute the query
     let datas = ReferenceModel::Entity::find()
@@ -67,5 +74,6 @@ pub fn routes() -> Routes {
         .add("/{id}", get(show))
         .add("/{id}", delete(destroy))
         .add("/{id}", post(update))
-        .add("/list", get(list))
+        // .add("/list", get(list))
+        .add("/list", openapi(get(list), routes!(list)))
 }

@@ -62,6 +62,9 @@ reqwest = { version = "0.12", features = [
     "json",
     "socks",
 ] }
+loco-openapi = { version = "*", features = [
+    "full",
+], git = "https://github.com/loco-rs/loco-openapi-Initializer", branch = "main" }
 # view engine i18n
 tera = "1.20.0"
 fluent-templates = { version = "0.13", features = ["tera"] }
