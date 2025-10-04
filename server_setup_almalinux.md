@@ -229,7 +229,10 @@ Copy
 # Ensure user bendo01 has access to the entire path
 
 sudo chown -R bendo01:bendo01 /usr/share/nginx/html/server
-sudo chmod 755 /usr/share/nginx/html/server 3. Check SELinux Context
+sudo chmod 755 /usr/share/nginx/html/server
+
+3. Check SELinux Context
+
 sudo chcon -R -t httpd_sys_rw_content_t folder
 bash
 Copy
@@ -245,14 +248,18 @@ sudo systemctl start xsia.service
 
 # If works, restore context permanently
 
-sudo restorecon -v /usr/share/nginx/html/server/xsia_loco-cli 4. Manual Execution Test
+sudo restorecon -v /usr/share/nginx/html/server/xsia_loco-cli
+
+4. Manual Execution Test
 
 bash
 Copy
 
 # Run as bendo01 user directly
 
-sudo -u bendo01 /usr/share/nginx/html/server/xsia_loco-cli start -s 5. If using non-standard directory (/usr/share/nginx/html/server):
+sudo -u bendo01 /usr/share/nginx/html/server/xsia_loco-cli start -s
+
+5. If using non-standard directory (/usr/share/nginx/html/server):
 
 bash
 Copy
@@ -260,7 +267,9 @@ Copy
 # Create SELinux policy exception
 
 sudo semanage fcontext -a -t bin_t "/usr/share/nginx/html/server(/.\*)?"
-sudo restorecon -Rv /usr/share/nginx/html/server 6. Final Service File Fixes
+sudo restorecon -Rv /usr/share/nginx/html/server
+
+6. Final Service File Fixes
 
 ini
 Copy
