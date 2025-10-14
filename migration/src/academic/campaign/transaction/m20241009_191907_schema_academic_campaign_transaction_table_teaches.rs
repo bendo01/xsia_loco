@@ -24,7 +24,7 @@ impl MigrationTrait for Migration {
                 class_code_id uuid NOT NULL DEFAULT '00000000-0000-0000-0000-000000000000'::uuid,
                 course_id uuid NOT NULL DEFAULT '00000000-0000-0000-0000-000000000000'::uuid,
                 activity_id uuid DEFAULT '00000000-0000-0000-0000-000000000000'::uuid,
-                description text ,
+                description text,
                 start_date date,
                 end_date date,
                 practice_start_date date,

@@ -24,7 +24,7 @@ impl MigrationTrait for Migration {
                 alphabet_code character varying(255),
                 name character varying(255) NOT NULL,
                 question_id uuid NOT NULL,
-                point double precision NOT NULL DEFAULT '0'::double precision,
+                point real DEFAULT '0'::real,
                 suggestion text,
                 created_at timestamp(0) without time zone DEFAULT now(),
                 updated_at timestamp(0) without time zone DEFAULT now(),

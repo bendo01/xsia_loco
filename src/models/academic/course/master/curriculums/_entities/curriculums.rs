@@ -15,12 +15,12 @@ pub struct Model {
     pub unit_id: Uuid,
     pub academic_year_id: Uuid,
     pub curriculum_type_id: Uuid,
-    #[sea_orm(column_type = "Double")]
-    pub total_credit: f64,
-    #[sea_orm(column_type = "Double")]
-    pub mandatory_course_credit: f64,
-    #[sea_orm(column_type = "Double")]
-    pub optional_course_credit: f64,
+    #[sea_orm(column_type = "Float")]
+    pub total_credit: f32,
+    #[sea_orm(column_type = "Float")]
+    pub mandatory_course_credit: f32,
+    #[sea_orm(column_type = "Float")]
+    pub optional_course_credit: f32,
     pub feeder_id: Option<Uuid>,
     pub is_active: bool,
     pub created_at: Option<DateTime>,

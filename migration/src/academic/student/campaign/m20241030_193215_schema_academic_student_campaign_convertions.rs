@@ -25,7 +25,7 @@ impl MigrationTrait for Migration {
                 grade_id uuid NOT NULL DEFAULT '00000000-0000-0000-0000-000000000000'::uuid,
                 transfer_code character varying(255) NOT NULL,
                 transfer_name character varying(255) NOT NULL,
-                transfer_credit double precision DEFAULT '0'::double precision,
+                transfer_credit real DEFAULT '0'::real,
                 transfer_grade character varying(255) NOT NULL,
                 is_lock timestamp(0) without time zone,
                 feeder_id uuid DEFAULT '00000000-0000-0000-0000-000000000000'::uuid,

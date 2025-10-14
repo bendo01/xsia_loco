@@ -3,7 +3,7 @@
 use sea_orm::entity::prelude::*;
 use serde::{Deserialize, Serialize};
 
-#[derive(Clone, Debug, PartialEq, DeriveEntityModel, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, DeriveEntityModel, Serialize, Deserialize)]
 #[sea_orm(
     schema_name = "feeder_master",
     table_name = "aktifitas_kuliah_mahasiswa"
@@ -22,11 +22,11 @@ pub struct Model {
     pub nama_program_studi: Option<String>,
     pub id_status_mahasiswa: Option<String>,
     pub nama_status_mahasiswa: Option<String>,
-    pub ips: Option<String>,
-    pub ipk: Option<String>,
-    pub sks_semester: Option<String>,
-    pub sks_total: Option<String>,
-    pub biaya_kuliah_smt: Option<String>,
+    pub ips: Option<f32>,
+    pub ipk: Option<f32>,
+    pub sks_semester: Option<f32>,
+    pub sks_total: Option<f32>,
+    pub biaya_kuliah_smt: Option<f32>,
     pub status_sync: Option<String>,
     pub sync_at: Option<DateTime>,
     pub created_by: Option<Uuid>,

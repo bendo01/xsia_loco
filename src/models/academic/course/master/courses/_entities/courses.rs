@@ -16,16 +16,16 @@ pub struct Model {
     pub name: String,
     #[sea_orm(column_type = "Text", nullable)]
     pub implementation_method: Option<String>,
-    #[sea_orm(column_type = "Double")]
-    pub total_credit: f64,
-    #[sea_orm(column_type = "Double")]
-    pub lecture_credit: f64,
-    #[sea_orm(column_type = "Double")]
-    pub practice_credit: f64,
-    #[sea_orm(column_type = "Double")]
-    pub field_practice_credit: f64,
-    #[sea_orm(column_type = "Double")]
-    pub simulation_credit: f64,
+    #[sea_orm(column_type = "Float")]
+    pub total_credit: f32,
+    #[sea_orm(column_type = "Float")]
+    pub lecture_credit: f32,
+    #[sea_orm(column_type = "Float")]
+    pub practice_credit: f32,
+    #[sea_orm(column_type = "Float")]
+    pub field_practice_credit: f32,
+    #[sea_orm(column_type = "Float")]
+    pub simulation_credit: f32,
     pub has_unit: bool,
     pub has_syllabus: bool,
     pub has_material: bool,

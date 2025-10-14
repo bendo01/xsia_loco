@@ -29,7 +29,7 @@ impl MigrationTrait for Migration {
                 nama_mata_kuliah character varying(255),
                 id_kelas uuid,
                 nama_kelas_kuliah character varying(255),
-                sks_mata_kuliah character varying(255),
+                sks_mata_kuliah real,
                 nim character varying(255),
                 nama_mahasiswa character varying(255),
                 angkatan character varying(255),

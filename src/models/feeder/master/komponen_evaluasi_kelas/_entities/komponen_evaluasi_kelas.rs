@@ -16,12 +16,12 @@ pub struct Model {
     pub bobot_evaluasi: String,
     pub last_update: NaiveDate,
     pub tgl_create: NaiveDate,
-    pub created_at: DateTime,
-    pub updated_at: DateTime,
     pub sync_at: Option<DateTime>,
-    pub deleted_at: Option<DateTime>,
     pub created_by: Option<Uuid>,
     pub updated_by: Option<Uuid>,
+    pub created_at: Option<DateTime>,
+    pub updated_at: Option<DateTime>,
+    pub deleted_at: Option<DateTime>,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]

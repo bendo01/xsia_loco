@@ -96,8 +96,9 @@ impl ModelData {
                 bobot_evaluasi: Set(input.bobot_evaluasi),
                 last_update: Set(input.last_update), // <- NaiveDate
                 tgl_create: Set(input.tgl_create),   // <- NaiveDate
-                created_at: Set(Local::now().naive_local()),
-                updated_at: Set(Local::now().naive_local()),
+                // fields expect Option<NaiveDateTime>, wrap in Some(...)
+                created_at: Set(Some(Local::now().naive_local())),
+                updated_at: Set(Some(Local::now().naive_local())),
                 sync_at: Set(Some(Local::now().naive_local())),
                 ..Default::default()
             };

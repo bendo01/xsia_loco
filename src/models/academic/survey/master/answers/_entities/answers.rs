@@ -11,8 +11,8 @@ pub struct Model {
     pub alphabet_code: Option<String>,
     pub name: String,
     pub question_id: Uuid,
-    #[sea_orm(column_type = "Double")]
-    pub point: f64,
+    #[sea_orm(column_type = "Float")]
+    pub point: f32,
     #[sea_orm(column_type = "Text", nullable)]
     pub suggestion: Option<String>,
     pub created_at: Option<DateTime>,

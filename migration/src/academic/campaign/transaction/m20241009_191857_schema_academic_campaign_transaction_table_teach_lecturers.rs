@@ -23,7 +23,7 @@ impl MigrationTrait for Migration {
                 name character varying(255),
                 planning integer NOT NULL DEFAULT 0,
                 realization integer NOT NULL DEFAULT 0,
-                credit numeric(3,1) DEFAULT 0,
+                credit real DEFAULT '0'::real,
                 is_lecturer_home_base boolean NOT NULL DEFAULT false,
                 lecturer_id uuid NOT NULL DEFAULT '00000000-0000-0000-0000-000000000000'::uuid,
                 teach_id uuid NOT NULL DEFAULT '00000000-0000-0000-0000-000000000000'::uuid,

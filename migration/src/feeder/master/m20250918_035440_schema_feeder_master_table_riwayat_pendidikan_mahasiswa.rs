@@ -35,7 +35,7 @@ impl MigrationTrait for Migration {
                 nama_perguruan_tinggi character varying(255),
                 id_prodi uuid,
                 nama_program_studi character varying(255),
-                sks_diakui integer,
+                sks_diakui real,
                 id_perguruan_tinggi_asal uuid,
                 nama_perguruan_tinggi_asal character varying(255),
                 id_prodi_asal uuid,

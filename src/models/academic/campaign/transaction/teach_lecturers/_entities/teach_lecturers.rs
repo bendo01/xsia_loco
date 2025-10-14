@@ -4,7 +4,7 @@ use crate::models::academic::lecturer::master::lecturers::_entities::lecturers a
 use sea_orm::entity::prelude::*;
 use serde::{Deserialize, Serialize};
 
-#[derive(Clone, Debug, PartialEq, DeriveEntityModel, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, DeriveEntityModel, Serialize, Deserialize)]
 #[sea_orm(
     schema_name = "academic_campaign_transaction",
     table_name = "teach_decrees"
@@ -15,8 +15,8 @@ pub struct Model {
     pub name: Option<String>,
     pub planning: i32,
     pub realization: i32,
-    #[sea_orm(column_type = "Decimal(Some((3, 1)))", nullable)]
-    pub credit: Option<Decimal>,
+    #[sea_orm(column_type = "Float")]
+    pub credit: f32,
     pub is_lecturer_home_base: bool,
     pub lecturer_id: Uuid,
     pub teach_id: Uuid,

@@ -10,12 +10,12 @@ pub struct Model {
     pub code: Option<i32>,
     pub alphabet_code: Option<String>,
     pub name: String,
-    #[sea_orm(column_type = "Double")]
-    pub grade: f64,
-    #[sea_orm(column_type = "Double")]
-    pub minimum: f64,
-    #[sea_orm(column_type = "Double")]
-    pub maximum: f64,
+    #[sea_orm(column_type = "Float")]
+    pub grade: f32,
+    #[sea_orm(column_type = "Float")]
+    pub minimum: f32,
+    #[sea_orm(column_type = "Float")]
+    pub maximum: f32,
     pub start_date: Option<Date>,
     pub end_date: Option<Date>,
     pub unit_id: Uuid,

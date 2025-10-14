@@ -20,15 +20,12 @@ impl MigrationTrait for Migration {
             CREATE TABLE IF NOT EXISTS academic_survey_master.questions
             (
                 id uuid DEFAULT uuid_generate_v7(),
-
-
                 code integer NOT NULL DEFAULT 0,
                 alphabet_code character varying(255),
                 name text  NOT NULL,
                 institution_id uuid NOT NULL,
                 question_variety_id uuid,
                 suggestion text ,
-
                 created_at timestamp(0) without time zone DEFAULT now(),
                 updated_at timestamp(0) without time zone DEFAULT now(),
                 sync_at timestamp without time zone,

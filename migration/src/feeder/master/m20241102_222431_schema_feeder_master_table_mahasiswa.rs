@@ -26,7 +26,7 @@ impl MigrationTrait for Migration {
                 id_perguruan_tinggi uuid,
                 nipd character varying(255),
                 ipk real,
-                total_sks integer,
+                total_sks real,
                 id_sms uuid,
                 id_mahasiswa uuid,
                 id_agama integer,

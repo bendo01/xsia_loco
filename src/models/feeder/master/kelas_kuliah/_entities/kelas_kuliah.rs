@@ -1,7 +1,7 @@
 use sea_orm::entity::prelude::*;
 use serde::{Deserialize, Serialize};
 
-#[derive(Clone, Debug, PartialEq, DeriveEntityModel, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, DeriveEntityModel, Serialize, Deserialize)]
 #[sea_orm(schema_name = "feeder_master", table_name = "kelas_kuliah")]
 pub struct Model {
     #[sea_orm(primary_key, auto_increment = false)]
@@ -15,7 +15,7 @@ pub struct Model {
     pub kode_mata_kuliah: Option<String>,
     pub nama_mata_kuliah: Option<String>,
     pub nama_kelas_kuliah: Option<String>,
-    pub sks: Option<String>,
+    pub sks: Option<f32>,
     #[sea_orm(column_type = "Text", nullable)]
     pub id_dosen: Option<String>,
     #[sea_orm(column_type = "Text", nullable)]
@@ -26,15 +26,15 @@ pub struct Model {
     pub bahasan: Option<String>,
     pub tanggal_mulai_efektif: Option<Date>,
     pub tanggal_akhir_efektif: Option<Date>,
-    pub kapasitas: Option<String>,
+    pub kapasitas: Option<i32>,
     pub tanggal_tutup_daftar: Option<Date>,
     pub prodi_penyelenggara: Option<String>,
     pub perguruan_tinggi_penyelenggara: Option<String>,
     pub jumlah_mahasiswa_dapat_nilai: Option<String>,
-    pub sks_tm: Option<String>,
-    pub sks_prak: Option<String>,
-    pub sks_prak_lap: Option<String>,
-    pub sks_sim: Option<String>,
+    pub sks_tm: Option<f32>,
+    pub sks_prak: Option<f32>,
+    pub sks_prak_lap: Option<f32>,
+    pub sks_sim: Option<f32>,
     pub a_selenggara_pditt: Option<String>,
     pub a_pengguna_pditt: Option<String>,
     pub kuota_pditt: Option<String>,

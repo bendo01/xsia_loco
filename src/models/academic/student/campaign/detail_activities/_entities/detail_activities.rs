@@ -17,10 +17,10 @@ pub struct Model {
     pub feeder_id: Uuid,
     pub feeder_grade_id: Uuid,
     pub curiculum_detail_sequence: i32,
-    #[sea_orm(column_type = "Double", nullable)]
-    pub mark: f64,
-    #[sea_orm(column_type = "Double", nullable)]
-    pub credit: f64,
+    #[sea_orm(column_type = "Float", nullable)]
+    pub mark: f32,
+    #[sea_orm(column_type = "Float", nullable)]
+    pub credit: f32,
     pub grade_id: Uuid,
     pub course_id: Uuid,
     pub activity_id: Uuid,

@@ -22,7 +22,7 @@ impl MigrationTrait for Migration {
                 id uuid DEFAULT uuid_generate_v7(),
                 code integer DEFAULT 0,
                 name character varying(255),
-                credit double precision DEFAULT '0'::double precision,
+                credit real DEFAULT '0'::real,
                 curriculum_id uuid DEFAULT '00000000-0000-0000-0000-000000000000'::uuid,
                 semester_id uuid DEFAULT '00000000-0000-0000-0000-000000000000'::uuid,
                 course_id uuid DEFAULT '00000000-0000-0000-0000-000000000000'::uuid,
