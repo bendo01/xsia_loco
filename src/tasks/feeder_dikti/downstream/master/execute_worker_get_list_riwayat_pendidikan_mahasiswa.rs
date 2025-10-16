@@ -80,14 +80,9 @@ impl Task for ExecuteWorkerGetListRiwayatPendidikanMahasiswa {
                 }
             }
             sleep(Duration::from_secs(20)).await;
-            
-            
         } else {
             println!("There is No Data Provided");
         }
-
-
-        
         println!("Task ExecuteWorkerGetListRiwayatPendidikanMahasiswa completed - all workers enqueued");
         Ok(())
     }

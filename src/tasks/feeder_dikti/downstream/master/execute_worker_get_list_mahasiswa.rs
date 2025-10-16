@@ -85,9 +85,6 @@ impl Task for ExecuteWorkerGetListMahasiswa {
         } else {
             println!("There is No Data Provided");
         }
-
-
-        
         println!("Task ExecuteWorkerGetListMahasiswa completed - all workers enqueued");
         Ok(())
     }
