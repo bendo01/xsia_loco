@@ -208,7 +208,7 @@ impl BackgroundWorker<WorkerArgs> for Worker {
     /// This name is used when enqueueing jobs and identifying the worker in logs.
     /// The implementation returns the struct name as a string.
     fn class_name() -> String {
-        "GetListRiwayatPendidikanMahasiswa".to_string()
+        "GetNilaiTransferPendidikanMahasiswa".to_string()
     }
 
     /// Returns tags associated with this worker.

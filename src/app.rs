@@ -225,6 +225,7 @@ impl Hooks for App {
             .await?;
         queue.register(crate::workers::feeder_dikti::downstream::master::get_biodata_mahasiswa::Worker::build(ctx)).await?;
         queue.register(crate::workers::feeder_dikti::downstream::master::get_list_riwayat_pendidikan_mahasiswa::Worker::build(ctx)).await?;
+        queue.register(crate::workers::feeder_dikti::downstream::master::get_nilai_transfer_pendidikan_mahasiswa::Worker::build(ctx)).await?;
         Ok(())
     }
 
@@ -243,6 +244,7 @@ impl Hooks for App {
         tasks.register(tasks::feeder_dikti::downstream::master::execute_worker_get_list_mahasiswa::ExecuteWorkerGetListMahasiswa);
         tasks.register(tasks::feeder_dikti::downstream::master::execute_worker_get_biodata_mahasiswa::ExecuteWorkerGetBiodataMahasiswa);
         tasks.register(tasks::feeder_dikti::downstream::master::execute_worker_get_list_riwayat_pendidikan_mahasiswa::ExecuteWorkerGetListRiwayatPendidikanMahasiswa);
+        tasks.register(tasks::feeder_dikti::downstream::master::execute_worker_get_nilai_transfer_pendidikan_mahasiswa::ExecuteWorkerGetNilaiTransferPendidikanMahasiswa);
         tasks.register(tasks::tui::generate_hash_password::GenerateHashPassword);
         tasks.register(tasks::tui::regenerate_all_student_detail_activities::RegenerateAllStudentDetailActivities);
         tasks.register(tasks::tui::generate_institution_unit_campaign_activities::GenerateInstitutionUnitCampaignActivities);
