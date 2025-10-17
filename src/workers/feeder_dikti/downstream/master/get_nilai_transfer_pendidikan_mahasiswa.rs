@@ -242,12 +242,13 @@ impl BackgroundWorker<WorkerArgs> for Worker {
             },
         )
         .await;
-
+        // println!("{:#?}", req_result);
+        
         if let Ok(response) = req_result {
             match response.data {
                 Some(data_vec) if !data_vec.is_empty() => {
-                    // println!("Processing {} items", data_vec.len());
-                    // println!("{:#?}", data_vec);
+                    println!("Processing {} items", data_vec.len());
+                    println!("{:#?}", data_vec);
                     for item in data_vec {
                         if let Err(e) = ModelData::upsert(&self.ctx, item).await {
                             println!("Failed to upsert item: {}", e);
