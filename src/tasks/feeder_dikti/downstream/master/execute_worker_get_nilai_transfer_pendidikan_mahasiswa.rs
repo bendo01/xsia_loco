@@ -18,14 +18,14 @@ impl Task for ExecuteWorkerGetNilaiTransferPendidikanMahasiswa {
         }
     }
     async fn run(&self, app_context: &AppContext, _vars: &task::Vars) -> Result<()> {
-        println!("Task ExecuteWorkerGetNilaiTransferPendidikanMahasiswa generated");
+        // println!("Task ExecuteWorkerGetNilaiTransferPendidikanMahasiswa generated");
         // Initialize with default UUID, will be updated from settings
         let institution_id: Uuid = if let Some(current_settings) = &app_context.config.settings {
-            println!("Settings loaded");
+            // println!("Settings loaded");
             let settings = Settings::from_json(current_settings)?;
             match Uuid::parse_str(settings.current_institution_id.as_str()) {
                 Ok(parsed_id) => {
-                    println!("Successfully parsed institution id");
+                    // println!("Successfully parsed institution id");
                     parsed_id
                 }
                 Err(_) => {

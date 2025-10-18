@@ -18,14 +18,14 @@ impl Task for ExecuteWorkerGetRiwayatNilaiMahasiswa {
         }
     }
     async fn run(&self, app_context: &AppContext, _vars: &task::Vars) -> Result<()> {
-        println!("Task ExecuteWorkerGetRiwayatNilaiMahasiswa generated");
+        // println!("Task ExecuteWorkerGetRiwayatNilaiMahasiswa generated");
         // Initialize with default UUID, will be updated from settings
         let institution_id: Uuid = if let Some(current_settings) = &app_context.config.settings {
-            println!("Settings loaded");
+            // println!("Settings loaded");
             let settings = Settings::from_json(current_settings)?;
             match Uuid::parse_str(settings.current_institution_id.as_str()) {
                 Ok(parsed_id) => {
-                    println!("Successfully parsed institution id");
+                    // println!("Successfully parsed institution id");
                     parsed_id
                 }
                 Err(_) => {
@@ -60,7 +60,7 @@ impl Task for ExecuteWorkerGetRiwayatNilaiMahasiswa {
             // Enqueue the worker
             
             //  loop through based on 
-            let limit = 10;
+            let limit = 1000;
             let total_feeder = existing_reference.total_feeder;
             for offset in (0..total_feeder).step_by(limit as usize) {
                 let worker_args = WorkerArgs {

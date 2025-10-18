@@ -61,6 +61,12 @@ impl ModelData {
             );
         }
 
+        if let Some(id_cp) = input.id_prodi {
+            find = find.filter(
+                FeederMasterRiwayatNilaiMahasiswa::Column::IdProdi.eq(id_cp),
+            );
+        }
+
         if let Some(id_matkul) = input.id_matkul {
             find = find.filter(FeederMasterRiwayatNilaiMahasiswa::Column::IdMatkul.eq(id_matkul));
         }
@@ -103,7 +109,7 @@ impl ModelData {
 
             match model.update(&ctx.db).await {
                 Ok(_) => {
-                    println!("{}", "Riwayat nilai updated successfully");
+                    // println!("{}", "Riwayat nilai updated successfully");
                     Ok(())
                 }
                 Err(err) => Err(Error::Message(format!(
@@ -139,7 +145,7 @@ impl ModelData {
 
             match FeederMasterRiwayatNilaiMahasiswa::Entity::insert(new_model).exec(&ctx.db).await {
                 Ok(_) => {
-                    println!("{}", "Riwayat nilai inserted successfully");
+                    // println!("{}", "Riwayat nilai inserted successfully");
                     Ok(())
                 }
                 Err(err) => Err(Error::Message(format!(
@@ -179,7 +185,7 @@ impl BackgroundWorker<WorkerArgs> for Worker {
 
     async fn perform(&self, args: WorkerArgs) -> Result<()> {
         println!("=================GetRiwayatNilaiMahasiswa=======================");
-
+        // println!("ARGS Data {:#?}", args);
         let req_result = RequestData::get::<ModelInput>(
             &self.ctx,
             InputRequestData {
@@ -191,7 +197,7 @@ impl BackgroundWorker<WorkerArgs> for Worker {
             },
         )
         .await;
-
+        // println!("{:#?}", req_result);
         if let Ok(response) = req_result {
             match response.data {
                 Some(data_vec) if !data_vec.is_empty() => {
