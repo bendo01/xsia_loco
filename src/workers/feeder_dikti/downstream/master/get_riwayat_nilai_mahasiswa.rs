@@ -71,8 +71,12 @@ impl ModelData {
             find = find.filter(FeederMasterRiwayatNilaiMahasiswa::Column::IdMatkul.eq(id_matkul));
         }
 
-        if let Some(id_kelas) = input.id_kelas {
-            find = find.filter(FeederMasterRiwayatNilaiMahasiswa::Column::IdKelas.eq(id_kelas));
+        if let Some(id_class) = input.id_kelas {
+            find = find.filter(FeederMasterRiwayatNilaiMahasiswa::Column::IdKelas.eq(id_class));
+        }
+
+        if let Some(id_academic_year) = input.id_periode.clone() {
+            find = find.filter(FeederMasterRiwayatNilaiMahasiswa::Column::IdPeriode.eq(id_academic_year));
         }
 
         let data_result = find.one(&ctx.db).await;
