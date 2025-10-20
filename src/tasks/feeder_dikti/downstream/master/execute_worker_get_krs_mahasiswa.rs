@@ -1,4 +1,4 @@
-use crate::workers::feeder_dikti::downstream::master::get_krs_mahasiswa::{
+use crate::workers::feeder_dikti::downstream::master::download::get_krs_mahasiswa::{
     Worker, WorkerArgs,
 };
 

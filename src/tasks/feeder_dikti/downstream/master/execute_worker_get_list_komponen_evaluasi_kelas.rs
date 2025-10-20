@@ -1,4 +1,4 @@
-use crate::workers::feeder_dikti::downstream::master::get_list_komponen_evaluasi_kelas::{
+use crate::workers::feeder_dikti::downstream::master::download::get_list_komponen_evaluasi_kelas::{
     Worker, WorkerArgs,
 };
 use loco_rs::prelude::*;

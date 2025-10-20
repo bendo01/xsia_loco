@@ -215,20 +215,20 @@ impl Hooks for App {
     }
     async fn connect_workers(ctx: &AppContext, queue: &Queue) -> Result<()> {
         queue.register(crate::workers::feeder_dikti::downstream::akumulasi::get_count_data::GetCountDataWorker::build(ctx)).await?;
-        queue.register(crate::workers::feeder_dikti::downstream::master::get_list_komponen_evaluasi_kelas::Worker::build(ctx)).await?;
+        queue.register(crate::workers::feeder_dikti::downstream::master::download::get_list_komponen_evaluasi_kelas::Worker::build(ctx)).await?;
         queue
             .register(
-                crate::workers::feeder_dikti::downstream::master::get_list_mahasiswa::Worker::build(
+                crate::workers::feeder_dikti::downstream::master::download::get_list_mahasiswa::Worker::build(
                     ctx,
                 ),
             )
             .await?;
-        queue.register(crate::workers::feeder_dikti::downstream::master::get_biodata_mahasiswa::Worker::build(ctx)).await?;
-        queue.register(crate::workers::feeder_dikti::downstream::master::get_list_riwayat_pendidikan_mahasiswa::Worker::build(ctx)).await?;
-        queue.register(crate::workers::feeder_dikti::downstream::master::get_nilai_transfer_pendidikan_mahasiswa::Worker::build(ctx)).await?;
-        queue.register(crate::workers::feeder_dikti::downstream::master::get_riwayat_nilai_mahasiswa::Worker::build(ctx)).await?;
-        queue.register(crate::workers::feeder_dikti::downstream::master::get_krs_mahasiswa::Worker::build(ctx)).await?;
-        queue.register(crate::workers::feeder_dikti::downstream::master::get_list_perkuliahan_mahasiswa::Worker::build(ctx)).await?;
+        queue.register(crate::workers::feeder_dikti::downstream::master::download::get_biodata_mahasiswa::Worker::build(ctx)).await?;
+        queue.register(crate::workers::feeder_dikti::downstream::master::download::get_list_riwayat_pendidikan_mahasiswa::Worker::build(ctx)).await?;
+        queue.register(crate::workers::feeder_dikti::downstream::master::download::get_nilai_transfer_pendidikan_mahasiswa::Worker::build(ctx)).await?;
+        queue.register(crate::workers::feeder_dikti::downstream::master::download::get_riwayat_nilai_mahasiswa::Worker::build(ctx)).await?;
+        queue.register(crate::workers::feeder_dikti::downstream::master::download::get_krs_mahasiswa::Worker::build(ctx)).await?;
+        queue.register(crate::workers::feeder_dikti::downstream::master::download::get_list_perkuliahan_mahasiswa::Worker::build(ctx)).await?;
         Ok(())
     }
 

@@ -9,6 +9,7 @@ pub mod biodata_mahasiswa;
 pub mod dosen;
 pub mod dosen_pembimbing;
 pub mod dosen_pengajar_kelas_kuliah;
+pub mod evaluasi_kelas;
 pub mod fakultas;
 pub mod hitung_transkrip_angkatan_mahasiswa;
 pub mod kartu_rencana_studi_mahasiswa;

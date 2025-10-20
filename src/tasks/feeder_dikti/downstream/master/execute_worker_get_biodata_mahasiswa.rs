@@ -1,4 +1,4 @@
-use crate::workers::feeder_dikti::downstream::master::get_biodata_mahasiswa::{
+use crate::workers::feeder_dikti::downstream::master::download::get_biodata_mahasiswa::{
     Worker, WorkerArgs,
 };
 

@@ -1,4 +1,4 @@
-use crate::workers::feeder_dikti::downstream::master::get_riwayat_nilai_mahasiswa::{
+use crate::workers::feeder_dikti::downstream::master::download::get_riwayat_nilai_mahasiswa::{
     Worker, WorkerArgs,
 };
 
