@@ -116,14 +116,6 @@ pub async fn store(
     JsonValidateWithMessage(payload): JsonValidateWithMessage<ModelValidator>,
 ) -> Result<Response> {
     let mut validation_errors = ValidationErrors::new();
-    if let Err(validation_errors) = payload.validate() {
-        let error_json = format_validation_errors(&validation_errors, "Validation Failed");
-        return Ok((
-            StatusCode::UNPROCESSABLE_ENTITY, // Set status to 422
-            Json(error_json),                 // Return JSON-formatted errors
-        )
-            .into_response());
-    }
     if let Err(e) = payload.validate_unique_name(&ctx.db, None).await {
         validation_errors.add("name", e);
     }
@@ -193,14 +185,6 @@ pub async fn update(
     let data_object = load_item(&ctx, id).await?;
     let data = &data_object.model;
     let mut validation_errors = ValidationErrors::new();
-    if let Err(validation_errors) = payload.validate() {
-        let error_json = format_validation_errors(&validation_errors, "Validation Failed");
-        return Ok((
-            StatusCode::UNPROCESSABLE_ENTITY, // Set status to 422
-            Json(error_json),                 // Return JSON-formatted errors
-        )
-            .into_response());
-    }
     if let Err(e) = payload.validate_unique_name(&ctx.db, Some(id)).await {
         validation_errors.add("name", e);
     }

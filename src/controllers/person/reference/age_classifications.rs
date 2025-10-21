@@ -168,7 +168,7 @@ pub async fn store(
     State(ctx): State<AppContext>,
     JsonValidateWithMessage(params): JsonValidateWithMessage<Params>,
 ) -> Result<Response> {
-    if let Err(validation_errors) = params.validate() {
+    if let Err(validation_errors) = validator::Validate::validate(&params) {
         // Use your format_validation_errors function to format the errors with a custom message
         let error_json = format_validation_errors(&validation_errors, "Validation Failed");
         // Return the error as a response with a 422 Unprocessable Entity status code

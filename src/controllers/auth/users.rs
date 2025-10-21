@@ -70,11 +70,6 @@ async fn user_claim(
     JsonValidateWithMessage(params): JsonValidateWithMessage<ClaimUserValidator>,
 ) -> Result<Response> {
     let mut validation_errors = ValidationErrors::new();
-    if let Err(validation_errors) = params.validate() {
-        let error_json = format_validation_errors(&validation_errors, "Validation Failed");
-        return Ok((StatusCode::UNPROCESSABLE_ENTITY, Json(error_json)).into_response());
-    }
-
     // Check uniqueness for code, alphabet_code, and name
     if let Err(e) = params.clone().validate_unique_email(&ctx.db).await {
         validation_errors.add("email", e.clone());
@@ -309,15 +304,6 @@ async fn candidate_register(
     JsonValidateWithMessage(params): JsonValidateWithMessage<CandidateValidator>,
 ) -> Result<Response> {
     let mut validation_errors = ValidationErrors::new();
-    if let Err(validation_errors) = params.validate() {
-        let error_json = format_validation_errors(&validation_errors, "Validation Failed");
-        return Ok((
-            StatusCode::UNPROCESSABLE_ENTITY, // Set status to 422
-            Json(error_json),                 // Return JSON-formatted errors
-        )
-            .into_response());
-    }
-
     // Check uniqueness for code, alphabet_code, and name
     if let Err(e) = params.validate_unique_email(&ctx.db).await {
         validation_errors.add("email", e);

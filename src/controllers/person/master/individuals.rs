@@ -132,15 +132,6 @@ pub async fn store(
     JsonValidateWithMessage(payload): JsonValidateWithMessage<ModelValidator>,
 ) -> Result<Response> {
     let mut validation_errors = ValidationErrors::new();
-    if let Err(validation_errors) = payload.validate() {
-        let error_json = format_validation_errors(&validation_errors, "Validation Failed");
-        return Ok((
-            StatusCode::UNPROCESSABLE_ENTITY, // Set status to 422
-            Json(error_json),                 // Return JSON-formatted errors
-        )
-            .into_response());
-    }
-
     if let Err(e) = payload.validate_unique_code(&ctx.db, None).await {
         validation_errors.add("code", e);
     }
@@ -255,7 +246,7 @@ pub async fn store_candidate(
     }
 
     // Validate payload
-    if let Err(errors) = payload.validate() {
+    if let Err(errors) = validator::Validate::validate(&payload) {
         let error_json = format_validation_errors(&errors, "Validation Failed"); // Assume this function exists
         return (StatusCode::UNPROCESSABLE_ENTITY, Json(error_json)).into_response();
     }
@@ -435,7 +426,7 @@ pub async fn store_candidate_relatives(
     };
 
     // Validate payload
-    if let Err(errors) = payload.validate() {
+    if let Err(errors) = validator::Validate::validate(&payload) {
         let error_json = format_validation_errors(&errors, "Validation Failed"); // Assume this function exists
         return (StatusCode::UNPROCESSABLE_ENTITY, Json(error_json)).into_response();
     }
@@ -615,7 +606,7 @@ pub async fn store_student_relatives(
     };
 
     // Validate payload
-    if let Err(errors) = payload.validate() {
+    if let Err(errors) = validator::Validate::validate(&payload) {
         let error_json = format_validation_errors(&errors, "Validation Failed"); // Assume this function exists
         return (StatusCode::UNPROCESSABLE_ENTITY, Json(error_json)).into_response();
     }

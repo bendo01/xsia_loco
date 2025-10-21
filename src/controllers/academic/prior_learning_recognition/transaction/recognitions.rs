@@ -60,7 +60,7 @@ pub async fn store(
 ) -> Result<Response> {
     // println!("{:#?}", payload);
     // let validation_errors = ValidationErrors::new();
-    if let Err(validation_errors) = payload.validate() {
+    if let Err(validation_errors) = validator::Validate::validate(&payload) {
         let error_json = format_validation_errors(&validation_errors, "Validation Failed");
         return Ok((
             StatusCode::UNPROCESSABLE_ENTITY, // Set status to 422

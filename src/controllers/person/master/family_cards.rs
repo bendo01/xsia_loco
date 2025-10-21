@@ -84,7 +84,7 @@ pub async fn store_candidate(
     }
 
     // Validate payload
-    if let Err(errors) = payload.validate() {
+    if let Err(errors) = validator::Validate::validate(&payload) {
         let error_json = format_validation_errors(&errors, "Validation Failed"); // Assume this function exists
         return (StatusCode::UNPROCESSABLE_ENTITY, Json(error_json)).into_response();
     }
@@ -195,7 +195,7 @@ pub async fn store_student(
     }
 
     // Validate payload
-    if let Err(errors) = payload.validate() {
+    if let Err(errors) = validator::Validate::validate(&payload) {
         let error_json = format_validation_errors(&errors, "Validation Failed"); // Assume this function exists
         return (StatusCode::UNPROCESSABLE_ENTITY, Json(error_json)).into_response();
     }

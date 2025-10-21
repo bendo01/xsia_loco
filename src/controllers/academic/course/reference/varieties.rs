@@ -135,9 +135,6 @@ pub async fn store(
     State(ctx): State<AppContext>,
     Json(payload): Json<ModelValidator>,
 ) -> Result<Response> {
-    // Validate the payload using validator
-    payload.validate()?;
-
     // Additional validation for uniqueness
     payload.validate_unique_code(&ctx.db).await?;
     payload.validate_unique_alphabet_code(&ctx.db).await?;
@@ -202,9 +199,6 @@ pub async fn update(
     State(ctx): State<AppContext>,
     Json(payload): Json<ModelValidator>,
 ) -> Result<Response> {
-    // Validate the payload using validator
-    payload.validate()?;
-
     // Find the existing item
     let data_object = load_item(&ctx, id).await?;
     let data = &data_object.model;

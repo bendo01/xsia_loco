@@ -209,9 +209,6 @@ pub async fn update(
     State(ctx): State<AppContext>,
     Json(payload): Json<ModelValidator>,
 ) -> Result<Response> {
-    // Validate the payload using validator
-    payload.validate()?;
-
     // Find the existing item
     let data_object = load_item(&ctx, id).await?;
     let data = &data_object.model;
