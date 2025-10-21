@@ -142,15 +142,17 @@ impl Task for EstimateKomponenEvaluasiKelas {
                     let received = vec.len() as i32;
                     println!("Received {} records (offset={})", received, offset);
                     // Enqueue a worker to upsert this page
-                    let worker_args = crate::workers::feeder_dikti::downstream::master::upsert::get_list_komponen_evaluasi_kelas::WorkerArgs {
-                        limit: Some(limit),
-                        offset: Some(offset),
-                    };
+                    
+                    // let worker_args = crate::workers::feeder_dikti::downstream::master::upsert::get_list_komponen_evaluasi_kelas::WorkerArgs {
+                    //     limit: Some(limit),
+                    //     offset: Some(offset),
+                    // };
+
                     // perform_later returns Result<(), Error>
-                    match crate::workers::feeder_dikti::downstream::master::upsert::get_list_komponen_evaluasi_kelas::Worker::perform_later(app_context, worker_args).await {
-                        Ok(_) => println!("✅ Enqueued upsert worker for limit {} offset {}", limit, offset),
-                        Err(err) => eprintln!("❌ Failed to enqueue upsert worker for limit {} offset {}: {:?}", limit, offset, err),
-                    }
+                    // match crate::workers::feeder_dikti::downstream::master::upsert::get_list_komponen_evaluasi_kelas::Worker::perform_later(app_context, worker_args).await {
+                    //     Ok(_) => println!("✅ Enqueued upsert worker for limit {} offset {}", limit, offset),
+                    //     Err(err) => eprintln!("❌ Failed to enqueue upsert worker for limit {} offset {}: {:?}", limit, offset, err),
+                    // }
 
                     // Persist progress to FeederAkumulasiEstimasi: update last_offset and total_data
                     let update_result = FeederAkumulasiEstimasi::Entity::find()
