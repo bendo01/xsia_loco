@@ -2,7 +2,6 @@
 
 use sea_orm::entity::prelude::*;
 use serde::{Deserialize, Serialize};
-use crate::library::deserialization::{de_opt_i32};
 
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel, Serialize, Deserialize)]
 #[sea_orm(
@@ -35,36 +34,6 @@ pub struct Model {
     pub created_at: Option<DateTime>,
     pub updated_at: Option<DateTime>,
     pub deleted_at: Option<DateTime>,
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub struct FeederDataModel {
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub id_komponen_evaluasi: Option<String>,
-
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub id_kelas_kuliah: Option<String>,
-
-    #[serde(skip_serializing_if = "Option::is_none", deserialize_with = "de_opt_i32")]
-    pub id_jenis_evaluasi: Option<i32>,
-
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub nama: Option<String>,
-
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub nama_inggris: Option<String>,
-
-    #[serde(skip_serializing_if = "Option::is_none", deserialize_with = "de_opt_i32")]
-    pub nomor_urut: Option<i32>,
-
-    #[serde(skip_serializing_if = "Option::is_none", deserialize_with = "de_opt_i32")]
-    pub bobot_evaluasi: Option<i32>,
-
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub last_update: Option<String>,
-
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub tgl_create: Option<String>,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]

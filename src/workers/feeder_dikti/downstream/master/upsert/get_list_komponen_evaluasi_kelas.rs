@@ -13,14 +13,31 @@ pub struct InputData;
 
 impl InputData {
     pub async fn upsert(ctx: &AppContext, input: FeederModel) -> Result<(), Error> {
+        // Ensure required UUID fields are present before using them
+        let id_komponen_evaluasi = input
+            .id_komponen_evaluasi
+            .clone()
+            .ok_or(Error::Message("Missing id_komponen_evaluasi".to_string()))?;
+        let id_kelas_kuliah = input
+            .id_kelas_kuliah
+            .clone()
+            .ok_or(Error::Message("Missing id_kelas_kuliah".to_string()))?;
+        let id_jenis_evaluasi = input
+            .id_jenis_evaluasi
+            .clone()
+            .ok_or(Error::Message("Missing id_jenis_evaluasi".to_string()))?;
+
         let data_result = FeederMasterKomponenEvaluasiKelas::Entity::find()
             .filter(FeederMasterKomponenEvaluasiKelas::Column::DeletedAt.is_null())
             .filter(
                 FeederMasterKomponenEvaluasiKelas::Column::IdKomponenEvaluasi
-                    .eq(input.id_komponen_evaluasi),
+                    .eq(id_komponen_evaluasi),
             )
             .filter(
-                FeederMasterKomponenEvaluasiKelas::Column::IdKelasKuliah.eq(input.id_kelas_kuliah),
+                FeederMasterKomponenEvaluasiKelas::Column::IdKelasKuliah.eq(id_kelas_kuliah),
+            )
+            .filter(
+                FeederMasterKomponenEvaluasiKelas::Column::IdKelasKuliah.eq(id_jenis_evaluasi),
             )
             .one(&ctx.db)
             .await;
@@ -38,11 +55,11 @@ impl InputData {
         // If the record exists, update it; otherwise, insert a new one
         if let Some(existing_reference) = data_opt {
             let mut reference: FeederMasterKomponenEvaluasiKelas::ActiveModel = existing_reference.into();
-            reference.id_komponen_evaluasi = Set(input.id_komponen_evaluasi);
-            reference.id_kelas_kuliah = Set(input.id_kelas_kuliah);
-            reference.id_jenis_evaluasi = Set(input.id_jenis_evaluasi);
-            reference.nomor_urut = Set(input.nomor_urut);
-            reference.bobot_evaluasi = Set(input.bobot_evaluasi);
+            reference.id_komponen_evaluasi = Set(id_komponen_evaluasi);
+            reference.id_kelas_kuliah = Set(id_kelas_kuliah);
+            reference.id_jenis_evaluasi = Set(id_jenis_evaluasi);
+            reference.nomor_urut = Set(input.nomor_urut.unwrap_or_default());
+            reference.bobot_evaluasi = Set(input.bobot_evaluasi.map(|v| v.to_string()).unwrap_or_default());
             reference.nama = Set(input.nama);
             reference.nama_inggris = Set(input.nama_inggris);
             reference.last_update = Set(input.last_update.unwrap_or(Local::now().naive_local().date())); // <- ensure NaiveDate by unwrapping or using today
@@ -61,13 +78,13 @@ impl InputData {
             let pk_id = Uuid::parse_str(&uuidv7_string).expect("Invalid UUID format");
             let new_reference = FeederMasterKomponenEvaluasiKelas::ActiveModel {
                 id: Set(pk_id),
-                id_komponen_evaluasi: Set(input.id_komponen_evaluasi),
-                id_kelas_kuliah: Set(input.id_kelas_kuliah),
-                id_jenis_evaluasi: Set(input.id_jenis_evaluasi),
-                nomor_urut: Set(input.nomor_urut),
+                id_komponen_evaluasi: Set(id_komponen_evaluasi),
+                id_kelas_kuliah: Set(id_kelas_kuliah),
+                id_jenis_evaluasi: Set(id_jenis_evaluasi),
+                nomor_urut: Set(input.nomor_urut.unwrap_or_default()),
                 nama: Set(input.nama),
                 nama_inggris: Set(input.nama_inggris),
-                bobot_evaluasi: Set(input.bobot_evaluasi),
+                bobot_evaluasi: Set(input.bobot_evaluasi.map(|v| v.to_string()).unwrap_or_default()),
                 last_update: Set(input.last_update.unwrap_or(Local::now().naive_local().date())), // <- ensure NaiveDate by unwrapping or using today
                 tgl_create: Set(input.tgl_create.unwrap_or(Local::now().naive_local().date())),   // <- NaiveDate, fallback to today
                 // fields expect Option<NaiveDateTime>, wrap in Some(...)
@@ -100,7 +117,9 @@ pub struct Worker {
 }
 
 #[derive(Deserialize, Debug, Serialize)]
-pub struct WorkerArgs {}
+pub struct WorkerArgs {
+    pub feeder_model: FeederModel,
+}
 
 #[async_trait]
 impl BackgroundWorker<WorkerArgs> for Worker {
@@ -137,8 +156,10 @@ impl BackgroundWorker<WorkerArgs> for Worker {
     ///
     /// # Returns
     /// * `Result<()>` - Ok if the job completed successfully, Err otherwise
-    async fn perform(&self, _args: WorkerArgs) -> Result<()> {
-        
+    async fn perform(&self, args: WorkerArgs) -> Result<()> {
+        if let Err(e) = InputData::upsert(&self.ctx, args.feeder_model).await {
+            println!("Failed to upsert item: {}", e);
+        }
         
         Ok(())
     }

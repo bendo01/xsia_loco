@@ -6,7 +6,7 @@ use sea_orm::{ColumnTrait, EntityTrait, QueryFilter, Set};
 use serde::{Deserialize, Serialize};
 use crate::models::feeder::akumulasi::estimasi::_entities::estimasi as FeederAkumulasiEstimasi;
 use crate::tasks::feeder_dikti::downstream::request_only_data::{InputRequestData, RequestData};
-use crate::models::feeder::master::evaluasi_kelas::_entities::evaluasi_kelas::FeederDataModel;
+use crate::models::feeder::master::komponen_evaluasi_kelas::feeder_model::ModelInput as FeederModel;
 
 #[derive(Deserialize, Debug, Serialize)]
 pub struct WorkerArgs {
@@ -120,7 +120,7 @@ impl Task for EstimateKomponenEvaluasiKelas {
         let mut offset: i32 = 0;
 
         loop {
-            let request_result = RequestData::get::<FeederDataModel>(app_context, InputRequestData {
+            let request_result = RequestData::get::<FeederModel>(app_context, InputRequestData {
                 act: "GetListKomponenEvaluasiKelas".to_string(),
                 filter: None,
                 order: None,
@@ -153,6 +153,11 @@ impl Task for EstimateKomponenEvaluasiKelas {
                     //     Ok(_) => println!("✅ Enqueued upsert worker for limit {} offset {}", limit, offset),
                     //     Err(err) => eprintln!("❌ Failed to enqueue upsert worker for limit {} offset {}: {:?}", limit, offset, err),
                     // }
+
+                    for (index, obj) in vec.iter().enumerate() {
+                        println!("Index: {}, Value: {:#?}", index, obj);
+                    }
+
 
                     // Persist progress to FeederAkumulasiEstimasi: update last_offset and total_data
                     let update_result = FeederAkumulasiEstimasi::Entity::find()
