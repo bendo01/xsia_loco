@@ -34,14 +34,18 @@ pub enum Relation {
 impl RelationTrait for Relation {
     fn def(&self) -> RelationDef {
         match self {
-            Self::Evaluation => Entity::belongs_to(AcademicPriorLearningRecognitionTransactionEvaluation::Entity)
-                .from(Column::EvaluationId)
-                .to(AcademicPriorLearningRecognitionTransactionEvaluation::Column::Id)
-                .into(),
-            Self::EvidenceType => Entity::belongs_to(AcademicPriorLearningRecognitionReferenceEvidenceType::Entity)
-                .from(Column::EvidenceTypeId)
-                .to(AcademicPriorLearningRecognitionReferenceEvidenceType::Column::Id)
-                .into(),
+            Self::Evaluation => {
+                Entity::belongs_to(AcademicPriorLearningRecognitionTransactionEvaluation::Entity)
+                    .from(Column::EvaluationId)
+                    .to(AcademicPriorLearningRecognitionTransactionEvaluation::Column::Id)
+                    .into()
+            }
+            Self::EvidenceType => {
+                Entity::belongs_to(AcademicPriorLearningRecognitionReferenceEvidenceType::Entity)
+                    .from(Column::EvidenceTypeId)
+                    .to(AcademicPriorLearningRecognitionReferenceEvidenceType::Column::Id)
+                    .into()
+            }
             Self::Archive => Entity::belongs_to(DocumentTransactionArchive::Entity)
                 .from(Column::ArchiveId)
                 .to(DocumentTransactionArchive::Column::Id)

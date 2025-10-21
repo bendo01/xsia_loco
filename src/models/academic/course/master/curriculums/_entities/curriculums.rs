@@ -1,8 +1,8 @@
 use crate::models::academic::course::master::curriculum_details::_entities::curriculum_details as AcademicCourseMasterCurriculumDetail;
 use crate::models::academic::course::reference::curriculum_types::_entities::curriculum_types as AcademicCourseReferenceCurriculumType;
 use crate::models::academic::general::reference::academic_years::_entities::academic_years as AcademicGeneralReferenceAcademicYear;
-use crate::models::institution::master::units::_entities::units as InstitutionMasterUnit;
 use crate::models::academic::prior_learning_recognition::transaction::recognitions::_entities::recognitions as AcademicPriorLearningRecognitionTransactionRecognition;
+use crate::models::institution::master::units::_entities::units as InstitutionMasterUnit;
 use sea_orm::entity::prelude::*;
 use serde::{Deserialize, Serialize};
 
@@ -65,12 +65,12 @@ impl RelationTrait for Relation {
                     .to(AcademicCourseMasterCurriculumDetail::Column::CurriculumId)
                     .into()
             }
-            Self::Recognitions => {
-                Entity::has_many(AcademicPriorLearningRecognitionTransactionRecognition::Entity)
-                    .from(Column::Id)
-                    .to(AcademicPriorLearningRecognitionTransactionRecognition::Column::CurriculumId)
-                    .into()
-            }
+            Self::Recognitions => Entity::has_many(
+                AcademicPriorLearningRecognitionTransactionRecognition::Entity,
+            )
+            .from(Column::Id)
+            .to(AcademicPriorLearningRecognitionTransactionRecognition::Column::CurriculumId)
+            .into(),
         }
     }
 }

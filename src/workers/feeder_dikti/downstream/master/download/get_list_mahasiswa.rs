@@ -12,7 +12,9 @@ use crate::tasks::feeder_dikti::downstream::request_data_pagination::{
 };
 
 use crate::library::deserialization::{
-    de_opt_date_dmy, de_opt_f32, de_opt_i32, // <-- use i32 version
+    de_opt_date_dmy,
+    de_opt_f32,
+    de_opt_i32, // <-- use i32 version
 };
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -103,8 +105,7 @@ impl ModelData {
 
         // If the record exists, update it; otherwise, insert a new one
         if let Some(existing_reference) = data_opt {
-            let mut reference: FeederMasterMahasiswa::ActiveModel =
-                existing_reference.into();
+            let mut reference: FeederMasterMahasiswa::ActiveModel = existing_reference.into();
             // reference.id_komponen_evaluasi = Set(input.id_komponen_evaluasi);
             reference.nama_mahasiswa = Set(input.nama_mahasiswa);
             reference.jenis_kelamin = Set(input.jenis_kelamin);
@@ -130,7 +131,6 @@ impl ModelData {
             reference.tgl_create = Set(input.tgl_create);
             reference.status_sync = Set(input.status_sync);
 
-
             match reference.update(&ctx.db).await {
                 Ok(_updated_model) => {
                     println!("{}", "Data updated successfully");
@@ -145,7 +145,7 @@ impl ModelData {
             let pk_id = Uuid::parse_str(&uuidv7_string).expect("Invalid UUID format");
             let new_reference = FeederMasterMahasiswa::ActiveModel {
                 id: Set(pk_id),
-                
+
                 nama_mahasiswa: Set(input.nama_mahasiswa),
                 jenis_kelamin: Set(input.jenis_kelamin),
                 tanggal_lahir: Set(input.tanggal_lahir),
@@ -189,7 +189,6 @@ impl ModelData {
                 }
             }
         }
-
     }
 }
 
@@ -249,13 +248,14 @@ impl BackgroundWorker<WorkerArgs> for Worker {
         let req_result = RequestData::get::<ModelInput>(
             &self.ctx,
             InputRequestData {
-                act: args.act,          // String
-                filter: args.filter,    // Option<String>
-                order: args.order,      // Option<String>
-                limit: args.limit,      // Option<i32>
-                offset: args.offset,    // Option<i32>
+                act: args.act,       // String
+                filter: args.filter, // Option<String>
+                order: args.order,   // Option<String>
+                limit: args.limit,   // Option<i32>
+                offset: args.offset, // Option<i32>
             },
-        ).await;
+        )
+        .await;
 
         if let Ok(response) = req_result {
             match response.data {

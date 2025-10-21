@@ -58,7 +58,7 @@ impl RequestData {
         if let Some(settings) = &ctx.config.settings {
             let settings = Settings::from_json(settings)?;
             let feeder_url = settings.feeder_url;
-            
+
             let request_data = Self {
                 act: input.act.clone(),
                 token,
@@ -100,7 +100,9 @@ impl RequestData {
                                     //     action, err, response_text);
                                     return Err(Error::Message(format!(
                                         "Failed to parse response JSON for action '{}': {}. Response was: {}",
-                                        input.act.clone(), err, response_text
+                                        input.act.clone(),
+                                        err,
+                                        response_text
                                     )));
                                 }
                             }
@@ -111,7 +113,7 @@ impl RequestData {
                             )));
                         }
                     }
-                },
+                }
                 Err(err) => {
                     // tracing::error!("HTTP request failed for action: {}. Error: {}", action, err);
                     return Err(Error::Message(format!("Failed to send request: {err}")));

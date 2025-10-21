@@ -1,6 +1,6 @@
 use crate::models::academic::candidate::master::candidates::_entities::candidates as AcademicCandidateMasterCandidate;
-use crate::models::academic::prior_learning_recognition::transaction::evaluators::_entities::evaluators as AcademicPriorLearningRecognitionTransactionEvaluators;
 use crate::models::academic::course::master::curriculums::_entities::curriculums as AcademicCourseMasterCurriculum;
+use crate::models::academic::prior_learning_recognition::transaction::evaluators::_entities::evaluators as AcademicPriorLearningRecognitionTransactionEvaluators;
 use crate::models::institution::master::units::_entities::units as InstitutionMasterUnit;
 
 use sea_orm::entity::prelude::*;
@@ -49,10 +49,12 @@ impl RelationTrait for Relation {
                 .from(Column::UnitId)
                 .to(InstitutionMasterUnit::Column::Id)
                 .into(),
-            Self::Evaluators => Entity::has_many(AcademicPriorLearningRecognitionTransactionEvaluators::Entity)
-                .from(Column::Id)
-                .to(AcademicPriorLearningRecognitionTransactionEvaluators::Column::RecognitionId)
-                .into(),
+            Self::Evaluators => Entity::has_many(
+                AcademicPriorLearningRecognitionTransactionEvaluators::Entity,
+            )
+            .from(Column::Id)
+            .to(AcademicPriorLearningRecognitionTransactionEvaluators::Column::RecognitionId)
+            .into(),
         }
     }
 }

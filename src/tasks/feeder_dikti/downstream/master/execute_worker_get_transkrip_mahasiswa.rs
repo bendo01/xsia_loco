@@ -2,11 +2,11 @@ use crate::workers::feeder_dikti::downstream::master::download::get_transkrip_ma
     Worker, WorkerArgs,
 };
 
-use crate::models::feeder::akumulasi::jumlah_data::_entities::jumlah_data as FeederAkumulasiJumlahData;
 use crate::common::settings::Settings;
+use crate::models::feeder::akumulasi::jumlah_data::_entities::jumlah_data as FeederAkumulasiJumlahData;
 
-use tokio::time::{sleep, Duration};
 use loco_rs::prelude::*;
+use tokio::time::{Duration, sleep};
 pub struct ExecuteWorkerGetTranskripMahasiswa;
 #[async_trait]
 impl Task for ExecuteWorkerGetTranskripMahasiswa {
@@ -30,7 +30,10 @@ impl Task for ExecuteWorkerGetTranskripMahasiswa {
         let data_result = FeederAkumulasiJumlahData::Entity::find()
             .filter(FeederAkumulasiJumlahData::Column::DeletedAt.is_null())
             .filter(FeederAkumulasiJumlahData::Column::InstitutionId.eq(institution_id))
-            .filter(FeederAkumulasiJumlahData::Column::Name.eq("FA0030GetCountTranskripMahasiswa".to_string()))
+            .filter(
+                FeederAkumulasiJumlahData::Column::Name
+                    .eq("FA0030GetCountTranskripMahasiswa".to_string()),
+            )
             .one(&app_context.db)
             .await;
 
@@ -55,8 +58,14 @@ impl Task for ExecuteWorkerGetTranskripMahasiswa {
                     offset: Some(offset),
                 };
                 match Worker::perform_later(app_context, worker_args).await {
-                    Ok(_) => println!("✅ Enqueued worker for GetTranskripMahasiswa: limit {} offset: {}", limit, offset),
-                    Err(err) => eprintln!("❌ Failed to enqueue worker for limit {} offset: {}. Error: {:?}", limit, offset, err),
+                    Ok(_) => println!(
+                        "✅ Enqueued worker for GetTranskripMahasiswa: limit {} offset: {}",
+                        limit, offset
+                    ),
+                    Err(err) => eprintln!(
+                        "❌ Failed to enqueue worker for limit {} offset: {}. Error: {:?}",
+                        limit, offset, err
+                    ),
                 }
             }
             sleep(Duration::from_secs(20)).await;

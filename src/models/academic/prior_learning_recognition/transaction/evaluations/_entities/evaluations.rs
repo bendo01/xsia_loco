@@ -41,30 +41,42 @@ pub enum Relation {
 impl RelationTrait for Relation {
     fn def(&self) -> RelationDef {
         match self {
-            Self::Recognition => Entity::belongs_to(AcademicPriorLearningRecognitionTransactionRecognition::Entity)
-                .from(Column::RecognitionId)
-                .to(AcademicPriorLearningRecognitionTransactionRecognition::Column::Id)
-                .into(),
-            Self::Professionalism => Entity::belongs_to(AcademicPriorLearningRecognitionReferenceProfessionalism::Entity)
-                .from(Column::RecognitionId)
-                .to(AcademicPriorLearningRecognitionReferenceProfessionalism::Column::Id)
-                .into(),
-            Self::CourseEvaluationPlanning => Entity::belongs_to(AcademicMasterCourseEvaluationPlanningCourseEvaluationPlanning::Entity)
-                .from(Column::CourseEvaluationPlanningId)
-                .to(AcademicMasterCourseEvaluationPlanningCourseEvaluationPlanning::Column::Id)
-                .into(),
-            Self::EvidenceType => Entity::belongs_to(AcademicPriorLearningRecognitionReferenceEvidenceType::Entity)
-                .from(Column::EvidenceTypeId)
-                .to(AcademicPriorLearningRecognitionReferenceEvidenceType::Column::Id)
-                .into(),
-            Self::Decree => Entity::has_one(AcademicPriorLearningRecognitionTransactionDecree::Entity)
-                .from(Column::Id)
-                .to(AcademicPriorLearningRecognitionTransactionDecree::Column::EvaluationId)
-                .into(),
-            Self::EvaluationDetails => Entity::has_many(AcademicPriorLearningRecognitionTransactionEvaluationDetail::Entity)
-                .from(Column::Id)
-                .to(AcademicPriorLearningRecognitionTransactionEvaluationDetail::Column::EvaluationId)
-                .into(),
+            Self::Recognition => {
+                Entity::belongs_to(AcademicPriorLearningRecognitionTransactionRecognition::Entity)
+                    .from(Column::RecognitionId)
+                    .to(AcademicPriorLearningRecognitionTransactionRecognition::Column::Id)
+                    .into()
+            }
+            Self::Professionalism => {
+                Entity::belongs_to(AcademicPriorLearningRecognitionReferenceProfessionalism::Entity)
+                    .from(Column::RecognitionId)
+                    .to(AcademicPriorLearningRecognitionReferenceProfessionalism::Column::Id)
+                    .into()
+            }
+            Self::CourseEvaluationPlanning => Entity::belongs_to(
+                AcademicMasterCourseEvaluationPlanningCourseEvaluationPlanning::Entity,
+            )
+            .from(Column::CourseEvaluationPlanningId)
+            .to(AcademicMasterCourseEvaluationPlanningCourseEvaluationPlanning::Column::Id)
+            .into(),
+            Self::EvidenceType => {
+                Entity::belongs_to(AcademicPriorLearningRecognitionReferenceEvidenceType::Entity)
+                    .from(Column::EvidenceTypeId)
+                    .to(AcademicPriorLearningRecognitionReferenceEvidenceType::Column::Id)
+                    .into()
+            }
+            Self::Decree => {
+                Entity::has_one(AcademicPriorLearningRecognitionTransactionDecree::Entity)
+                    .from(Column::Id)
+                    .to(AcademicPriorLearningRecognitionTransactionDecree::Column::EvaluationId)
+                    .into()
+            }
+            Self::EvaluationDetails => Entity::has_many(
+                AcademicPriorLearningRecognitionTransactionEvaluationDetail::Entity,
+            )
+            .from(Column::Id)
+            .to(AcademicPriorLearningRecognitionTransactionEvaluationDetail::Column::EvaluationId)
+            .into(),
         }
     }
 }

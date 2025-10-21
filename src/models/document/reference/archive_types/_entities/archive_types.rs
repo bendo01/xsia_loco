@@ -4,10 +4,7 @@ use sea_orm::entity::prelude::*;
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel, Eq, Serialize, Deserialize)]
-#[sea_orm(
-    schema_name = "document_reference",
-    table_name = "archive_types"
-)]
+#[sea_orm(schema_name = "document_reference", table_name = "archive_types")]
 pub struct Model {
     #[sea_orm(primary_key, auto_increment = false)]
     pub id: Uuid,

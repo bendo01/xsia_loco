@@ -1,5 +1,5 @@
-use crate::tasks::feeder_dikti::downstream::request_data::RequestData;
 use crate::models::feeder::referensi::jabatan_fungsional::_entities::jabatan_fungsional as FeederReferensiJabatanFungsional;
+use crate::tasks::feeder_dikti::downstream::request_data::RequestData;
 use chrono::Local;
 use loco_rs::prelude::*;
 use sea_orm::{ColumnTrait, EntityTrait, QueryFilter};

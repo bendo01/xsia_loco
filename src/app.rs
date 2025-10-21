@@ -251,7 +251,7 @@ impl Hooks for App {
         tasks.register(tasks::feeder_dikti::downstream::master::execute_worker_get_riwayat_nilai_mahasiswa::ExecuteWorkerGetRiwayatNilaiMahasiswa);
         tasks.register(tasks::feeder_dikti::downstream::master::execute_worker_get_krs_mahasiswa::ExecuteWorkerGetKRSMahasiswa);
         tasks.register(tasks::feeder_dikti::downstream::master::execute_worker_get_list_perkuliahan_mahasiswa::ExecuteWorkerGetListPerkuliahanMahasiswa);
-        
+
         tasks.register(tasks::tui::generate_hash_password::GenerateHashPassword);
         tasks.register(tasks::tui::regenerate_all_student_detail_activities::RegenerateAllStudentDetailActivities);
         tasks.register(tasks::tui::generate_institution_unit_campaign_activities::GenerateInstitutionUnitCampaignActivities);

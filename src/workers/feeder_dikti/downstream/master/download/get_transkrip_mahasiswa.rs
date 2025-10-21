@@ -1,13 +1,13 @@
-use loco_rs::prelude::*;
-use serde::{Deserialize, Serialize};
 use chrono::Local;
+use loco_rs::prelude::*;
 use sea_orm::{ColumnTrait, EntityTrait, QueryFilter, Set};
+use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
 use crate::models::feeder::master::transkrip_mahasiswa::_entities::transkrip_mahasiswa as FeederMasterTranskripMahasiswa;
 use crate::tasks::feeder_dikti::downstream::request_only_data::{InputRequestData, RequestData};
 
-use crate::library::deserialization::{de_opt_f32};
+use crate::library::deserialization::de_opt_f32;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct ModelInput {
@@ -38,7 +38,8 @@ impl ModelData {
             .filter(FeederMasterTranskripMahasiswa::Column::DeletedAt.is_null());
 
         if let Some(id_reg) = input.id_registrasi_mahasiswa {
-            find = find.filter(FeederMasterTranskripMahasiswa::Column::IdRegistrasiMahasiswa.eq(id_reg));
+            find = find
+                .filter(FeederMasterTranskripMahasiswa::Column::IdRegistrasiMahasiswa.eq(id_reg));
         }
         if let Some(id_matkul) = input.id_matkul {
             find = find.filter(FeederMasterTranskripMahasiswa::Column::IdMatkul.eq(id_matkul));
@@ -104,7 +105,10 @@ impl ModelData {
                 ..Default::default()
             };
 
-            match FeederMasterTranskripMahasiswa::Entity::insert(new_model).exec(&ctx.db).await {
+            match FeederMasterTranskripMahasiswa::Entity::insert(new_model)
+                .exec(&ctx.db)
+                .await
+            {
                 Ok(_) => Ok(()),
                 Err(err) => Err(Error::Message(format!(
                     "Failed to insert transkrip_mahasiswa: {err}"
@@ -114,7 +118,9 @@ impl ModelData {
     }
 }
 
-pub struct Worker { pub ctx: AppContext }
+pub struct Worker {
+    pub ctx: AppContext,
+}
 
 #[derive(Deserialize, Debug, Serialize)]
 pub struct WorkerArgs {
@@ -127,14 +133,28 @@ pub struct WorkerArgs {
 
 #[async_trait]
 impl BackgroundWorker<WorkerArgs> for Worker {
-    fn build(ctx: &AppContext) -> Self { Self { ctx: ctx.clone() } }
-    fn class_name() -> String { "GetTranskripMahasiswa".to_string() }
-    fn tags() -> Vec<String> { Vec::new() }
+    fn build(ctx: &AppContext) -> Self {
+        Self { ctx: ctx.clone() }
+    }
+    fn class_name() -> String {
+        "GetTranskripMahasiswa".to_string()
+    }
+    fn tags() -> Vec<String> {
+        Vec::new()
+    }
     async fn perform(&self, args: WorkerArgs) -> Result<()> {
         println!("=================GetTranskripMahasiswa=======================");
-        let req_result = RequestData::get::<ModelInput>(&self.ctx, InputRequestData {
-            act: args.act, filter: args.filter, order: args.order, limit: args.limit, offset: args.offset
-        }).await;
+        let req_result = RequestData::get::<ModelInput>(
+            &self.ctx,
+            InputRequestData {
+                act: args.act,
+                filter: args.filter,
+                order: args.order,
+                limit: args.limit,
+                offset: args.offset,
+            },
+        )
+        .await;
 
         if let Ok(response) = req_result {
             match response.data {

@@ -1,12 +1,12 @@
 use crate::models::academic::candidate::master::candidates::_entities::candidates as AcademicCandidateMasterCandidate;
 use crate::models::academic::candidate::reference::registration_types::_entities::registration_types as AcademicCandidateReferenceRegistrationType;
+use crate::models::academic::prior_learning_recognition::transaction::recognitions::_entities::recognitions as AcademicPriorLearningRecognitionTransactionRecognition;
 use crate::models::academic::student::reference::registrations::_entities::registrations as AcademicStudentReferenceRegistration;
 use crate::models::auth::users::_entities::users as AuthUser;
 use crate::models::contact::master::residences::_entities::residences as ContactMasterResidence;
 use crate::models::person::master::family_card_members::_entities::family_card_members as PersonMasterFamilyMember;
 use crate::models::person::master::family_cards::_entities::family_cards as PersonMasterFamilyCard;
 use crate::models::person::master::individuals::_entities::individuals as PersonMasterIndividual;
-use crate::models::academic::prior_learning_recognition::transaction::recognitions::_entities::recognitions as AcademicPriorLearningRecognitionTransactionRecognition;
 use loco_rs::prelude::*;
 use serde::{Deserialize, Serialize};
 use uuid::{Uuid, uuid};
@@ -93,11 +93,18 @@ impl CandidateValidate {
             }
 
             // fetch recognition
-            let recognition_opt = AcademicPriorLearningRecognitionTransactionRecognition::Entity::find()
-                .filter(AcademicPriorLearningRecognitionTransactionRecognition::Column::DeletedAt.is_null())
-                .filter(AcademicPriorLearningRecognitionTransactionRecognition::Column::CandidateId.eq(current_candidate.id))
-                .one(&ctx.db)
-                .await?;
+            let recognition_opt =
+                AcademicPriorLearningRecognitionTransactionRecognition::Entity::find()
+                    .filter(
+                        AcademicPriorLearningRecognitionTransactionRecognition::Column::DeletedAt
+                            .is_null(),
+                    )
+                    .filter(
+                        AcademicPriorLearningRecognitionTransactionRecognition::Column::CandidateId
+                            .eq(current_candidate.id),
+                    )
+                    .one(&ctx.db)
+                    .await?;
             if let Some(recognition) = recognition_opt {
                 validate.recognition_id = recognition.id;
             }

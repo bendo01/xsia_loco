@@ -34,14 +34,18 @@ pub enum Relation {
 impl RelationTrait for Relation {
     fn def(&self) -> RelationDef {
         match self {
-            Self::EvaluatorType => Entity::belongs_to(AcademicPriorLearningRecognitionReferenceEvaluatorTypes::Entity)
-                .from(Column::EvaluatorTypeId)
-                .to(AcademicPriorLearningRecognitionReferenceEvaluatorTypes::Column::Id)
-                .into(),
-            Self::Recognotion => Entity::belongs_to(AcademicPriorLearningRecognitionTransactionRecognotions::Entity)
-                .from(Column::EvaluatorTypeId)
-                .to(AcademicPriorLearningRecognitionTransactionRecognotions::Column::Id)
-                .into(),
+            Self::EvaluatorType => {
+                Entity::belongs_to(AcademicPriorLearningRecognitionReferenceEvaluatorTypes::Entity)
+                    .from(Column::EvaluatorTypeId)
+                    .to(AcademicPriorLearningRecognitionReferenceEvaluatorTypes::Column::Id)
+                    .into()
+            }
+            Self::Recognotion => {
+                Entity::belongs_to(AcademicPriorLearningRecognitionTransactionRecognotions::Entity)
+                    .from(Column::EvaluatorTypeId)
+                    .to(AcademicPriorLearningRecognitionTransactionRecognotions::Column::Id)
+                    .into()
+            }
             Self::Individual => Entity::belongs_to(PersonMasterIndividuals::Entity)
                 .from(Column::IndividualId)
                 .to(PersonMasterIndividuals::Column::Id)

@@ -9,7 +9,7 @@ use uuid::Uuid; // Removed unused `uuid` macro import
 use crate::models::feeder::master::nilai_transfer_pendidikan_mahasiswa::_entities::nilai_transfer_pendidikan_mahasiswa as FeederMasterNilaiTransferPendidikanMahasiswa;
 use crate::tasks::feeder_dikti::downstream::request_only_data::{InputRequestData, RequestData};
 
-use crate::library::deserialization::{de_opt_f32};
+use crate::library::deserialization::de_opt_f32;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct ModelInput {
@@ -27,9 +27,9 @@ pub struct ModelInput {
 
     // Periode & semester
     #[serde(rename = "id_periode_masuk")]
-    pub id_periode_masuk: String,     // "20241" (string)
-    pub id_semester: String,          // "20241" (string)
-    pub nama_semester: String,        // "2024/2025 Ganjil"
+    pub id_periode_masuk: String, // "20241" (string)
+    pub id_semester: String,   // "20241" (string)
+    pub nama_semester: String, // "2024/2025 Ganjil"
 
     // Mata kuliah asal
     pub kode_mata_kuliah_asal: String,
@@ -66,7 +66,8 @@ impl ModelData {
         let find = FeederMasterNilaiTransferPendidikanMahasiswa::Entity::find()
             .filter(FeederMasterNilaiTransferPendidikanMahasiswa::Column::DeletedAt.is_null())
             .filter(
-                FeederMasterNilaiTransferPendidikanMahasiswa::Column::IdTransfer.eq(input.id_transfer),
+                FeederMasterNilaiTransferPendidikanMahasiswa::Column::IdTransfer
+                    .eq(input.id_transfer),
             );
 
         // then .one(&ctx.db).await as before
@@ -157,7 +158,7 @@ impl ModelData {
                 status_sync: Set(input.status_sync),
                 created_at: Set(Local::now().naive_local()), // NaiveDateTime
                 updated_at: Set(Local::now().naive_local()), // NaiveDateTime
-                sync_at: Set(Some(Local::now().naive_local())),    // NaiveDateTime
+                sync_at: Set(Some(Local::now().naive_local())), // NaiveDateTime
                 ..Default::default()
             };
             match FeederMasterNilaiTransferPendidikanMahasiswa::Entity::insert(new_reference)
@@ -243,7 +244,7 @@ impl BackgroundWorker<WorkerArgs> for Worker {
         )
         .await;
         // println!("{:#?}", req_result);
-        
+
         if let Ok(response) = req_result {
             match response.data {
                 Some(data_vec) if !data_vec.is_empty() => {

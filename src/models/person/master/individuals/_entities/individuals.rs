@@ -1,5 +1,6 @@
 use crate::models::academic::candidate::master::candidates::_entities::candidates as AcademicCandidateMasterCandidate;
 use crate::models::academic::lecturer::master::lecturers::_entities::lecturers as AcademicLecturerMasterLecturer;
+use crate::models::academic::prior_learning_recognition::transaction::evaluators::_entities::evaluators as AcademicPriorLearningRecognitionTransactionEvaluators;
 use crate::models::academic::student::master::students::_entities::students as AcademicStudentMasterStudent;
 use crate::models::institution::master::employees::_entities::employees as InstitutionMasterEmployee;
 use crate::models::person::master::biodatas::_entities::biodatas as PersonMasterBiodata;
@@ -13,7 +14,6 @@ use crate::models::person::reference::marital_statuses::_entities::marital_statu
 use crate::models::person::reference::occupations::_entities::occupations as PersonReferenceOccupation;
 use crate::models::person::reference::professions::_entities::professions as PersonReferenceProfession;
 use crate::models::person::reference::religions::_entities::religions as PersonReferenceReligion;
-use crate::models::academic::prior_learning_recognition::transaction::evaluators::_entities::evaluators as AcademicPriorLearningRecognitionTransactionEvaluators;
 
 use sea_orm::entity::prelude::*;
 use serde::{Deserialize, Serialize};
@@ -144,10 +144,12 @@ impl RelationTrait for Relation {
                 .from(Column::Id)
                 .to(AcademicStudentMasterStudent::Column::IndividualId)
                 .into(),
-            Self::Evaluators => Entity::has_many(AcademicPriorLearningRecognitionTransactionEvaluators::Entity)
-                .from(Column::Id)
-                .to(AcademicPriorLearningRecognitionTransactionEvaluators::Column::IndividualId)
-                .into(),
+            Self::Evaluators => {
+                Entity::has_many(AcademicPriorLearningRecognitionTransactionEvaluators::Entity)
+                    .from(Column::Id)
+                    .to(AcademicPriorLearningRecognitionTransactionEvaluators::Column::IndividualId)
+                    .into()
+            }
         }
     }
 }

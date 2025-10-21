@@ -29,12 +29,12 @@ pub enum Relation {
 impl RelationTrait for Relation {
     fn def(&self) -> RelationDef {
         match self {
-            Self::EvaluationDetails => {
-                Entity::has_many(AcademicPriorLearningRecognitionTransactionEvaluationDetail::Entity)
-                    .from(Column::Id)
-                    .to(AcademicPriorLearningRecognitionTransactionEvaluationDetail::Column::EvidenceTypeId)
-                    .into()
-            }
+            Self::EvaluationDetails => Entity::has_many(
+                AcademicPriorLearningRecognitionTransactionEvaluationDetail::Entity,
+            )
+            .from(Column::Id)
+            .to(AcademicPriorLearningRecognitionTransactionEvaluationDetail::Column::EvidenceTypeId)
+            .into(),
         }
     }
 }
@@ -44,4 +44,3 @@ impl Related<AcademicPriorLearningRecognitionTransactionEvaluationDetail::Entity
         Relation::EvaluationDetails.def()
     }
 }
-

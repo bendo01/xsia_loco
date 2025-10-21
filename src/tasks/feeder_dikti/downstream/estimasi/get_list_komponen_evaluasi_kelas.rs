@@ -1,12 +1,12 @@
-use loco_rs::prelude::*;
 use crate::common::settings::Settings;
-use uuid::Uuid;
+use crate::models::feeder::akumulasi::estimasi::_entities::estimasi as FeederAkumulasiEstimasi;
+use crate::models::feeder::master::komponen_evaluasi_kelas::feeder_model::ModelInput as FeederModel;
+use crate::tasks::feeder_dikti::downstream::request_only_data::{InputRequestData, RequestData};
 use chrono::Local;
+use loco_rs::prelude::*;
 use sea_orm::{ColumnTrait, EntityTrait, QueryFilter, Set};
 use serde::{Deserialize, Serialize};
-use crate::models::feeder::akumulasi::estimasi::_entities::estimasi as FeederAkumulasiEstimasi;
-use crate::tasks::feeder_dikti::downstream::request_only_data::{InputRequestData, RequestData};
-use crate::models::feeder::master::komponen_evaluasi_kelas::feeder_model::ModelInput as FeederModel;
+use uuid::Uuid;
 
 #[derive(Deserialize, Debug, Serialize)]
 pub struct WorkerArgs {
@@ -52,7 +52,10 @@ impl Task for EstimateKomponenEvaluasiKelas {
         let data_result = FeederAkumulasiEstimasi::Entity::find()
             .filter(FeederAkumulasiEstimasi::Column::DeletedAt.is_null())
             .filter(FeederAkumulasiEstimasi::Column::InstitutionId.eq(institution_id))
-            .filter(FeederAkumulasiEstimasi::Column::Name.eq("EstimateKomponenEvaluasiKelas".to_string()))
+            .filter(
+                FeederAkumulasiEstimasi::Column::Name
+                    .eq("EstimateKomponenEvaluasiKelas".to_string()),
+            )
             .one(&app_context.db)
             .await;
 
@@ -66,26 +69,32 @@ impl Task for EstimateKomponenEvaluasiKelas {
             }
         };
 
-            // determine limit from existing reference or use default
-            let mut limit: i32 = 100;
+        // determine limit from existing reference or use default
+        let mut limit: i32 = 100;
 
-            if let Some(existing_reference) = data_opt {
+        if let Some(existing_reference) = data_opt {
             // Reference already exists — reset offsets and persist the change.
-                let existing_id = existing_reference.id.clone();
-                // read the configured page size from the existing reference
-                limit = existing_reference.total_data_per_request;
-                let mut active: FeederAkumulasiEstimasi::ActiveModel = existing_reference.into_active_model();
-                active.last_offset = Set(0);
-                active.total_data = Set(0);
-                active.updated_at = Set(Local::now().naive_local());
+            let existing_id = existing_reference.id.clone();
+            // read the configured page size from the existing reference
+            limit = existing_reference.total_data_per_request;
+            let mut active: FeederAkumulasiEstimasi::ActiveModel =
+                existing_reference.into_active_model();
+            active.last_offset = Set(0);
+            active.total_data = Set(0);
+            active.updated_at = Set(Local::now().naive_local());
             // optional: update audit fields if present
             match active.update(&app_context.db).await {
                 Ok(_) => {
-                    println!("EstimateKomponenEvaluasiKelas reference reset (id={})", existing_id);
+                    println!(
+                        "EstimateKomponenEvaluasiKelas reference reset (id={})",
+                        existing_id
+                    );
                     // continue to perform requests below
                 }
                 Err(err) => {
-                    return Err(Error::Message(format!("Failed to update existing reference: {err}")));
+                    return Err(Error::Message(format!(
+                        "Failed to update existing reference: {err}"
+                    )));
                 }
             }
         } else {
@@ -103,8 +112,12 @@ impl Task for EstimateKomponenEvaluasiKelas {
             };
             match input.insert(&app_context.db).await {
                 Ok(_) => {
-                    println!("Inserted EstimateKomponenEvaluasiKelas reference for institution {institution_id}");
-                    println!("EstimateKomponenEvaluasiKelas reference created - will start requesting data");
+                    println!(
+                        "Inserted EstimateKomponenEvaluasiKelas reference for institution {institution_id}"
+                    );
+                    println!(
+                        "EstimateKomponenEvaluasiKelas reference created - will start requesting data"
+                    );
                     // default limit already set to 100 above; continue to perform requests below
                 }
                 Err(err) => {
@@ -120,13 +133,17 @@ impl Task for EstimateKomponenEvaluasiKelas {
         let mut offset: i32 = 0;
 
         loop {
-            let request_result = RequestData::get::<FeederModel>(app_context, InputRequestData {
-                act: "GetListKomponenEvaluasiKelas".to_string(),
-                filter: None,
-                order: None,
-                limit: Some(limit),
-                offset: Some(offset),
-            }).await;
+            let request_result = RequestData::get::<FeederModel>(
+                app_context,
+                InputRequestData {
+                    act: "GetListKomponenEvaluasiKelas".to_string(),
+                    filter: None,
+                    order: None,
+                    limit: Some(limit),
+                    offset: Some(offset),
+                },
+            )
+            .await;
 
             // Unwrap response or return on error so subsequent match arms are consistent
             let response = match request_result {
@@ -142,28 +159,28 @@ impl Task for EstimateKomponenEvaluasiKelas {
                     let received = vec.len() as i32;
                     println!("Received {} records (offset={})", received, offset);
                     // Enqueue a worker to upsert this page
-                    
-                    // let worker_args = crate::workers::feeder_dikti::downstream::master::upsert::get_list_komponen_evaluasi_kelas::WorkerArgs {
-                    //     limit: Some(limit),
-                    //     offset: Some(offset),
-                    // };
 
-                    // perform_later returns Result<(), Error>
-                    // match crate::workers::feeder_dikti::downstream::master::upsert::get_list_komponen_evaluasi_kelas::Worker::perform_later(app_context, worker_args).await {
-                    //     Ok(_) => println!("✅ Enqueued upsert worker for limit {} offset {}", limit, offset),
-                    //     Err(err) => eprintln!("❌ Failed to enqueue upsert worker for limit {} offset {}: {:?}", limit, offset, err),
-                    // }
-
+                    // Enqueue worker for each item in the vector
                     for (index, obj) in vec.iter().enumerate() {
-                        println!("Index: {}, Value: {:#?}", index, obj);
-                    }
+                        let worker_args = crate::workers::feeder_dikti::downstream::master::upsert::get_list_komponen_evaluasi_kelas::WorkerArgs {
+                            feeder_model: obj.clone(),
+                        };
 
+                        // perform_later returns Result<(), Error>
+                        match crate::workers::feeder_dikti::downstream::master::upsert::get_list_komponen_evaluasi_kelas::Worker::perform_later(app_context, worker_args).await {
+                            Ok(_) => println!("✅ Enqueued upsert worker for item {} (offset {})", index, offset + index as i32),
+                            Err(err) => eprintln!("❌ Failed to enqueue upsert worker for item {} (offset {}): {:?}", index, offset + index as i32, err),
+                        }
+                    }
 
                     // Persist progress to FeederAkumulasiEstimasi: update last_offset and total_data
                     let update_result = FeederAkumulasiEstimasi::Entity::find()
                         .filter(FeederAkumulasiEstimasi::Column::DeletedAt.is_null())
                         .filter(FeederAkumulasiEstimasi::Column::InstitutionId.eq(institution_id))
-                        .filter(FeederAkumulasiEstimasi::Column::Name.eq("EstimateKomponenEvaluasiKelas".to_string()))
+                        .filter(
+                            FeederAkumulasiEstimasi::Column::Name
+                                .eq("EstimateKomponenEvaluasiKelas".to_string()),
+                        )
                         .one(&app_context.db)
                         .await;
 
@@ -178,15 +195,22 @@ impl Task for EstimateKomponenEvaluasiKelas {
                         let updated_total = record.total_data;
                         let updated_last_offset = record.last_offset;
                         let updated_updated_at = record.updated_at;
-                        let mut active: FeederAkumulasiEstimasi::ActiveModel = record.into_active_model();
+                        let mut active: FeederAkumulasiEstimasi::ActiveModel =
+                            record.into_active_model();
                         active.total_data = Set(updated_total);
                         active.last_offset = Set(updated_last_offset);
                         active.updated_at = Set(updated_updated_at);
                         if let Err(err) = active.update(&app_context.db).await {
-                            eprintln!("Failed to persist progress to FeederAkumulasiEstimasi: {:?}", err);
+                            eprintln!(
+                                "Failed to persist progress to FeederAkumulasiEstimasi: {:?}",
+                                err
+                            );
                         }
                     } else if let Err(err) = update_result {
-                        eprintln!("Failed to fetch FeederAkumulasiEstimasi to persist progress: {:?}", err);
+                        eprintln!(
+                            "Failed to fetch FeederAkumulasiEstimasi to persist progress: {:?}",
+                            err
+                        );
                     }
 
                     // Advance offset for next page (page-based stepping)
@@ -202,5 +226,5 @@ impl Task for EstimateKomponenEvaluasiKelas {
 
         // finished paging
         Ok(())
-    }   
+    }
 }

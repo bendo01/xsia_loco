@@ -127,7 +127,7 @@ impl Task for GenerateUnitStudentCampaignActivities {
         let mut student_academic_year_id: Uuid =
             Uuid::parse_str("00000000-0000-0000-0000-000000000000").unwrap();
         let mut fee: f64 = 0.0;
-        
+
         let unit_id_string = vars.cli_arg("unit_id");
         let academic_year_id_string = vars.cli_arg("academic_year_id");
         let student_academic_year_id_string = vars.cli_arg("student_academic_year_id");
@@ -139,13 +139,19 @@ impl Task for GenerateUnitStudentCampaignActivities {
         }
 
         if let Ok(academic_year_id_str) = academic_year_id_string {
-            academic_year_id = Uuid::parse_str(&academic_year_id_str)
-                .map_err(|e| Error::Message(format!("Invalid academic_year_id UUID format: {}", e)))?;
+            academic_year_id = Uuid::parse_str(&academic_year_id_str).map_err(|e| {
+                Error::Message(format!("Invalid academic_year_id UUID format: {}", e))
+            })?;
         }
 
         if let Ok(student_academic_year_id_str) = student_academic_year_id_string {
-            student_academic_year_id = Uuid::parse_str(&student_academic_year_id_str)
-                .map_err(|e| Error::Message(format!("Invalid student_academic_year_id UUID format: {}", e)))?;
+            student_academic_year_id =
+                Uuid::parse_str(&student_academic_year_id_str).map_err(|e| {
+                    Error::Message(format!(
+                        "Invalid student_academic_year_id UUID format: {}",
+                        e
+                    ))
+                })?;
         }
 
         if let Ok(fee_str) = fee_string {

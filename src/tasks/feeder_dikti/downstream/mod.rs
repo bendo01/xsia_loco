@@ -5,5 +5,5 @@ pub mod pembangkit;
 pub mod referensi;
 pub mod request_data;
 pub mod request_data_akumulasi;
-pub mod request_only_data;
 pub mod request_data_pagination;
+pub mod request_only_data;

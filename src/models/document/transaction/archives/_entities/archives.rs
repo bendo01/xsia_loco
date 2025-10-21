@@ -5,10 +5,7 @@ use sea_orm::entity::prelude::*;
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel, Eq, Serialize, Deserialize)]
-#[sea_orm(
-    schema_name = "document_transaction",
-    table_name = "archives"
-)]
+#[sea_orm(schema_name = "document_transaction", table_name = "archives")]
 pub struct Model {
     #[sea_orm(primary_key, auto_increment = false)]
     pub id: Uuid,
@@ -40,10 +37,12 @@ impl RelationTrait for Relation {
                 .from(Column::ArchiveTypeId)
                 .to(DocumentReferenceArchiveType::Column::Id)
                 .into(),
-            Self::EvaluationDetails => Entity::has_many(AcademicPriorLearningRecognitionTransactionEvaluationDetail::Entity)
-                .from(Column::Id)
-                .to(AcademicPriorLearningRecognitionTransactionEvaluationDetail::Column::ArchiveId)
-                .into(),
+            Self::EvaluationDetails => Entity::has_many(
+                AcademicPriorLearningRecognitionTransactionEvaluationDetail::Entity,
+            )
+            .from(Column::Id)
+            .to(AcademicPriorLearningRecognitionTransactionEvaluationDetail::Column::ArchiveId)
+            .into(),
         }
     }
 }

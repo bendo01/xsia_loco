@@ -1,6 +1,6 @@
+use crate::library::deserialization::{de_opt_boolish, de_opt_date_dmy, de_opt_i32};
 use sea_orm::entity::prelude::*;
 use serde::{Deserialize, Serialize};
-use crate::library::deserialization::{de_opt_date_dmy, de_opt_i32, de_opt_boolish};
 
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel, Eq, Serialize, Deserialize)]
 #[sea_orm(schema_name = "feeder_master", table_name = "biodata_mahasiswa")]

@@ -1,7 +1,6 @@
 use sea_orm::entity::prelude::*;
 use serde::{Deserialize, Serialize};
 
-
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel, Serialize, Deserialize)]
 #[sea_orm(
     schema_name = "feeder_master",
@@ -22,9 +21,9 @@ pub struct Model {
 
     // Periode & semester
     #[serde(rename = "id_periode_masuk")]
-    pub id_periode_masuk: String,     // "20241" (string)
-    pub id_semester: String,          // "20241" (string)
-    pub nama_semester: String,        // "2024/2025 Ganjil"
+    pub id_periode_masuk: String, // "20241" (string)
+    pub id_semester: String,   // "20241" (string)
+    pub nama_semester: String, // "2024/2025 Ganjil"
 
     // Mata kuliah asal
     pub kode_mata_kuliah_asal: String,

@@ -39,7 +39,10 @@ impl RequestData {
     /// - Settings are not properly loaded
     /// - HTTP request to Feeder API fails
     /// - Response parsing fails
-    pub async fn get<T>(ctx: &AppContext, input_request_data: InputRequestData) -> Result<ReturnData<T>, Error>
+    pub async fn get<T>(
+        ctx: &AppContext,
+        input_request_data: InputRequestData,
+    ) -> Result<ReturnData<T>, Error>
     where
         T: for<'de> Deserialize<'de>,
     {
@@ -98,7 +101,9 @@ impl RequestData {
                                     //     action, err, response_text);
                                     return Err(Error::Message(format!(
                                         "Failed to parse response JSON for action '{}': {}. Response was: {}",
-                                        input_request_data.act.clone(), err, response_text
+                                        input_request_data.act.clone(),
+                                        err,
+                                        response_text
                                     )));
                                 }
                             }
@@ -109,7 +114,7 @@ impl RequestData {
                             )));
                         }
                     }
-                },
+                }
                 Err(err) => {
                     // tracing::error!("HTTP request failed for action: {}. Error: {}", action, err);
                     return Err(Error::Message(format!("Failed to send request: {err}")));

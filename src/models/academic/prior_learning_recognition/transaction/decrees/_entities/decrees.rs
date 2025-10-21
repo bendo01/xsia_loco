@@ -30,10 +30,12 @@ pub enum Relation {
 impl RelationTrait for Relation {
     fn def(&self) -> RelationDef {
         match self {
-            Self::Evaluation => Entity::belongs_to(AcademicPriorLearningRecognitionTransactionEvaluation::Entity)
-                .from(Column::EvaluationId)
-                .to(AcademicPriorLearningRecognitionTransactionEvaluation::Column::Id)
-                .into(),
+            Self::Evaluation => {
+                Entity::belongs_to(AcademicPriorLearningRecognitionTransactionEvaluation::Entity)
+                    .from(Column::EvaluationId)
+                    .to(AcademicPriorLearningRecognitionTransactionEvaluation::Column::Id)
+                    .into()
+            }
         }
     }
 }

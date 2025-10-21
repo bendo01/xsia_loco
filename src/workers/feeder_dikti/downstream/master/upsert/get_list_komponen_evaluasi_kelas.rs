@@ -1,12 +1,12 @@
-use loco_rs::prelude::*;
-use serde::{Deserialize, Serialize};
-use colored::Colorize;
 use chrono::Local;
+use colored::Colorize;
+use loco_rs::prelude::*;
+use sea_orm::{ColumnTrait, EntityTrait, QueryFilter, Set};
+use serde::{Deserialize, Serialize};
 
 // use crate::tasks::feeder_dikti::downstream::request_only_data::{InputRequestData, RequestData};
 use crate::models::feeder::master::komponen_evaluasi_kelas::_entities::komponen_evaluasi_kelas as FeederMasterKomponenEvaluasiKelas;
 use crate::models::feeder::master::komponen_evaluasi_kelas::feeder_model::ModelInput as FeederModel;
-
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct InputData;
@@ -33,11 +33,9 @@ impl InputData {
                 FeederMasterKomponenEvaluasiKelas::Column::IdKomponenEvaluasi
                     .eq(id_komponen_evaluasi),
             )
+            .filter(FeederMasterKomponenEvaluasiKelas::Column::IdKelasKuliah.eq(id_kelas_kuliah))
             .filter(
-                FeederMasterKomponenEvaluasiKelas::Column::IdKelasKuliah.eq(id_kelas_kuliah),
-            )
-            .filter(
-                FeederMasterKomponenEvaluasiKelas::Column::IdKelasKuliah.eq(id_jenis_evaluasi),
+                FeederMasterKomponenEvaluasiKelas::Column::IdJenisEvaluasi.eq(id_jenis_evaluasi),
             )
             .one(&ctx.db)
             .await;
@@ -54,16 +52,24 @@ impl InputData {
 
         // If the record exists, update it; otherwise, insert a new one
         if let Some(existing_reference) = data_opt {
-            let mut reference: FeederMasterKomponenEvaluasiKelas::ActiveModel = existing_reference.into();
+            let mut reference: FeederMasterKomponenEvaluasiKelas::ActiveModel =
+                existing_reference.into();
             reference.id_komponen_evaluasi = Set(id_komponen_evaluasi);
             reference.id_kelas_kuliah = Set(id_kelas_kuliah);
             reference.id_jenis_evaluasi = Set(id_jenis_evaluasi);
             reference.nomor_urut = Set(input.nomor_urut.unwrap_or_default());
-            reference.bobot_evaluasi = Set(input.bobot_evaluasi.map(|v| v.to_string()).unwrap_or_default());
+            reference.bobot_evaluasi = Set(input
+                .bobot_evaluasi
+                .map(|v| v.to_string())
+                .unwrap_or_default());
             reference.nama = Set(input.nama);
             reference.nama_inggris = Set(input.nama_inggris);
-            reference.last_update = Set(input.last_update.unwrap_or(Local::now().naive_local().date())); // <- ensure NaiveDate by unwrapping or using today
-            reference.tgl_create = Set(input.tgl_create.unwrap_or(Local::now().naive_local().date())); // <- Now NaiveDate, fallback to today
+            reference.last_update = Set(input
+                .last_update
+                .unwrap_or(Local::now().naive_local().date())); // <- ensure NaiveDate by unwrapping or using today
+            reference.tgl_create = Set(input
+                .tgl_create
+                .unwrap_or(Local::now().naive_local().date())); // <- Now NaiveDate, fallback to today
             match reference.update(&ctx.db).await {
                 Ok(_updated_model) => {
                     println!("{}", "Data updated successfully".green());
@@ -84,9 +90,16 @@ impl InputData {
                 nomor_urut: Set(input.nomor_urut.unwrap_or_default()),
                 nama: Set(input.nama),
                 nama_inggris: Set(input.nama_inggris),
-                bobot_evaluasi: Set(input.bobot_evaluasi.map(|v| v.to_string()).unwrap_or_default()),
-                last_update: Set(input.last_update.unwrap_or(Local::now().naive_local().date())), // <- ensure NaiveDate by unwrapping or using today
-                tgl_create: Set(input.tgl_create.unwrap_or(Local::now().naive_local().date())),   // <- NaiveDate, fallback to today
+                bobot_evaluasi: Set(input
+                    .bobot_evaluasi
+                    .map(|v| v.to_string())
+                    .unwrap_or_default()),
+                last_update: Set(input
+                    .last_update
+                    .unwrap_or(Local::now().naive_local().date())), // <- ensure NaiveDate by unwrapping or using today
+                tgl_create: Set(input
+                    .tgl_create
+                    .unwrap_or(Local::now().naive_local().date())), // <- NaiveDate, fallback to today
                 // fields expect Option<NaiveDateTime>, wrap in Some(...)
                 created_at: Set(Some(Local::now().naive_local())),
                 updated_at: Set(Some(Local::now().naive_local())),
@@ -110,7 +123,6 @@ impl InputData {
         }
     }
 }
-
 
 pub struct Worker {
     pub ctx: AppContext,
@@ -160,7 +172,7 @@ impl BackgroundWorker<WorkerArgs> for Worker {
         if let Err(e) = InputData::upsert(&self.ctx, args.feeder_model).await {
             println!("Failed to upsert item: {}", e);
         }
-        
+
         Ok(())
     }
 }

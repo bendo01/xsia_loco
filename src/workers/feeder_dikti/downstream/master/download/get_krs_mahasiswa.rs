@@ -1,13 +1,13 @@
-use loco_rs::prelude::*;
-use serde::{Deserialize, Serialize};
 use chrono::Local;
+use loco_rs::prelude::*;
 use sea_orm::{ColumnTrait, EntityTrait, QueryFilter, Set};
+use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
 use crate::models::feeder::master::kartu_rencana_studi_mahasiswa::_entities::kartu_rencana_studi_mahasiswa as FeederMasterKrsMahasiswa;
 use crate::tasks::feeder_dikti::downstream::request_only_data::{InputRequestData, RequestData};
 
-use crate::library::deserialization::{de_opt_f32};
+use crate::library::deserialization::de_opt_f32;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct ModelInput {
@@ -105,7 +105,10 @@ impl ModelData {
                 ..Default::default()
             };
 
-            match FeederMasterKrsMahasiswa::Entity::insert(new_model).exec(&ctx.db).await {
+            match FeederMasterKrsMahasiswa::Entity::insert(new_model)
+                .exec(&ctx.db)
+                .await
+            {
                 Ok(_) => Ok(()),
                 Err(err) => Err(Error::Message(format!(
                     "Failed to insert kartu_rencana_studi_mahasiswa: {err}"
@@ -115,7 +118,9 @@ impl ModelData {
     }
 }
 
-pub struct Worker { pub ctx: AppContext }
+pub struct Worker {
+    pub ctx: AppContext,
+}
 
 #[derive(Deserialize, Debug, Serialize)]
 pub struct WorkerArgs {
@@ -128,14 +133,28 @@ pub struct WorkerArgs {
 
 #[async_trait]
 impl BackgroundWorker<WorkerArgs> for Worker {
-    fn build(ctx: &AppContext) -> Self { Self { ctx: ctx.clone() } }
-    fn class_name() -> String { "GetKrsMahasiswa".to_string() }
-    fn tags() -> Vec<String> { Vec::new() }
+    fn build(ctx: &AppContext) -> Self {
+        Self { ctx: ctx.clone() }
+    }
+    fn class_name() -> String {
+        "GetKrsMahasiswa".to_string()
+    }
+    fn tags() -> Vec<String> {
+        Vec::new()
+    }
     async fn perform(&self, args: WorkerArgs) -> Result<()> {
         println!("=================GetKrsMahasiswa=======================");
-        let req_result = RequestData::get::<ModelInput>(&self.ctx, InputRequestData {
-            act: args.act, filter: args.filter, order: args.order, limit: args.limit, offset: args.offset
-        }).await;
+        let req_result = RequestData::get::<ModelInput>(
+            &self.ctx,
+            InputRequestData {
+                act: args.act,
+                filter: args.filter,
+                order: args.order,
+                limit: args.limit,
+                offset: args.offset,
+            },
+        )
+        .await;
 
         if let Ok(response) = req_result {
             match response.data {

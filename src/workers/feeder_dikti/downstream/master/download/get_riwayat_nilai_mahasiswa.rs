@@ -9,7 +9,7 @@ use uuid::Uuid;
 use crate::models::feeder::master::riwayat_nilai_mahasiswa::_entities::riwayat_nilai_mahasiswa as FeederMasterRiwayatNilaiMahasiswa;
 use crate::tasks::feeder_dikti::downstream::request_only_data::{InputRequestData, RequestData};
 
-use crate::library::deserialization::{de_opt_f32};
+use crate::library::deserialization::de_opt_f32;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct ModelInput {
@@ -62,9 +62,7 @@ impl ModelData {
         }
 
         if let Some(id_cp) = input.id_prodi {
-            find = find.filter(
-                FeederMasterRiwayatNilaiMahasiswa::Column::IdProdi.eq(id_cp),
-            );
+            find = find.filter(FeederMasterRiwayatNilaiMahasiswa::Column::IdProdi.eq(id_cp));
         }
 
         if let Some(id_matkul) = input.id_matkul {
@@ -76,7 +74,8 @@ impl ModelData {
         }
 
         if let Some(id_academic_year) = input.id_periode.clone() {
-            find = find.filter(FeederMasterRiwayatNilaiMahasiswa::Column::IdPeriode.eq(id_academic_year));
+            find = find
+                .filter(FeederMasterRiwayatNilaiMahasiswa::Column::IdPeriode.eq(id_academic_year));
         }
 
         let data_result = find.one(&ctx.db).await;
@@ -147,7 +146,10 @@ impl ModelData {
                 ..Default::default()
             };
 
-            match FeederMasterRiwayatNilaiMahasiswa::Entity::insert(new_model).exec(&ctx.db).await {
+            match FeederMasterRiwayatNilaiMahasiswa::Entity::insert(new_model)
+                .exec(&ctx.db)
+                .await
+            {
                 Ok(_) => {
                     // println!("{}", "Riwayat nilai inserted successfully");
                     Ok(())

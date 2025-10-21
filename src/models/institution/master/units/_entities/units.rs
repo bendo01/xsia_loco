@@ -1,10 +1,10 @@
 use crate::models::academic::candidate::reference::registration_types::_entities::registration_types as AcademicCandidateReferenceRegistrationType;
+use crate::models::academic::prior_learning_recognition::transaction::recognitions::_entities::recognitions as AcademicPriorLearningRecognitionTransactionRecognition;
 use crate::models::academic::survey::master::bundles::_entities::bundles as AcademicSurveyMasterBundle;
 use crate::models::institution::master::institutions::_entities::institutions as InstitutionMasterInstitution;
 use crate::models::institution::master::staffes::_entities::staffes as InstitutionMasterStaff;
 use crate::models::institution::reference::unit_types::_entities::unit_types as InstitutionReferenceUnitType;
 use crate::models::literate::educations::_entities::educations as LiterateEducation;
-use crate::models::academic::prior_learning_recognition::transaction::recognitions::_entities::recognitions as AcademicPriorLearningRecognitionTransactionRecognition;
 
 use sea_orm::entity::prelude::*;
 use serde::{Deserialize, Serialize};

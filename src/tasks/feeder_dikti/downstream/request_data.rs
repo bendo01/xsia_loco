@@ -102,7 +102,7 @@ impl RequestData {
                             )));
                         }
                     }
-                },
+                }
                 Err(err) => {
                     // tracing::error!("HTTP request failed for action: {}. Error: {}", action, err);
                     return Err(Error::Message(format!("Failed to send request: {err}")));

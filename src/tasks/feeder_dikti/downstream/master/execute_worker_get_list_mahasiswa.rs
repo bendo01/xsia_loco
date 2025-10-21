@@ -2,11 +2,11 @@ use crate::workers::feeder_dikti::downstream::master::download::get_list_mahasis
     Worker, WorkerArgs,
 };
 
-use crate::models::feeder::akumulasi::jumlah_data::_entities::jumlah_data as FeederAkumulasiJumlahData;
 use crate::common::settings::Settings;
+use crate::models::feeder::akumulasi::jumlah_data::_entities::jumlah_data as FeederAkumulasiJumlahData;
 
-use tokio::time::{sleep, Duration};
 use loco_rs::prelude::*;
+use tokio::time::{Duration, sleep};
 // use tokio::time::{Duration, sleep};
 pub struct ExecuteWorkerGetListMahasiswa;
 #[async_trait]
@@ -40,7 +40,9 @@ impl Task for ExecuteWorkerGetListMahasiswa {
         let data_result = FeederAkumulasiJumlahData::Entity::find()
             .filter(FeederAkumulasiJumlahData::Column::DeletedAt.is_null())
             .filter(FeederAkumulasiJumlahData::Column::InstitutionId.eq(institution_id))
-            .filter(FeederAkumulasiJumlahData::Column::Name.eq("FA0003GetCountMahasiswa".to_string()))
+            .filter(
+                FeederAkumulasiJumlahData::Column::Name.eq("FA0003GetCountMahasiswa".to_string()),
+            )
             .one(&app_context.db)
             .await;
 
@@ -58,8 +60,8 @@ impl Task for ExecuteWorkerGetListMahasiswa {
             // calculate pagination limit offset base on data from existing_reference.total_feeder
             // example total_feeder = 680 limit is 100;
             // Enqueue the worker
-            
-            //  loop through based on 
+
+            //  loop through based on
             let limit = 10;
             let total_feeder = existing_reference.total_feeder;
             for offset in (0..total_feeder).step_by(limit as usize) {
@@ -72,16 +74,20 @@ impl Task for ExecuteWorkerGetListMahasiswa {
                 };
                 match Worker::perform_later(app_context, worker_args).await {
                     Ok(_) => {
-                        println!("✅ Enqueued worker for GetListMahasiswa: limit {} offset: {}", limit, offset);
+                        println!(
+                            "✅ Enqueued worker for GetListMahasiswa: limit {} offset: {}",
+                            limit, offset
+                        );
                     }
                     Err(err) => {
-                        eprintln!("❌ Failed to enqueue worker for limit {} offset: {}. Error: {:?}", limit, offset, err);
+                        eprintln!(
+                            "❌ Failed to enqueue worker for limit {} offset: {}. Error: {:?}",
+                            limit, offset, err
+                        );
                     }
                 }
             }
             sleep(Duration::from_secs(20)).await;
-            
-            
         } else {
             println!("There is No Data Provided");
         }

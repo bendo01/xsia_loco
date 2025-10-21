@@ -77,10 +77,12 @@ impl RelationTrait for Relation {
                 .from(Column::UserId)
                 .to(AuthUser::Column::Id)
                 .into(),
-            Self::Recognition => Entity::has_one(AcademicPriorLearningRecognitionTransactionRecognition::Entity)
-                .from(Column::Id)
-                .to(AcademicPriorLearningRecognitionTransactionRecognition::Column::CandidateId)
-                .into(),
+            Self::Recognition => {
+                Entity::has_one(AcademicPriorLearningRecognitionTransactionRecognition::Entity)
+                    .from(Column::Id)
+                    .to(AcademicPriorLearningRecognitionTransactionRecognition::Column::CandidateId)
+                    .into()
+            }
         }
     }
 }

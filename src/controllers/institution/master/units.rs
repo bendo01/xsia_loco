@@ -1,8 +1,8 @@
 #![allow(clippy::missing_errors_doc)]
 #![allow(clippy::unnecessary_struct_initialization)]
 #![allow(clippy::unused_async)]
-use loco_rs::prelude::*;
 use axum::debug_handler;
+use loco_rs::prelude::*;
 // use chrono::Utc;
 // use loco_rs::prelude::*;
 use sea_orm::{ColumnTrait, EntityTrait, QueryFilter, QueryOrder};
@@ -62,13 +62,14 @@ pub async fn list_by_institution_course_department(
 pub fn routes(_ctx: &AppContext) -> Routes {
     Routes::new()
         .prefix("api/institution/master/units")
-        .add("/list_by_institution_course_department/{institution_id}", get(list_by_institution_course_department))
+        .add(
+            "/list_by_institution_course_department/{institution_id}",
+            get(list_by_institution_course_department),
+        )
         .add("/list", get(list))
         .add("/{id}", get(show))
         .add("/{id}", delete(destroy))
         .add("/{id}", post(update))
-        
         .add("/", get(index))
         .add("/", post(store))
-        
 }
