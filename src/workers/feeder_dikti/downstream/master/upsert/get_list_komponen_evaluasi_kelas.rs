@@ -9,9 +9,11 @@ use uuid::Uuid;
 
 use crate::models::feeder::master::komponen_evaluasi_kelas::_entities::komponen_evaluasi_kelas as FeederMasterKomponenEvaluasiKelas;
 use crate::models::feeder::master::komponen_evaluasi_kelas::feeder_model::ModelInput as FeederModel;
+use crate::tasks::feeder_dikti::downstream::request_only_data::{InputRequestData, RequestData};
 
 // Configuration constants
 const WORKER_NAME: &str = "GetListKomponenEvaluasiKelas";
+const DEFAULT_LIMIT: i32 = 100;
 
 #[derive(Debug)]
 pub enum UpsertError {
@@ -184,7 +186,7 @@ impl InputData {
                     .await
                     .map_err(|e| UpsertError::DatabaseError(e.to_string()))?;
 
-                println!("{}", format!("✅ Data {} successfully", operation).green());
+                // Silently succeed to reduce noise
                 Ok(())
             }
             Err(err) => {
@@ -196,94 +198,6 @@ impl InputData {
             }
         }
     }
-
-    /// Batch upsert for multiple records (for future use)
-    #[allow(dead_code)]
-    pub async fn batch_upsert(ctx: &AppContext, inputs: Vec<FeederModel>) -> Result<(), Error> {
-        if inputs.is_empty() {
-            return Ok(());
-        }
-
-        let txn = ctx
-            .db
-            .begin()
-            .await
-            .map_err(|e| UpsertError::DatabaseError(e.to_string()))?;
-
-        let mut success_count = 0;
-        let mut error_count = 0;
-
-        for (index, input) in inputs.iter().enumerate() {
-            match Self::validate_input(input) {
-                Ok((id_komponen_evaluasi, id_kelas_kuliah, id_jenis_evaluasi)) => {
-                    match Self::find_existing_record(
-                        &txn,
-                        id_komponen_evaluasi,
-                        id_kelas_kuliah,
-                        id_jenis_evaluasi,
-                    )
-                    .await
-                    {
-                        Ok(existing_record) => {
-                            let existing_id = existing_record.as_ref().map(|e| e.id);
-                            let active_model = Self::create_active_model(
-                                input,
-                                id_komponen_evaluasi,
-                                id_kelas_kuliah,
-                                id_jenis_evaluasi,
-                                existing_id,
-                            );
-
-                            let operation_result = if existing_record.is_some() {
-                                active_model.update(&txn).await
-                            } else {
-                                active_model.insert(&txn).await
-                            };
-
-                            match operation_result {
-                                Ok(_) => {
-                                    success_count += 1;
-                                    if index % 10 == 0 {
-                                        println!("📊 Processed {} records", index + 1);
-                                    }
-                                }
-                                Err(err) => {
-                                    error_count += 1;
-                                    eprintln!("❌ Failed to process record {}: {}", index, err);
-                                }
-                            }
-                        }
-                        Err(err) => {
-                            error_count += 1;
-                            eprintln!("❌ Failed to query record {}: {:?}", index, err);
-                        }
-                    }
-                }
-                Err(err) => {
-                    error_count += 1;
-                    eprintln!("❌ Invalid input for record {}: {:?}", index, err);
-                }
-            }
-        }
-
-        // Commit transaction if we have any successes
-        if success_count > 0 {
-            txn.commit()
-                .await
-                .map_err(|e| UpsertError::DatabaseError(e.to_string()))?;
-        }
-
-        println!(
-            "{}",
-            format!(
-                "✅ Batch completed: {} successful, {} errors",
-                success_count, error_count
-            )
-            .green()
-        );
-
-        Ok(())
-    }
 }
 
 pub struct Worker {
@@ -292,7 +206,11 @@ pub struct Worker {
 
 #[derive(Deserialize, Debug, Serialize)]
 pub struct WorkerArgs {
-    pub feeder_model: FeederModel,
+    pub act: String,
+    pub filter: Option<String>,
+    pub order: Option<String>,
+    pub limit: Option<i32>,
+    pub offset: Option<i32>,
 }
 
 #[async_trait]
@@ -314,15 +232,53 @@ impl BackgroundWorker<WorkerArgs> for Worker {
 
     /// Performs the actual work when a job is processed.
     async fn perform(&self, args: WorkerArgs) -> Result<()> {
-        match InputData::upsert(&self.ctx, args.feeder_model).await {
-            Ok(_) => {
-                println!("🎯 Worker {} completed successfully", WORKER_NAME);
-                Ok(())
+        println!("================={}=======================", WORKER_NAME);
+
+        let req_result = RequestData::get::<FeederModel>(
+            &self.ctx,
+            InputRequestData {
+                act: args.act,
+                filter: args.filter,
+                order: args.order,
+                limit: Some(args.limit.unwrap_or(DEFAULT_LIMIT)),
+                offset: args.offset,
+            },
+        )
+        .await;
+
+        if let Ok(response) = req_result {
+            match response.data {
+                Some(data_vec) if !data_vec.is_empty() => {
+                    println!("📦 Processing {} items", data_vec.len());
+                    let mut success_count = 0;
+                    let mut error_count = 0;
+
+                    for item in data_vec {
+                        match InputData::upsert(&self.ctx, item).await {
+                            Ok(_) => success_count += 1,
+                            Err(e) => {
+                                error_count += 1;
+                                eprintln!("❌ Failed to upsert item: {}", e);
+                            }
+                        }
+                    }
+
+                    println!(
+                        "{}",
+                        format!(
+                            "✅ Completed: {} successful, {} errors",
+                            success_count, error_count
+                        )
+                        .green()
+                    );
+                }
+                Some(_) => println!("📭 Received empty data vector"),
+                None => println!("📭 No data in response"),
             }
-            Err(e) => {
-                eprintln!("💥 Worker {} failed: {}", WORKER_NAME, e);
-                Err(e)
-            }
+        } else {
+            eprintln!("❌ Failed to get data: {:#?}", req_result);
         }
+
+        Ok(())
     }
 }

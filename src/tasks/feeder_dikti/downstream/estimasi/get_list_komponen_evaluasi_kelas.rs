@@ -1,14 +1,9 @@
 use crate::common::settings::Settings;
 use crate::models::feeder::akumulasi::estimasi::_entities::estimasi as FeederAkumulasiEstimasi;
-use crate::models::feeder::master::komponen_evaluasi_kelas::feeder_model::ModelInput as FeederModel;
-use crate::tasks::feeder_dikti::downstream::request_only_data::{InputRequestData, RequestData};
 use chrono::Local;
-use futures::future::try_join_all;
 use loco_rs::prelude::*;
 use sea_orm::{ColumnTrait, EntityTrait, QueryFilter, Set, TransactionTrait};
 use serde::{Deserialize, Serialize};
-use std::time::Duration;
-use tokio::time::sleep;
 use uuid::Uuid;
 
 // Configuration constants
@@ -21,8 +16,8 @@ const DEFAULT_ORDER: &str = "nomor_urut ASC"; // Sort order for API results
 const DEFAULT_FILTER: &str = ""; // Filter criteria (empty = no filter)
 
 // Worker Configuration
-const MAX_CONCURRENT_WORKERS: usize = 10; // Max concurrent worker jobs
-const RETRY_DELAY_MS: u64 = 1000; // Delay between worker chunks (ms)
+// const MAX_CONCURRENT_WORKERS: usize = 10; // Max concurrent worker jobs
+// const RETRY_DELAY_MS: u64 = 1000; // Delay between worker chunks (ms)
 
 #[derive(Deserialize, Debug, Serialize)]
 pub struct WorkerArgs {
@@ -197,77 +192,49 @@ impl EstimateKomponenEvaluasiKelas {
         Ok(())
     }
 
-    /// Enqueue workers for a batch of records with concurrency control
-    async fn enqueue_workers(
-        app_context: &AppContext,
-        data: Vec<FeederModel>,
-        offset: i32,
-    ) -> Result<(), TaskError> {
-        let total_items = data.len();
-        println!(
-            "🔄 Enqueueing {} workers starting at offset {}",
-            total_items, offset
-        );
-
-        let chunks: Vec<_> = data
-            .into_iter()
-            .enumerate()
-            .collect::<Vec<_>>()
-            .chunks(MAX_CONCURRENT_WORKERS)
-            .map(|chunk| chunk.to_vec())
-            .collect();
-
-        let total_chunks = chunks.len();
-        for (chunk_idx, chunk) in chunks.into_iter().enumerate() {
-            let futures = chunk.into_iter().map(|(index, obj)| {
-                let worker_args = crate::workers::feeder_dikti::downstream::master::upsert::get_list_komponen_evaluasi_kelas::WorkerArgs {
-                    feeder_model: obj,
-                };
-
-                let absolute_index = offset + index as i32;
-
-                async move {
-                    match crate::workers::feeder_dikti::downstream::master::upsert::get_list_komponen_evaluasi_kelas::Worker::perform_later(app_context, worker_args).await {
-                        Ok(_) => {
-                            // Less verbose logging - only log every 10th item or use debug logging
-                            if index % 10 == 0 || index < 5 {
-                                println!("✅ Enqueued worker for absolute index {}", absolute_index);
-                            }
-                            Ok(())
-                        }
-                        Err(err) => {
-                            eprintln!("❌ Failed to enqueue worker for absolute index {}: {:?}", absolute_index, err);
-                            Err(TaskError::WorkerEnqueueError(err.to_string()))
-                        }
-                    }
-                }
-            });
-
-            // Process chunk concurrently, but fail fast if any worker fails
-            try_join_all(futures).await?;
-
-            if chunk_idx < total_chunks - 1 {
-                // Small delay between chunks to prevent overwhelming the system
-                sleep(Duration::from_millis(RETRY_DELAY_MS / 10)).await;
-            }
-        }
-
-        println!(
-            "✅ Successfully enqueued all {} workers (offset {} to {})",
-            total_items,
-            offset,
-            offset + total_items as i32 - 1
-        );
-        Ok(())
-    }
-
-    /// Fetch a page of data from the API
-    async fn fetch_page(
+    /// Enqueue a single worker for a batch of records
+    async fn enqueue_worker(
         app_context: &AppContext,
         limit: i32,
         offset: i32,
-    ) -> Result<Option<Vec<FeederModel>>, TaskError> {
-        println!("🌐 Making API request: offset={}, limit={}", offset, limit);
+    ) -> Result<(), TaskError> {
+        println!(
+            "🔄 Enqueueing worker for offset={}, limit={}",
+            offset, limit
+        );
+
+        let worker_args = crate::workers::feeder_dikti::downstream::master::upsert::get_list_komponen_evaluasi_kelas::WorkerArgs {
+            act: API_ACTION.to_string(),
+            filter: Some(DEFAULT_FILTER.to_string()),
+            order: Some(DEFAULT_ORDER.to_string()),
+            limit: Some(limit),
+            offset: Some(offset),
+        };
+
+        match crate::workers::feeder_dikti::downstream::master::upsert::get_list_komponen_evaluasi_kelas::Worker::perform_later(app_context, worker_args).await {
+            Ok(_) => {
+                println!("✅ Enqueued worker for offset={}", offset);
+                Ok(())
+            }
+            Err(err) => {
+                eprintln!("❌ Failed to enqueue worker for offset={}: {:?}", offset, err);
+                Err(TaskError::WorkerEnqueueError(err.to_string()))
+            }
+        }
+    }
+
+    /// Check if there's data available at the given offset (lightweight check)
+    async fn has_data_at_offset(
+        app_context: &AppContext,
+        _limit: i32,
+        offset: i32,
+    ) -> Result<bool, TaskError> {
+        use crate::models::feeder::master::komponen_evaluasi_kelas::feeder_model::ModelInput as FeederModel;
+        use crate::tasks::feeder_dikti::downstream::request_only_data::{
+            InputRequestData, RequestData,
+        };
+
+        println!("🔍 Checking data availability at offset={}", offset);
 
         let response = RequestData::get::<FeederModel>(
             app_context,
@@ -275,121 +242,78 @@ impl EstimateKomponenEvaluasiKelas {
                 act: API_ACTION.to_string(),
                 filter: Some(DEFAULT_FILTER.to_string()),
                 order: Some(DEFAULT_ORDER.to_string()),
-                limit: Some(limit),
+                limit: Some(1), // Only fetch 1 record to check
                 offset: Some(offset),
             },
         )
         .await
         .map_err(|e| TaskError::RequestError(e.to_string()))?;
 
-        // Check for API error first - if error_desc is present and not empty, stop the loop
+        // Check for API error
         if let Some(error_desc) = &response.error_desc {
             if !error_desc.is_empty() {
                 println!(
                     "⚠️  API returned error (error_code: {}): {}",
                     response.error_code, error_desc
                 );
-                println!(
-                    "🛑 Stopping pagination due to API error at offset={}",
-                    offset
-                );
-                return Ok(None); // Stop the loop due to error
+                return Ok(false);
             }
         }
 
-        // Check for data - if empty array or no data, stop the loop
-        match response.data {
-            Some(data) if !data.is_empty() => {
-                println!("✅ API request successful: {} records returned", data.len());
-                Ok(Some(data))
-            }
-            Some(_) => {
-                println!("📭 API returned empty data array - no more records available");
-                println!(
-                    "🏁 Stopping pagination due to empty data at offset={}",
-                    offset
-                );
-                Ok(None) // Stop the loop due to empty data
-            }
-            None => {
-                println!("📭 API returned no data field - no more records available");
-                println!(
-                    "🏁 Stopping pagination due to missing data at offset={}",
-                    offset
-                );
-                Ok(None) // Stop the loop due to missing data
-            }
+        // Check if data exists
+        let has_data = response.data.map_or(false, |d| !d.is_empty());
+
+        if has_data {
+            println!("✅ Data available at offset={}", offset);
+        } else {
+            println!("📭 No data at offset={}", offset);
         }
+
+        Ok(has_data)
     }
 
-    /// Main pagination loop
+    /// Main pagination loop - enqueue workers for each page
     async fn process_paginated_data(
         app_context: &AppContext,
         institution_id: Uuid,
         limit: i32,
     ) -> Result<(), TaskError> {
         let mut offset = 0;
-        let mut total_processed = 0;
+        let mut total_workers_enqueued = 0;
         let mut page_number = 1;
 
         loop {
             println!(
-                "📄 Page {}: Fetching at offset={}, limit={}",
+                "📄 Page {}: Checking offset={}, limit={}",
                 page_number, offset, limit
             );
 
-            match Self::fetch_page(app_context, limit, offset).await? {
-                Some(data) => {
-                    let count = data.len() as i32;
-                    println!(
-                        "📄 Page {}: Received {} records (offset {} to {})",
-                        page_number,
-                        count,
-                        offset,
-                        offset + count - 1
-                    );
+            // Check if there's data at this offset
+            let has_data = Self::has_data_at_offset(app_context, limit, offset).await?;
 
-                    // Enqueue workers for this batch
-                    Self::enqueue_workers(app_context, data, offset).await?;
-
-                    // Update progress
-                    Self::update_progress(app_context, institution_id, offset, limit, count)
-                        .await?;
-
-                    total_processed += count;
-
-                    // Check if we received fewer records than requested (last page)
-                    if count < limit {
-                        println!(
-                            "📄 Page {}: Received {} < {} (limit), this appears to be the last page",
-                            page_number, count, limit
-                        );
-                        println!(
-                            "✅ Pagination completed. Total processed: {}",
-                            total_processed
-                        );
-                        break;
-                    }
-
-                    offset += limit;
-                    page_number += 1;
-
-                    // Continue to next page
-                }
-                None => {
-                    // fetch_page already logged the specific reason for stopping
-                    println!(
-                        "✅ Pagination completed at offset={}, total processed: {}",
-                        offset, total_processed
-                    );
-                    break;
-                }
+            if !has_data {
+                println!(
+                    "✅ Pagination completed at offset={}, total workers enqueued: {}",
+                    offset, total_workers_enqueued
+                );
+                break;
             }
+
+            // Enqueue a single worker to process this batch
+            Self::enqueue_worker(app_context, limit, offset).await?;
+
+            // Update progress (assuming full batch for estimation)
+            Self::update_progress(app_context, institution_id, offset, limit, limit).await?;
+
+            total_workers_enqueued += 1;
+            offset += limit;
+            page_number += 1;
         }
 
         println!(
-            "🎉 Completed processing {} total records across {} pages",
-            total_processed, page_number
+            "🎉 Completed enqueueing {} workers across {} pages",
+            total_workers_enqueued,
+            page_number - 1
         );
         Ok(())
     }
