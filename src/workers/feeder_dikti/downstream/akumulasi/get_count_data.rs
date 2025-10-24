@@ -8,7 +8,9 @@ use uuid::Uuid; // Removed unused `uuid` macro import
 
 use crate::common::settings::Settings;
 use crate::models::feeder::akumulasi::jumlah_data::_entities::jumlah_data as FeederAkumulasiJumlahData;
-use crate::tasks::feeder_dikti::downstream::request_data_akumulasi::RequestDataAkumulasi;
+use crate::tasks::feeder_dikti::downstream::request_data_akumulasi::{
+    InputRequestData, RequestDataAkumulasi,
+};
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct GetCountData;
@@ -150,7 +152,17 @@ impl BackgroundWorker<GetCountDataWorkerWorkerArgs> for GetCountDataWorker {
         // TODO: Some actual work goes here...
         println!("Table column name: {}", args.table_column_name.clone());
         println!("Action name: {}", args.action_name.clone());
-        let req_option = RequestDataAkumulasi::get(&self.ctx, args.action_name.clone()).await;
+        let req_option = RequestDataAkumulasi::get(
+            &self.ctx,
+            InputRequestData {
+                act: args.action_name.clone(),
+                filter: None,
+                order: None,
+                limit: None,
+                offset: None,
+            },
+        )
+        .await;
         if let Ok(req) = req_option {
             // println!("Data Akumulasi: {:#?}", req.clone().data);
             // convert to i32 if needed

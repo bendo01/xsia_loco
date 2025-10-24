@@ -63,10 +63,10 @@ impl RequestData {
             let request_data = Self {
                 act: input_request_data.act.clone(),
                 token,
-                filter: None,
-                order: None,
-                limit: None,
-                offset: None,
+                filter: input_request_data.filter,
+                order: input_request_data.order,
+                limit: input_request_data.limit,
+                offset: input_request_data.offset,
             };
 
             // tracing::info!("Sending request to Feeder Dikti API with action: {}", action);

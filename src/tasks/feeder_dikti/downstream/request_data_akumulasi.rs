@@ -36,13 +36,22 @@ impl StringOrInt {
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct InputRequestData {
+    pub act: String,
+    pub filter: Option<String>,
+    pub order: Option<String>,
+    pub limit: Option<i32>,
+    pub offset: Option<i32>,
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct RequestDataAkumulasi {
     pub act: String,
     pub token: String,
-    // pub filter: Option<String>,
-    // pub order: Option<String>,
-    // pub limit: Option<i32>,
-    // pub offset: Option<i32>,
+    pub filter: Option<String>,
+    pub order: Option<String>,
+    pub limit: Option<i32>,
+    pub offset: Option<i32>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -62,7 +71,10 @@ impl RequestDataAkumulasi {
     /// - Settings are not properly loaded
     /// - HTTP request to Feeder API fails
     /// - Response parsing fails
-    pub async fn get(ctx: &AppContext, action: String) -> Result<ReturnDataAkumulasi, Error> {
+    pub async fn get(
+        ctx: &AppContext,
+        input: InputRequestData,
+    ) -> Result<ReturnDataAkumulasi, Error> {
         let token = match Token::get(ctx.clone()).await {
             Ok(token) => token,
             Err(err) => {
@@ -78,11 +90,12 @@ impl RequestDataAkumulasi {
             let feeder_url = settings.feeder_url;
 
             let request_data = Self {
-                act: action.clone(),
-                token, // filter: None,
-                       // order: None,
-                       // limit: None,
-                       // offset: None,
+                act: input.act.clone(),
+                token,
+                filter: input.filter,
+                order: input.order,
+                limit: input.limit,
+                offset: input.offset,
             };
 
             // tracing::info!("Sending request to Feeder Dikti API with action: {}", action);
@@ -117,7 +130,7 @@ impl RequestDataAkumulasi {
                                     //     action, err, response_text);
                                     return Err(Error::Message(format!(
                                         "Failed to parse response JSON for action '{}': {}. Response was: {}",
-                                        action, err, response_text
+                                        input.act, err, response_text
                                     )));
                                 }
                             }

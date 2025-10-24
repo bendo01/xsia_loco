@@ -5,6 +5,15 @@ use reqwest::Client;
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct InputRequestData {
+    pub act: String,
+    pub filter: Option<String>,
+    pub order: Option<String>,
+    pub limit: Option<i32>,
+    pub offset: Option<i32>,
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct RequestData {
     pub act: String,
     pub token: String,
@@ -32,7 +41,7 @@ impl RequestData {
     /// - Settings are not properly loaded
     /// - HTTP request to Feeder API fails
     /// - Response parsing fails
-    pub async fn get<T>(ctx: &AppContext, action: String) -> Result<ReturnData<T>, Error>
+    pub async fn get<T>(ctx: &AppContext, input: InputRequestData) -> Result<ReturnData<T>, Error>
     where
         T: for<'de> Deserialize<'de>,
     {
@@ -51,12 +60,12 @@ impl RequestData {
             let feeder_url = settings.feeder_url;
 
             let request_data = Self {
-                act: action.clone(),
+                act: input.act.clone(),
                 token,
-                filter: None,
-                order: None,
-                limit: None,
-                offset: None,
+                filter: input.filter,
+                order: input.order,
+                limit: input.limit,
+                offset: input.offset,
             };
 
             // tracing::info!("Sending request to Feeder Dikti API with action: {}", action);
@@ -91,7 +100,7 @@ impl RequestData {
                                     //     action, err, response_text);
                                     return Err(Error::Message(format!(
                                         "Failed to parse response JSON for action '{}': {}. Response was: {}",
-                                        action, err, response_text
+                                        input.act, err, response_text
                                     )));
                                 }
                             }

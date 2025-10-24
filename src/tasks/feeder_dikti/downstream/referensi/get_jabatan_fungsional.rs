@@ -1,5 +1,5 @@
 use crate::models::feeder::referensi::jabatan_fungsional::_entities::jabatan_fungsional as FeederReferensiJabatanFungsional;
-use crate::tasks::feeder_dikti::downstream::request_data::RequestData;
+use crate::tasks::feeder_dikti::downstream::request_data::{InputRequestData, RequestData};
 use chrono::Local;
 use loco_rs::prelude::*;
 use sea_orm::{ColumnTrait, EntityTrait, QueryFilter};
@@ -114,7 +114,17 @@ impl Task for GetJabatanFungsional {
     }
 
     async fn run(&self, ctx: &AppContext, _vars: &task::Vars) -> Result<(), Error> {
-        let req_option = RequestData::get::<Data>(ctx, "GetJabfung".to_string()).await;
+        let req_option = RequestData::get::<Data>(
+            ctx,
+            InputRequestData {
+                act: "GetJabatanFungsional".to_string(),
+                filter: None,
+                order: None,
+                limit: None,
+                offset: None,
+            },
+        )
+        .await;
         // Handle the datas option properly
         if let Ok(req) = req_option {
             if let Some(data_vec) = req.data {
