@@ -14,9 +14,15 @@ use uuid::Uuid;
 // Configuration constants
 const TASK_NAME: &str = "EstimateKomponenEvaluasiKelas";
 const API_ACTION: &str = "GetListKomponenEvaluasiKelas";
-const DEFAULT_LIMIT: i32 = 100;
-const MAX_CONCURRENT_WORKERS: usize = 10;
-const RETRY_DELAY_MS: u64 = 1000;
+
+// API Request Configuration
+const DEFAULT_LIMIT: i32 = 1000; // Records per API request page
+const DEFAULT_ORDER: &str = "nomor_urut ASC"; // Sort order for API results
+const DEFAULT_FILTER: &str = ""; // Filter criteria (empty = no filter)
+
+// Worker Configuration
+const MAX_CONCURRENT_WORKERS: usize = 10; // Max concurrent worker jobs
+const RETRY_DELAY_MS: u64 = 1000; // Delay between worker chunks (ms)
 
 #[derive(Deserialize, Debug, Serialize)]
 pub struct WorkerArgs {
@@ -197,6 +203,12 @@ impl EstimateKomponenEvaluasiKelas {
         data: Vec<FeederModel>,
         offset: i32,
     ) -> Result<(), TaskError> {
+        let total_items = data.len();
+        println!(
+            "🔄 Enqueueing {} workers starting at offset {}",
+            total_items, offset
+        );
+
         let chunks: Vec<_> = data
             .into_iter()
             .enumerate()
@@ -205,20 +217,26 @@ impl EstimateKomponenEvaluasiKelas {
             .map(|chunk| chunk.to_vec())
             .collect();
 
-        for chunk in chunks {
+        let total_chunks = chunks.len();
+        for (chunk_idx, chunk) in chunks.into_iter().enumerate() {
             let futures = chunk.into_iter().map(|(index, obj)| {
                 let worker_args = crate::workers::feeder_dikti::downstream::master::upsert::get_list_komponen_evaluasi_kelas::WorkerArgs {
                     feeder_model: obj,
                 };
 
+                let absolute_index = offset + index as i32;
+
                 async move {
                     match crate::workers::feeder_dikti::downstream::master::upsert::get_list_komponen_evaluasi_kelas::Worker::perform_later(app_context, worker_args).await {
                         Ok(_) => {
-                            println!("✅ Enqueued upsert worker for item {} (offset {})", index, offset + index as i32);
+                            // Less verbose logging - only log every 10th item or use debug logging
+                            if index % 10 == 0 || index < 5 {
+                                println!("✅ Enqueued worker for absolute index {}", absolute_index);
+                            }
                             Ok(())
                         }
                         Err(err) => {
-                            eprintln!("❌ Failed to enqueue upsert worker for item {} (offset {}): {:?}", index, offset + index as i32, err);
+                            eprintln!("❌ Failed to enqueue worker for absolute index {}: {:?}", absolute_index, err);
                             Err(TaskError::WorkerEnqueueError(err.to_string()))
                         }
                     }
@@ -228,10 +246,18 @@ impl EstimateKomponenEvaluasiKelas {
             // Process chunk concurrently, but fail fast if any worker fails
             try_join_all(futures).await?;
 
-            // Small delay between chunks to prevent overwhelming the system
-            sleep(Duration::from_millis(RETRY_DELAY_MS / 10)).await;
+            if chunk_idx < total_chunks - 1 {
+                // Small delay between chunks to prevent overwhelming the system
+                sleep(Duration::from_millis(RETRY_DELAY_MS / 10)).await;
+            }
         }
 
+        println!(
+            "✅ Successfully enqueued all {} workers (offset {} to {})",
+            total_items,
+            offset,
+            offset + total_items as i32 - 1
+        );
         Ok(())
     }
 
@@ -241,12 +267,14 @@ impl EstimateKomponenEvaluasiKelas {
         limit: i32,
         offset: i32,
     ) -> Result<Option<Vec<FeederModel>>, TaskError> {
+        println!("🌐 Making API request: offset={}, limit={}", offset, limit);
+
         let response = RequestData::get::<FeederModel>(
             app_context,
             InputRequestData {
                 act: API_ACTION.to_string(),
-                filter: None,
-                order: None,
+                filter: Some(DEFAULT_FILTER.to_string()),
+                order: Some(DEFAULT_ORDER.to_string()),
                 limit: Some(limit),
                 offset: Some(offset),
             },
@@ -254,9 +282,43 @@ impl EstimateKomponenEvaluasiKelas {
         .await
         .map_err(|e| TaskError::RequestError(e.to_string()))?;
 
+        // Check for API error first - if error_desc is present and not empty, stop the loop
+        if let Some(error_desc) = &response.error_desc {
+            if !error_desc.is_empty() {
+                println!(
+                    "⚠️  API returned error (error_code: {}): {}",
+                    response.error_code, error_desc
+                );
+                println!(
+                    "🛑 Stopping pagination due to API error at offset={}",
+                    offset
+                );
+                return Ok(None); // Stop the loop due to error
+            }
+        }
+
+        // Check for data - if empty array or no data, stop the loop
         match response.data {
-            Some(data) if !data.is_empty() => Ok(Some(data)),
-            _ => Ok(None),
+            Some(data) if !data.is_empty() => {
+                println!("✅ API request successful: {} records returned", data.len());
+                Ok(Some(data))
+            }
+            Some(_) => {
+                println!("📭 API returned empty data array - no more records available");
+                println!(
+                    "🏁 Stopping pagination due to empty data at offset={}",
+                    offset
+                );
+                Ok(None) // Stop the loop due to empty data
+            }
+            None => {
+                println!("📭 API returned no data field - no more records available");
+                println!(
+                    "🏁 Stopping pagination due to missing data at offset={}",
+                    offset
+                );
+                Ok(None) // Stop the loop due to missing data
+            }
         }
     }
 
@@ -268,14 +330,24 @@ impl EstimateKomponenEvaluasiKelas {
     ) -> Result<(), TaskError> {
         let mut offset = 0;
         let mut total_processed = 0;
+        let mut page_number = 1;
 
         loop {
-            println!("Fetching page at offset {} with limit {}", offset, limit);
+            println!(
+                "📄 Page {}: Fetching at offset={}, limit={}",
+                page_number, offset, limit
+            );
 
             match Self::fetch_page(app_context, limit, offset).await? {
                 Some(data) => {
                     let count = data.len() as i32;
-                    println!("Received {} records (offset={})", count, offset);
+                    println!(
+                        "📄 Page {}: Received {} records (offset {} to {})",
+                        page_number,
+                        count,
+                        offset,
+                        offset + count - 1
+                    );
 
                     // Enqueue workers for this batch
                     Self::enqueue_workers(app_context, data, offset).await?;
@@ -285,18 +357,40 @@ impl EstimateKomponenEvaluasiKelas {
                         .await?;
 
                     total_processed += count;
+
+                    // Check if we received fewer records than requested (last page)
+                    if count < limit {
+                        println!(
+                            "📄 Page {}: Received {} < {} (limit), this appears to be the last page",
+                            page_number, count, limit
+                        );
+                        println!(
+                            "✅ Pagination completed. Total processed: {}",
+                            total_processed
+                        );
+                        break;
+                    }
+
                     offset += limit;
+                    page_number += 1;
 
                     // Continue to next page
                 }
                 None => {
-                    println!("No more data returned from feeder (offset={})", offset);
+                    // fetch_page already logged the specific reason for stopping
+                    println!(
+                        "✅ Pagination completed at offset={}, total processed: {}",
+                        offset, total_processed
+                    );
                     break;
                 }
             }
         }
 
-        println!("Completed processing {} total records", total_processed);
+        println!(
+            "🎉 Completed processing {} total records across {} pages",
+            total_processed, page_number
+        );
         Ok(())
     }
 }
