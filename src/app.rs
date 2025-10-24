@@ -230,6 +230,7 @@ impl Hooks for App {
         queue.register(crate::workers::feeder_dikti::downstream::master::download::get_krs_mahasiswa::Worker::build(ctx)).await?;
         queue.register(crate::workers::feeder_dikti::downstream::master::download::get_list_perkuliahan_mahasiswa::Worker::build(ctx)).await?;
         queue.register(crate::workers::feeder_dikti::downstream::master::upsert::get_list_komponen_evaluasi_kelas::Worker::build(ctx)).await?;
+        queue.register(crate::workers::feeder_dikti::downstream::master::upsert::get_list_mahasiswa::Worker::build(ctx)).await?;
         Ok(())
     }
 
@@ -238,6 +239,9 @@ impl Hooks for App {
         tasks.register(tasks::feeder_dikti::downstream::akumulasi::execute_worker_get_count_data::ExecuteWorkerGetCountData);
         // tasks-inject (do not remove)
         tasks.register(tasks::feeder_dikti::downstream::estimasi::get_list_komponen_evaluasi_kelas::EstimateKomponenEvaluasiKelas);
+        tasks.register(
+            tasks::feeder_dikti::downstream::estimasi::get_list_mahasiswa::EstimateMahasiswa,
+        );
         tasks.register(tasks::feeder_dikti::downstream::referensi::get_agama::GetAgama);
         tasks.register(
             tasks::feeder_dikti::downstream::referensi::get_ikatan_kerja_sdm::GetIkatanKerjaSDM,
