@@ -3,8 +3,6 @@ use crate::models::feeder::akumulasi::estimasi::_entities::estimasi as FeederAku
 use chrono::Local;
 use loco_rs::prelude::*;
 use sea_orm::{ColumnTrait, EntityTrait, QueryFilter, Set, TransactionTrait};
-// use serde::{Deserialize, Serialize};
-use uuid::Uuid;
 
 // Configuration constants
 const TASK_NAME: &str = "EstimateKomponenEvaluasiKelas";
