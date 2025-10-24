@@ -115,7 +115,11 @@ impl EstimateKomponenEvaluasiKelas {
             }
             None => {
                 // Create new record
-                let pk_id = Uuid::from(uuid7::uuid7());
+                // let pk_id = Uuid::from(uuid7::uuid7());
+                let uuid_v7 = uuid7::uuid7();
+                let uuid_string = uuid_v7.to_string();
+                let pk_id: Uuid = Uuid::parse_str(&uuid_string).expect("Invalid UUID string"); // Handle parsing errors appropriately
+
                 let new_record = FeederAkumulasiEstimasi::ActiveModel {
                     id: Set(pk_id),
                     institution_id: Set(institution_id),

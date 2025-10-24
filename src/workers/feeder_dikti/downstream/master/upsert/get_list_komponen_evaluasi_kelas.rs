@@ -2,8 +2,7 @@ use chrono::Local;
 use colored::Colorize;
 use loco_rs::prelude::*;
 use sea_orm::{
-    ActiveModelTrait, ColumnTrait, EntityTrait, IntoActiveModel, QueryFilter, Set,
-    TransactionTrait, TryIntoModel,
+    ActiveModelTrait, ColumnTrait, ConnectionTrait, EntityTrait, QueryFilter, Set, TransactionTrait,
 };
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
@@ -40,7 +39,7 @@ pub struct InputData;
 
 impl InputData {
     /// Validate required fields from FeederModel
-    fn validate_input(input: &FeederModel) -> Result<(Uuid, Uuid, Uuid), UpsertError> {
+    fn validate_input(input: &FeederModel) -> Result<(Uuid, Uuid, i32), UpsertError> {
         let id_komponen_evaluasi = input
             .id_komponen_evaluasi
             .ok_or_else(|| UpsertError::MissingRequiredField("id_komponen_evaluasi".to_string()))?;
@@ -57,12 +56,15 @@ impl InputData {
     }
 
     /// Find existing record by composite key
-    async fn find_existing_record(
-        ctx: &AppContext,
+    async fn find_existing_record<C>(
+        db: &C,
         id_komponen_evaluasi: Uuid,
         id_kelas_kuliah: Uuid,
-        id_jenis_evaluasi: Uuid,
-    ) -> Result<Option<FeederMasterKomponenEvaluasiKelas::Model>, UpsertError> {
+        id_jenis_evaluasi: i32,
+    ) -> Result<Option<FeederMasterKomponenEvaluasiKelas::Model>, UpsertError>
+    where
+        C: ConnectionTrait,
+    {
         FeederMasterKomponenEvaluasiKelas::Entity::find()
             .filter(FeederMasterKomponenEvaluasiKelas::Column::DeletedAt.is_null())
             .filter(
@@ -73,7 +75,7 @@ impl InputData {
             .filter(
                 FeederMasterKomponenEvaluasiKelas::Column::IdJenisEvaluasi.eq(id_jenis_evaluasi),
             )
-            .one(&ctx.db)
+            .one(db)
             .await
             .map_err(|e| UpsertError::DatabaseError(e.to_string()))
     }
@@ -83,7 +85,7 @@ impl InputData {
         input: &FeederModel,
         id_komponen_evaluasi: Uuid,
         id_kelas_kuliah: Uuid,
-        id_jenis_evaluasi: Uuid,
+        id_jenis_evaluasi: i32,
         existing_id: Option<Uuid>,
     ) -> FeederMasterKomponenEvaluasiKelas::ActiveModel {
         let now = Local::now().naive_local();
@@ -112,7 +114,8 @@ impl InputData {
             active_model.sync_at = Set(Some(now));
         } else {
             // Creating new record
-            let pk_id = Uuid::from(uuid7::uuid7());
+            let uuidv7_string = uuid7::uuid7().to_string();
+            let pk_id = Uuid::parse_str(&uuidv7_string).expect("Invalid UUID format");
             active_model.id = Set(pk_id);
             active_model.created_at = Set(Some(now));
             active_model.updated_at = Set(Some(now));
@@ -137,7 +140,7 @@ impl InputData {
 
         // Check if record exists
         let existing_record = Self::find_existing_record(
-            ctx,
+            &txn,
             id_komponen_evaluasi,
             id_kelas_kuliah,
             id_jenis_evaluasi,
@@ -213,25 +216,25 @@ impl InputData {
         for (index, input) in inputs.iter().enumerate() {
             match Self::validate_input(input) {
                 Ok((id_komponen_evaluasi, id_kelas_kuliah, id_jenis_evaluasi)) => {
-                    let existing_record = Self::find_existing_record(
-                        ctx,
+                    match Self::find_existing_record(
+                        &txn,
                         id_komponen_evaluasi,
                         id_kelas_kuliah,
                         id_jenis_evaluasi,
                     )
-                    .await;
-
-                    match existing_record {
-                        Ok(existing) => {
+                    .await
+                    {
+                        Ok(existing_record) => {
+                            let existing_id = existing_record.as_ref().map(|e| e.id);
                             let active_model = Self::create_active_model(
                                 input,
                                 id_komponen_evaluasi,
                                 id_kelas_kuliah,
                                 id_jenis_evaluasi,
-                                existing.map(|e| e.id),
+                                existing_id,
                             );
 
-                            let operation_result = if existing.is_some() {
+                            let operation_result = if existing_record.is_some() {
                                 active_model.update(&txn).await
                             } else {
                                 active_model.insert(&txn).await
@@ -295,36 +298,21 @@ pub struct WorkerArgs {
 #[async_trait]
 impl BackgroundWorker<WorkerArgs> for Worker {
     /// Creates a new instance of the Worker with the given application context.
-    ///
-    /// This function is called when registering the worker with the queue system.
-    ///
-    /// # Parameters
-    /// * `ctx` - The application context containing shared resources
     fn build(ctx: &AppContext) -> Self {
         Self { ctx: ctx.clone() }
     }
 
     /// Returns the class name of the worker.
-    ///
-    /// This name is used when enqueueing jobs and identifying the worker in logs.
     fn class_name() -> String {
         WORKER_NAME.to_string()
     }
 
     /// Returns tags associated with this worker.
-    ///
-    /// Tags can be used to filter which workers run during startup.
     fn tags() -> Vec<String> {
         vec!["feeder_dikti".to_string(), "master_data".to_string()]
     }
 
     /// Performs the actual work when a job is processed.
-    ///
-    /// This is the main function that contains the worker's logic.
-    /// It gets executed when a job is dequeued from the job queue.
-    ///
-    /// # Returns
-    /// * `Result<()>` - Ok if the job completed successfully, Err otherwise
     async fn perform(&self, args: WorkerArgs) -> Result<()> {
         match InputData::upsert(&self.ctx, args.feeder_model).await {
             Ok(_) => {
@@ -333,7 +321,6 @@ impl BackgroundWorker<WorkerArgs> for Worker {
             }
             Err(e) => {
                 eprintln!("💥 Worker {} failed: {}", WORKER_NAME, e);
-                // Return error to mark job as failed
                 Err(e)
             }
         }
