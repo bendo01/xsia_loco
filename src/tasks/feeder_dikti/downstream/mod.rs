@@ -1,5 +1,6 @@
 pub mod akumulasi;
 pub mod estimasi;
+pub mod feeder_request;
 pub mod master;
 pub mod pembangkit;
 pub mod referensi;
