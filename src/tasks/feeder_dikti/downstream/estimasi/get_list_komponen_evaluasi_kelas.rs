@@ -3,7 +3,7 @@ use crate::models::feeder::akumulasi::estimasi::_entities::estimasi as FeederAku
 use chrono::Local;
 use loco_rs::prelude::*;
 use sea_orm::{ColumnTrait, EntityTrait, QueryFilter, Set, TransactionTrait};
-use serde::{Deserialize, Serialize};
+// use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
 // Configuration constants
@@ -18,15 +18,6 @@ const DEFAULT_FILTER: &str = ""; // Filter criteria (empty = no filter)
 // Worker Configuration
 // const MAX_CONCURRENT_WORKERS: usize = 10; // Max concurrent worker jobs
 // const RETRY_DELAY_MS: u64 = 1000; // Delay between worker chunks (ms)
-
-#[derive(Deserialize, Debug, Serialize)]
-pub struct WorkerArgs {
-    pub act: String,
-    pub filter: Option<String>,
-    pub order: Option<String>,
-    pub limit: Option<i32>,
-    pub offset: Option<i32>,
-}
 
 #[derive(Debug)]
 pub enum TaskError {
@@ -192,23 +183,56 @@ impl EstimateKomponenEvaluasiKelas {
         Ok(())
     }
 
-    /// Enqueue a single worker for a batch of records
+    /// Fetch data and enqueue a worker for a batch of records
     async fn enqueue_worker(
         app_context: &AppContext,
         limit: i32,
         offset: i32,
     ) -> Result<(), TaskError> {
-        println!(
-            "🔄 Enqueueing worker for offset={}, limit={}",
-            offset, limit
-        );
+        use crate::models::feeder::master::komponen_evaluasi_kelas::feeder_model::ModelInput as FeederModel;
+        use crate::tasks::feeder_dikti::downstream::request_only_data::{
+            InputRequestData, RequestData,
+        };
 
+        println!("🔄 Fetching data for offset={}, limit={}", offset, limit);
+
+        // Fetch data from API
+        let response = RequestData::get::<FeederModel>(
+            app_context,
+            InputRequestData {
+                act: API_ACTION.to_string(),
+                filter: Some(DEFAULT_FILTER.to_string()),
+                order: Some(DEFAULT_ORDER.to_string()),
+                limit: Some(limit),
+                offset: Some(offset),
+            },
+        )
+        .await
+        .map_err(|e| TaskError::RequestError(e.to_string()))?;
+
+        // Check for API error
+        if let Some(error_desc) = &response.error_desc {
+            if !error_desc.is_empty() {
+                return Err(TaskError::RequestError(format!(
+                    "API error (code: {}): {}",
+                    response.error_code, error_desc
+                )));
+            }
+        }
+
+        // Extract records from response
+        let records = response.data.unwrap_or_default();
+
+        if records.is_empty() {
+            println!("📭 No records found at offset={}", offset);
+            return Ok(());
+        }
+
+        println!("📦 Fetched {} records at offset={}", records.len(), offset);
+
+        // Enqueue worker with actual data
         let worker_args = crate::workers::feeder_dikti::downstream::master::upsert::get_list_komponen_evaluasi_kelas::WorkerArgs {
-            act: API_ACTION.to_string(),
-            filter: Some(DEFAULT_FILTER.to_string()),
-            order: Some(DEFAULT_ORDER.to_string()),
-            limit: Some(limit),
-            offset: Some(offset),
+            records,
         };
 
         match crate::workers::feeder_dikti::downstream::master::upsert::get_list_komponen_evaluasi_kelas::Worker::perform_later(app_context, worker_args).await {
@@ -299,10 +323,10 @@ impl EstimateKomponenEvaluasiKelas {
                 break;
             }
 
-            // Enqueue a single worker to process this batch
+            // Fetch data and enqueue worker to process this batch
             Self::enqueue_worker(app_context, limit, offset).await?;
 
-            // Update progress (assuming full batch for estimation)
+            // Update progress with limit (actual count will be verified by worker)
             Self::update_progress(app_context, institution_id, offset, limit, limit).await?;
 
             total_workers_enqueued += 1;
