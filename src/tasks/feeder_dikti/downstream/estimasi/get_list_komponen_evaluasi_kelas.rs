@@ -3,10 +3,20 @@ use crate::models::feeder::akumulasi::estimasi::_entities::estimasi as FeederAku
 use crate::models::feeder::master::komponen_evaluasi_kelas::feeder_model::ModelInput as FeederModel;
 use crate::tasks::feeder_dikti::downstream::request_only_data::{InputRequestData, RequestData};
 use chrono::Local;
+use futures::future::try_join_all;
 use loco_rs::prelude::*;
-use sea_orm::{ColumnTrait, EntityTrait, QueryFilter, Set};
+use sea_orm::{ColumnTrait, EntityTrait, QueryFilter, Set, TransactionTrait};
 use serde::{Deserialize, Serialize};
+use std::time::Duration;
+use tokio::time::sleep;
 use uuid::Uuid;
+
+// Configuration constants
+const TASK_NAME: &str = "EstimateKomponenEvaluasiKelas";
+const API_ACTION: &str = "GetListKomponenEvaluasiKelas";
+const DEFAULT_LIMIT: i32 = 100;
+const MAX_CONCURRENT_WORKERS: usize = 10;
+const RETRY_DELAY_MS: u64 = 1000;
 
 #[derive(Deserialize, Debug, Serialize)]
 pub struct WorkerArgs {
@@ -17,214 +27,302 @@ pub struct WorkerArgs {
     pub offset: Option<i32>,
 }
 
+#[derive(Debug)]
+pub enum TaskError {
+    SettingsNotLoaded,
+    InvalidInstitutionId(String),
+    DatabaseError(String),
+    RequestError(String),
+    WorkerEnqueueError(String),
+}
+
+impl From<TaskError> for Error {
+    fn from(err: TaskError) -> Self {
+        match err {
+            TaskError::SettingsNotLoaded => Error::Message("Settings not loaded".to_string()),
+            TaskError::InvalidInstitutionId(msg) => {
+                Error::Message(format!("Invalid institution ID: {}", msg))
+            }
+            TaskError::DatabaseError(msg) => Error::Message(format!("Database error: {}", msg)),
+            TaskError::RequestError(msg) => Error::Message(format!("Request error: {}", msg)),
+            TaskError::WorkerEnqueueError(msg) => {
+                Error::Message(format!("Worker enqueue error: {}", msg))
+            }
+        }
+    }
+}
+
 pub struct EstimateKomponenEvaluasiKelas;
 
-#[async_trait]
-impl Task for EstimateKomponenEvaluasiKelas {
-    fn task(&self) -> TaskInfo {
-        TaskInfo {
-            name: "EstimateKomponenEvaluasiKelas".to_string(),
-            detail: "Task generator".to_string(),
+impl EstimateKomponenEvaluasiKelas {
+    /// Extract institution ID from app context settings
+    fn get_institution_id(app_context: &AppContext) -> Result<Uuid, TaskError> {
+        let current_settings = app_context
+            .config
+            .settings
+            .as_ref()
+            .ok_or(TaskError::SettingsNotLoaded)?;
+
+        let settings = Settings::from_json(current_settings)
+            .map_err(|e| TaskError::InvalidInstitutionId(e.to_string()))?;
+
+        Uuid::parse_str(&settings.current_institution_id)
+            .map_err(|e| TaskError::InvalidInstitutionId(e.to_string()))
+    }
+
+    /// Find existing progress tracking record
+    async fn find_progress_record(
+        app_context: &AppContext,
+        institution_id: Uuid,
+    ) -> Result<Option<FeederAkumulasiEstimasi::Model>, TaskError> {
+        FeederAkumulasiEstimasi::Entity::find()
+            .filter(FeederAkumulasiEstimasi::Column::DeletedAt.is_null())
+            .filter(FeederAkumulasiEstimasi::Column::InstitutionId.eq(institution_id))
+            .filter(FeederAkumulasiEstimasi::Column::Name.eq(TASK_NAME))
+            .one(&app_context.db)
+            .await
+            .map_err(|e| TaskError::DatabaseError(e.to_string()))
+    }
+
+    /// Reset existing progress record or create new one
+    async fn initialize_progress_record(
+        app_context: &AppContext,
+        institution_id: Uuid,
+        existing_record: Option<FeederAkumulasiEstimasi::Model>,
+    ) -> Result<i32, TaskError> {
+        let txn = app_context
+            .db
+            .begin()
+            .await
+            .map_err(|e| TaskError::DatabaseError(e.to_string()))?;
+
+        let limit = match existing_record {
+            Some(record) => {
+                // Reset existing record
+                let limit = record.total_data_per_request;
+                let mut active: FeederAkumulasiEstimasi::ActiveModel = record.into_active_model();
+                active.last_offset = Set(0);
+                active.total_data = Set(0);
+                active.updated_at = Set(Local::now().naive_local());
+
+                active
+                    .update(&txn)
+                    .await
+                    .map_err(|e| TaskError::DatabaseError(e.to_string()))?;
+
+                println!("Reset existing {} progress record", TASK_NAME);
+                limit
+            }
+            None => {
+                // Create new record
+                let pk_id = Uuid::from(uuid7::uuid7());
+                let new_record = FeederAkumulasiEstimasi::ActiveModel {
+                    id: Set(pk_id),
+                    institution_id: Set(institution_id),
+                    name: Set(TASK_NAME.to_string()),
+                    total_data_per_request: Set(DEFAULT_LIMIT),
+                    last_offset: Set(0),
+                    total_data: Set(0),
+                    ..Default::default()
+                };
+
+                new_record
+                    .insert(&txn)
+                    .await
+                    .map_err(|e| TaskError::DatabaseError(e.to_string()))?;
+
+                println!(
+                    "Created new {} progress record for institution {}",
+                    TASK_NAME, institution_id
+                );
+                DEFAULT_LIMIT
+            }
+        };
+
+        txn.commit()
+            .await
+            .map_err(|e| TaskError::DatabaseError(e.to_string()))?;
+
+        Ok(limit)
+    }
+
+    /// Update progress tracking record
+    async fn update_progress(
+        app_context: &AppContext,
+        institution_id: Uuid,
+        offset: i32,
+        limit: i32,
+        processed_count: i32,
+    ) -> Result<(), TaskError> {
+        let txn = app_context
+            .db
+            .begin()
+            .await
+            .map_err(|e| TaskError::DatabaseError(e.to_string()))?;
+
+        let record = FeederAkumulasiEstimasi::Entity::find()
+            .filter(FeederAkumulasiEstimasi::Column::DeletedAt.is_null())
+            .filter(FeederAkumulasiEstimasi::Column::InstitutionId.eq(institution_id))
+            .filter(FeederAkumulasiEstimasi::Column::Name.eq(TASK_NAME))
+            .one(&txn)
+            .await
+            .map_err(|e| TaskError::DatabaseError(e.to_string()))?;
+
+        if let Some(record) = record {
+            let mut active: FeederAkumulasiEstimasi::ActiveModel = record.into_active_model();
+            active.total_data = Set(active.total_data.as_ref() + processed_count);
+            active.last_offset = Set(offset + limit);
+            active.updated_at = Set(Local::now().naive_local());
+
+            active
+                .update(&txn)
+                .await
+                .map_err(|e| TaskError::DatabaseError(e.to_string()))?;
+        }
+
+        txn.commit()
+            .await
+            .map_err(|e| TaskError::DatabaseError(e.to_string()))?;
+
+        Ok(())
+    }
+
+    /// Enqueue workers for a batch of records with concurrency control
+    async fn enqueue_workers(
+        app_context: &AppContext,
+        data: Vec<FeederModel>,
+        offset: i32,
+    ) -> Result<(), TaskError> {
+        let chunks: Vec<_> = data
+            .into_iter()
+            .enumerate()
+            .collect::<Vec<_>>()
+            .chunks(MAX_CONCURRENT_WORKERS)
+            .map(|chunk| chunk.to_vec())
+            .collect();
+
+        for chunk in chunks {
+            let futures = chunk.into_iter().map(|(index, obj)| {
+                let worker_args = crate::workers::feeder_dikti::downstream::master::upsert::get_list_komponen_evaluasi_kelas::WorkerArgs {
+                    feeder_model: obj,
+                };
+
+                async move {
+                    match crate::workers::feeder_dikti::downstream::master::upsert::get_list_komponen_evaluasi_kelas::Worker::perform_later(app_context, worker_args).await {
+                        Ok(_) => {
+                            println!("✅ Enqueued upsert worker for item {} (offset {})", index, offset + index as i32);
+                            Ok(())
+                        }
+                        Err(err) => {
+                            eprintln!("❌ Failed to enqueue upsert worker for item {} (offset {}): {:?}", index, offset + index as i32, err);
+                            Err(TaskError::WorkerEnqueueError(err.to_string()))
+                        }
+                    }
+                }
+            });
+
+            // Process chunk concurrently, but fail fast if any worker fails
+            try_join_all(futures).await?;
+
+            // Small delay between chunks to prevent overwhelming the system
+            sleep(Duration::from_millis(RETRY_DELAY_MS / 10)).await;
+        }
+
+        Ok(())
+    }
+
+    /// Fetch a page of data from the API
+    async fn fetch_page(
+        app_context: &AppContext,
+        limit: i32,
+        offset: i32,
+    ) -> Result<Option<Vec<FeederModel>>, TaskError> {
+        let response = RequestData::get::<FeederModel>(
+            app_context,
+            InputRequestData {
+                act: API_ACTION.to_string(),
+                filter: None,
+                order: None,
+                limit: Some(limit),
+                offset: Some(offset),
+            },
+        )
+        .await
+        .map_err(|e| TaskError::RequestError(e.to_string()))?;
+
+        match response.data {
+            Some(data) if !data.is_empty() => Ok(Some(data)),
+            _ => Ok(None),
         }
     }
 
-    async fn run(&self, app_context: &AppContext, _vars: &task::Vars) -> Result<()> {
-        println!("Task EstimateKomponenEvaluasiKelas generated");
-        // Here you can add the logic to enqueue specific workers or perform actions
-        // related to estimating evaluation components for classes.
-        let institution_id: Uuid = if let Some(current_settings) = &app_context.config.settings {
-            // println!("Settings loaded");
-            let settings = Settings::from_json(current_settings)?;
-            match Uuid::parse_str(settings.current_institution_id.as_str()) {
-                Ok(parsed_id) => {
-                    // println!("Successfully parsed institution id");
-                    parsed_id
-                }
-                Err(_) => {
-                    println!("Failed to parse institution id");
-                    return Err(Error::Message("Invalid institution ID format".to_string()));
-                }
-            }
-        } else {
-            return Err(Error::Message("Setting not loaded".to_string()));
-        };
-
-        let data_result = FeederAkumulasiEstimasi::Entity::find()
-            .filter(FeederAkumulasiEstimasi::Column::DeletedAt.is_null())
-            .filter(FeederAkumulasiEstimasi::Column::InstitutionId.eq(institution_id))
-            .filter(
-                FeederAkumulasiEstimasi::Column::Name
-                    .eq("EstimateKomponenEvaluasiKelas".to_string()),
-            )
-            .one(&app_context.db)
-            .await;
-
-        // Then handle the Result
-        let data_opt = match data_result {
-            Ok(opt) => opt,
-            Err(db_err) => {
-                return Err(Error::Message(format!(
-                    "Database error while querying reference: {db_err}"
-                )));
-            }
-        };
-
-        // determine limit from existing reference or use default
-        let mut limit: i32 = 100;
-
-        if let Some(existing_reference) = data_opt {
-            // Reference already exists — reset offsets and persist the change.
-            let existing_id = existing_reference.id.clone();
-            // read the configured page size from the existing reference
-            limit = existing_reference.total_data_per_request;
-            let mut active: FeederAkumulasiEstimasi::ActiveModel =
-                existing_reference.into_active_model();
-            active.last_offset = Set(0);
-            active.total_data = Set(0);
-            active.updated_at = Set(Local::now().naive_local());
-            // optional: update audit fields if present
-            match active.update(&app_context.db).await {
-                Ok(_) => {
-                    println!(
-                        "EstimateKomponenEvaluasiKelas reference reset (id={})",
-                        existing_id
-                    );
-                    // continue to perform requests below
-                }
-                Err(err) => {
-                    return Err(Error::Message(format!(
-                        "Failed to update existing reference: {err}"
-                    )));
-                }
-            }
-        } else {
-            // println!("There is No Data Provided");
-            let uuidv7_string = uuid7::uuid7().to_string();
-            let pk_id = Uuid::parse_str(&uuidv7_string).expect("Invalid UUID format");
-            let input = FeederAkumulasiEstimasi::ActiveModel {
-                id: Set(pk_id),
-                institution_id: Set(institution_id),
-                name: Set("EstimateKomponenEvaluasiKelas".to_string()),
-                total_data_per_request: Set(100),
-                last_offset: Set(0),
-                total_data: Set(0),
-                ..Default::default()
-            };
-            match input.insert(&app_context.db).await {
-                Ok(_) => {
-                    println!(
-                        "Inserted EstimateKomponenEvaluasiKelas reference for institution {institution_id}"
-                    );
-                    println!(
-                        "EstimateKomponenEvaluasiKelas reference created - will start requesting data"
-                    );
-                    // default limit already set to 100 above; continue to perform requests below
-                }
-                Err(err) => {
-                    return Err(Error::Message(format!(
-                        "Failed to insert new reference data: {err}"
-                    )));
-                }
-            }
-        }
-
-        // request to feeder dikti api to get data in a loop using pagination
-        // use the AppContext passed into the task (app_context) when making requests
-        let mut offset: i32 = 0;
+    /// Main pagination loop
+    async fn process_paginated_data(
+        app_context: &AppContext,
+        institution_id: Uuid,
+        limit: i32,
+    ) -> Result<(), TaskError> {
+        let mut offset = 0;
+        let mut total_processed = 0;
 
         loop {
-            let request_result = RequestData::get::<FeederModel>(
-                app_context,
-                InputRequestData {
-                    act: "GetListKomponenEvaluasiKelas".to_string(),
-                    filter: None,
-                    order: None,
-                    limit: Some(limit),
-                    offset: Some(offset),
-                },
-            )
-            .await;
+            println!("Fetching page at offset {} with limit {}", offset, limit);
 
-            // Unwrap response or return on error so subsequent match arms are consistent
-            let response = match request_result {
-                Ok(resp) => resp,
-                Err(err) => {
-                    println!("Error requesting feeder data: {err}");
-                    return Err(Error::Message(format!("Failed requesting feeder: {err}")));
-                }
-            };
+            match Self::fetch_page(app_context, limit, offset).await? {
+                Some(data) => {
+                    let count = data.len() as i32;
+                    println!("Received {} records (offset={})", count, offset);
 
-            match response.data {
-                Some(vec) if !vec.is_empty() => {
-                    let received = vec.len() as i32;
-                    println!("Received {} records (offset={})", received, offset);
-                    // Enqueue a worker to upsert this page
+                    // Enqueue workers for this batch
+                    Self::enqueue_workers(app_context, data, offset).await?;
 
-                    // Enqueue worker for each item in the vector
-                    for (index, obj) in vec.iter().enumerate() {
-                        let worker_args = crate::workers::feeder_dikti::downstream::master::upsert::get_list_komponen_evaluasi_kelas::WorkerArgs {
-                            feeder_model: obj.clone(),
-                        };
+                    // Update progress
+                    Self::update_progress(app_context, institution_id, offset, limit, count)
+                        .await?;
 
-                        // perform_later returns Result<(), Error>
-                        match crate::workers::feeder_dikti::downstream::master::upsert::get_list_komponen_evaluasi_kelas::Worker::perform_later(app_context, worker_args).await {
-                            Ok(_) => println!("✅ Enqueued upsert worker for item {} (offset {})", index, offset + index as i32),
-                            Err(err) => eprintln!("❌ Failed to enqueue upsert worker for item {} (offset {}): {:?}", index, offset + index as i32, err),
-                        }
-                    }
-
-                    // Persist progress to FeederAkumulasiEstimasi: update last_offset and total_data
-                    let update_result = FeederAkumulasiEstimasi::Entity::find()
-                        .filter(FeederAkumulasiEstimasi::Column::DeletedAt.is_null())
-                        .filter(FeederAkumulasiEstimasi::Column::InstitutionId.eq(institution_id))
-                        .filter(
-                            FeederAkumulasiEstimasi::Column::Name
-                                .eq("EstimateKomponenEvaluasiKelas".to_string()),
-                        )
-                        .one(&app_context.db)
-                        .await;
-
-                    if let Ok(Some(mut record)) = update_result {
-                        let current_total = record.total_data;
-                        // compute next offset as page-based stepping
-                        let next_offset = offset + limit;
-                        record.total_data = current_total + received;
-                        record.last_offset = next_offset;
-                        record.updated_at = Local::now().naive_local();
-                        // capture updated values before moving `record` into an ActiveModel
-                        let updated_total = record.total_data;
-                        let updated_last_offset = record.last_offset;
-                        let updated_updated_at = record.updated_at;
-                        let mut active: FeederAkumulasiEstimasi::ActiveModel =
-                            record.into_active_model();
-                        active.total_data = Set(updated_total);
-                        active.last_offset = Set(updated_last_offset);
-                        active.updated_at = Set(updated_updated_at);
-                        if let Err(err) = active.update(&app_context.db).await {
-                            eprintln!(
-                                "Failed to persist progress to FeederAkumulasiEstimasi: {:?}",
-                                err
-                            );
-                        }
-                    } else if let Err(err) = update_result {
-                        eprintln!(
-                            "Failed to fetch FeederAkumulasiEstimasi to persist progress: {:?}",
-                            err
-                        );
-                    }
-
-                    // Advance offset for next page (page-based stepping)
+                    total_processed += count;
                     offset += limit;
-                    // continue loop to fetch next page
+
+                    // Continue to next page
                 }
-                Some(_) | None => {
+                None => {
                     println!("No more data returned from feeder (offset={})", offset);
                     break;
                 }
             }
         }
 
-        // finished paging
+        println!("Completed processing {} total records", total_processed);
+        Ok(())
+    }
+}
+
+#[async_trait]
+impl Task for EstimateKomponenEvaluasiKelas {
+    fn task(&self) -> TaskInfo {
+        TaskInfo {
+            name: TASK_NAME.to_string(),
+            detail: "Fetch and process Komponen Evaluasi Kelas data from Feeder Dikti".to_string(),
+        }
+    }
+
+    async fn run(&self, app_context: &AppContext, _vars: &task::Vars) -> Result<()> {
+        println!("Starting {} task", TASK_NAME);
+
+        // Get institution ID
+        let institution_id = Self::get_institution_id(app_context)?;
+
+        // Find existing progress record
+        let existing_record = Self::find_progress_record(app_context, institution_id).await?;
+
+        // Initialize/reset progress tracking
+        let limit =
+            Self::initialize_progress_record(app_context, institution_id, existing_record).await?;
+
+        // Process all pages
+        Self::process_paginated_data(app_context, institution_id, limit).await?;
+
+        println!("✅ {} task completed successfully", TASK_NAME);
         Ok(())
     }
 }

@@ -2753,7 +2753,8 @@ dependencies = [
 [[package]]
 name = "loco-openapi"
 version = "0.1.2"
-source = "git+https://github.com/loco-rs/loco-openapi-Initializer?branch=main#57cf961ad6effbec29d89f5e2ab0d22642c6bbc2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "eb5122bd75dfce905fedef0109abbddab4bfabceab74937d45e7e6d134f9d4eb"
 dependencies = [
  "async-trait",
  "axum",
@@ -7010,6 +7011,7 @@ dependencies = [
  "dotenvy",
  "fake",
  "fluent-templates",
+ "futures",
  "futures-util",
  "headless_chrome",
  "include_dir",
