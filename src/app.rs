@@ -214,26 +214,12 @@ impl Hooks for App {
             .add_route(controllers::broadcast::transmit::routes())
     }
     async fn connect_workers(ctx: &AppContext, queue: &Queue) -> Result<()> {
-        queue.register(crate::workers::feeder_dikti::downstream::akumulasi::get_count_data::GetCountDataWorker::build(ctx)).await?;
-        queue.register(crate::workers::feeder_dikti::downstream::master::download::get_list_komponen_evaluasi_kelas::Worker::build(ctx)).await?;
-        queue
-            .register(
-                crate::workers::feeder_dikti::downstream::master::download::get_list_mahasiswa::Worker::build(
-                    ctx,
-                ),
-            )
-            .await?;
-        queue.register(crate::workers::feeder_dikti::downstream::master::download::get_biodata_mahasiswa::Worker::build(ctx)).await?;
-        queue.register(crate::workers::feeder_dikti::downstream::master::download::get_list_riwayat_pendidikan_mahasiswa::Worker::build(ctx)).await?;
-        queue.register(crate::workers::feeder_dikti::downstream::master::download::get_nilai_transfer_pendidikan_mahasiswa::Worker::build(ctx)).await?;
-        queue.register(crate::workers::feeder_dikti::downstream::master::download::get_riwayat_nilai_mahasiswa::Worker::build(ctx)).await?;
-        queue.register(crate::workers::feeder_dikti::downstream::master::download::get_krs_mahasiswa::Worker::build(ctx)).await?;
-        queue.register(crate::workers::feeder_dikti::downstream::master::download::get_list_perkuliahan_mahasiswa::Worker::build(ctx)).await?;
         queue.register(crate::workers::feeder_dikti::downstream::master::upsert::get_list_komponen_evaluasi_kelas::Worker::build(ctx)).await?;
         queue.register(crate::workers::feeder_dikti::downstream::master::upsert::get_list_mahasiswa::Worker::build(ctx)).await?;
         queue.register(crate::workers::feeder_dikti::downstream::master::upsert::get_biodata_mahasiswa::Worker::build(ctx)).await?;
         queue.register(crate::workers::feeder_dikti::downstream::master::upsert::get_list_perkuliahan_mahasiswa::Worker::build(ctx)).await?;
         queue.register(crate::workers::feeder_dikti::downstream::master::upsert::get_list_nilai_transfer_pendidikan_mahasiswa::Worker::build(ctx)).await?;
+        queue.register(crate::workers::feeder_dikti::downstream::master::upsert::get_list_riwayat_pendidikan_mahasiswa::Worker::build(ctx)).await?;
         Ok(())
     }
 
@@ -254,21 +240,9 @@ impl Hooks for App {
         tasks.register(
             tasks::feeder_dikti::downstream::estimasi::get_list_nilai_transfer_pendidikan_mahasiswa::EstimateNilaiTransferPendidikanMahasiswa,
         );
-        tasks.register(tasks::feeder_dikti::downstream::referensi::get_agama::GetAgama);
         tasks.register(
-            tasks::feeder_dikti::downstream::referensi::get_ikatan_kerja_sdm::GetIkatanKerjaSDM,
+            tasks::feeder_dikti::downstream::estimasi::get_list_riwayat_pendidikan_mahasiswa::EstimateRiwayatPendidikanMahasiswa,
         );
-        tasks.register(tasks::feeder_dikti::downstream::referensi::get_jabatan_fungsional::GetJabatanFungsional);
-        tasks.register(tasks::feeder_dikti::downstream::referensi::get_jalur_masuk::GetJalurMasuk);
-        tasks.register(tasks::feeder_dikti::downstream::akumulasi::get_count_data::GetCountData);
-        tasks.register(tasks::feeder_dikti::downstream::master::execute_worker_get_list_komponen_evaluasi_kelas::ExecuteWorkerGetListKomponenEvaluasiKelas);
-        tasks.register(tasks::feeder_dikti::downstream::master::execute_worker_get_list_mahasiswa::ExecuteWorkerGetListMahasiswa);
-        tasks.register(tasks::feeder_dikti::downstream::master::execute_worker_get_biodata_mahasiswa::ExecuteWorkerGetBiodataMahasiswa);
-        tasks.register(tasks::feeder_dikti::downstream::master::execute_worker_get_list_riwayat_pendidikan_mahasiswa::ExecuteWorkerGetListRiwayatPendidikanMahasiswa);
-        tasks.register(tasks::feeder_dikti::downstream::master::execute_worker_get_nilai_transfer_pendidikan_mahasiswa::ExecuteWorkerGetNilaiTransferPendidikanMahasiswa);
-        tasks.register(tasks::feeder_dikti::downstream::master::execute_worker_get_riwayat_nilai_mahasiswa::ExecuteWorkerGetRiwayatNilaiMahasiswa);
-        tasks.register(tasks::feeder_dikti::downstream::master::execute_worker_get_krs_mahasiswa::ExecuteWorkerGetKRSMahasiswa);
-        tasks.register(tasks::feeder_dikti::downstream::master::execute_worker_get_list_perkuliahan_mahasiswa::ExecuteWorkerGetListPerkuliahanMahasiswa);
 
         tasks.register(tasks::tui::generate_hash_password::GenerateHashPassword);
         tasks.register(tasks::tui::regenerate_all_student_detail_activities::RegenerateAllStudentDetailActivities);
