@@ -124,7 +124,7 @@ impl Worker {
     /// * `Result<String>` - "INSERTED" or "UPDATED" on success, error otherwise
     async fn upsert_record(ctx: &AppContext, record: &ModelInput) -> Result<String> {
         // id_transfer is the unique key for this record
-        let id_transfer = record.id_transfer;
+        let id_transfer = record.id_transfer.clone();
 
         // Start transaction
         let txn = ctx.db.begin().await?;
@@ -133,15 +133,23 @@ impl Worker {
         // Check if record exists
         let existing = nilai_transfer_pendidikan_mahasiswa::Entity::find()
             .filter(nilai_transfer_pendidikan_mahasiswa::Column::DeletedAt.is_null())
-            .filter(nilai_transfer_pendidikan_mahasiswa::Column::IdTransfer.eq(id_transfer))
+            .filter(
+                nilai_transfer_pendidikan_mahasiswa::Column::IdTransfer
+                    .eq(record.id_transfer.clone()),
+            )
             .filter(
                 nilai_transfer_pendidikan_mahasiswa::Column::IdRegistrasiMahasiswa
-                    .eq(id_registrasi_mahasiswa),
+                    .eq(record.id_registrasi_mahasiswa.clone()),
             )
-            .filter(nilai_transfer_pendidikan_mahasiswa::Column::IdMatkul.eq(id_matkul))
-            .filter(nilai_transfer_pendidikan_mahasiswa::Column::IdProdi.eq(id_prodi))
             .filter(
-                nilai_transfer_pendidikan_mahasiswa::Column::IdPeriodeMasuk.eq(id_periode_masuk),
+                nilai_transfer_pendidikan_mahasiswa::Column::IdMatkul.eq(record.id_matkul.clone()),
+            )
+            .filter(
+                nilai_transfer_pendidikan_mahasiswa::Column::IdProdi.eq(record.id_prodi.clone()),
+            )
+            .filter(
+                nilai_transfer_pendidikan_mahasiswa::Column::IdPeriodeMasuk
+                    .eq(record.id_periode_masuk.clone()),
             )
             .one(&txn)
             .await?;
