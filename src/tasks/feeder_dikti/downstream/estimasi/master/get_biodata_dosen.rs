@@ -6,11 +6,11 @@ use sea_orm::{ColumnTrait, EntityTrait, QueryFilter, Set, TransactionTrait};
 
 // Configuration constants
 const TASK_NAME: &str = "EstimateBiodataDosen";
-const API_ACTION: &str = "GetBiodataDosen";
+const API_ACTION: &str = "DetailBiodataDosen";
 
 // API Request Configuration
 const DEFAULT_LIMIT: i32 = 1000; // Records per API request page
-const DEFAULT_ORDER: &str = "nidn ASC"; // Sort order for API results
+const DEFAULT_ORDER: &str = "nuptk ASC"; // Sort order for API results
 const DEFAULT_FILTER: &str = ""; // Filter criteria (empty = no filter)
 
 // Worker Configuration
