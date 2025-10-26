@@ -1,21 +1,21 @@
-use sea_orm::entity::prelude::*;
+use crate::library::deserialization::{de_opt_date_dmy, de_opt_i32};
 use serde::{Deserialize, Serialize};
 
-#[derive(Clone, Debug, PartialEq, DeriveEntityModel, Eq, Serialize, Deserialize)]
-#[sea_orm(schema_name = "feeder_master", table_name = "biodata_dosen")]
-pub struct Model {
-    #[sea_orm(primary_key, auto_increment = false)]
-    pub id: Uuid,
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ModelInput {
     pub id_dosen: Option<String>,
     pub nama_dosen: Option<String>,
     pub tempat_lahir: Option<String>,
-    pub tanggal_lahir: Option<Date>,
+    #[serde(deserialize_with = "de_opt_date_dmy")]
+    pub tanggal_lahir: Option<chrono::NaiveDate>,
     pub jenis_kelamin: Option<String>,
-    pub id_agama: Option<String>,
+    #[serde(deserialize_with = "de_opt_i32")]
+    pub id_agama: Option<i32>,
     pub nama_agama: Option<String>,
     pub id_status_aktif: Option<String>,
     pub nama_status_aktif: Option<String>,
     pub nidn: Option<String>,
+    pub nuptk: Option<String>,
     pub nama_ibu_kandung: Option<String>,
     pub nik: Option<String>,
     pub nip: Option<String>,
@@ -23,7 +23,8 @@ pub struct Model {
     pub id_jenis_sdm: Option<String>,
     pub nama_jenis_sdm: Option<String>,
     pub no_sk_cpns: Option<String>,
-    pub tanggal_sk_cpns: Option<Date>,
+    #[serde(deserialize_with = "de_opt_date_dmy")]
+    pub tanggal_sk_cpns: Option<chrono::NaiveDate>,
     pub no_sk_pengangkatan: Option<String>,
     pub mulai_sk_pengangkatan: Option<String>,
     pub id_lembaga_pengangkatan: Option<String>,
@@ -46,16 +47,9 @@ pub struct Model {
     pub status_pernikahan: Option<String>,
     pub nama_suami_istri: Option<String>,
     pub nip_suami_istri: Option<String>,
-    pub tanggal_mulai_pns: Option<Date>,
+    #[serde(deserialize_with = "de_opt_date_dmy")]
+    pub tanggal_mulai_pns: Option<chrono::NaiveDate>,
+    #[serde(deserialize_with = "de_opt_i32")]
     pub id_pekerjaan_suami_istri: Option<i32>,
     pub nama_pekerjaan_suami_istri: Option<String>,
-    pub sync_at: Option<DateTime>,
-    pub created_by: Option<Uuid>,
-    pub updated_by: Option<Uuid>,
-    pub created_at: Option<DateTime>,
-    pub updated_at: Option<DateTime>,
-    pub deleted_at: Option<DateTime>,
 }
-
-#[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
-pub enum Relation {}

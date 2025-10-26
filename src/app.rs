@@ -218,6 +218,7 @@ impl Hooks for App {
         queue.register(crate::workers::feeder_dikti::downstream::master::upsert::get_list_dosen::Worker::build(ctx)).await?;
         queue.register(crate::workers::feeder_dikti::downstream::master::upsert::get_list_mahasiswa::Worker::build(ctx)).await?;
         queue.register(crate::workers::feeder_dikti::downstream::master::upsert::get_biodata_mahasiswa::Worker::build(ctx)).await?;
+        queue.register(crate::workers::feeder_dikti::downstream::master::upsert::get_biodata_dosen::Worker::build(ctx)).await?;
         queue.register(crate::workers::feeder_dikti::downstream::master::upsert::get_list_perkuliahan_mahasiswa::Worker::build(ctx)).await?;
         queue.register(crate::workers::feeder_dikti::downstream::master::upsert::get_list_nilai_transfer_pendidikan_mahasiswa::Worker::build(ctx)).await?;
         queue.register(crate::workers::feeder_dikti::downstream::master::upsert::get_list_riwayat_pendidikan_mahasiswa::Worker::build(ctx)).await?;
@@ -239,6 +240,9 @@ impl Hooks for App {
         );
         tasks.register(
             tasks::feeder_dikti::downstream::estimasi::master::get_biodata_mahasiswa::EstimateBiodataMahasiswa,
+        );
+        tasks.register(
+            tasks::feeder_dikti::downstream::estimasi::master::get_biodata_dosen::EstimateBiodataDosen,
         );
         tasks.register(
             tasks::feeder_dikti::downstream::estimasi::master::get_list_perkuliahan_mahasiswa::EstimatePerkuliahanMahasiswa,

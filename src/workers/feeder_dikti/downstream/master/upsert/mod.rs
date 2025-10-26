@@ -1,3 +1,4 @@
+pub mod get_biodata_dosen;
 pub mod get_biodata_mahasiswa;
 pub mod get_krs_mahasiswa;
 pub mod get_list_dosen;
