@@ -221,6 +221,7 @@ impl Hooks for App {
         queue.register(crate::workers::feeder_dikti::downstream::master::upsert::get_list_nilai_transfer_pendidikan_mahasiswa::Worker::build(ctx)).await?;
         queue.register(crate::workers::feeder_dikti::downstream::master::upsert::get_list_riwayat_pendidikan_mahasiswa::Worker::build(ctx)).await?;
         queue.register(crate::workers::feeder_dikti::downstream::master::upsert::get_krs_mahasiswa::Worker::build(ctx)).await?;
+        queue.register(crate::workers::feeder_dikti::downstream::master::upsert::get_riwayat_nilai_mahasiswa::Worker::build(ctx)).await?;
         Ok(())
     }
 
@@ -246,6 +247,9 @@ impl Hooks for App {
         );
         tasks.register(
             tasks::feeder_dikti::downstream::estimasi::get_krs_mahasiswa::EstimateKRSMahasiswa,
+        );
+        tasks.register(
+            tasks::feeder_dikti::downstream::estimasi::get_riwayat_nilai_mahasiswa::EstimateRiwayatNilaiMahasiswa,
         );
 
         tasks.register(tasks::tui::generate_hash_password::GenerateHashPassword);
