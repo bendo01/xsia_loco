@@ -5,8 +5,8 @@ use loco_rs::prelude::*;
 use sea_orm::{ColumnTrait, EntityTrait, QueryFilter, Set, TransactionTrait};
 
 // Configuration constants
-const TASK_NAME: &str = "EstimateRiwayatPendidikanMahasiswa";
-const API_ACTION: &str = "GetListRiwayatPendidikanMahasiswa";
+const TASK_NAME: &str = "EstimateKRSMahasiswa";
+const API_ACTION: &str = "GetKRSMahasiswa";
 
 // API Request Configuration
 const DEFAULT_LIMIT: i32 = 1000; // Records per API request page
@@ -42,9 +42,9 @@ impl From<TaskError> for Error {
     }
 }
 
-pub struct EstimateRiwayatPendidikanMahasiswa;
+pub struct EstimateKRSMahasiswa;
 
-impl EstimateRiwayatPendidikanMahasiswa {
+impl EstimateKRSMahasiswa {
     /// Extract institution ID from app context settings
     fn get_institution_id(app_context: &AppContext) -> Result<Uuid, TaskError> {
         let current_settings = app_context
@@ -186,8 +186,8 @@ impl EstimateRiwayatPendidikanMahasiswa {
         limit: i32,
         offset: i32,
     ) -> Result<(), TaskError> {
-        use crate::models::feeder::master::riwayat_pendidikan_mahasiswa::feeder_model::ModelInput as FeederModel;
-        use crate::tasks::feeder_dikti::downstream::request_only_data::{
+        use crate::models::feeder::master::kartu_rencana_studi_mahasiswa::feeder_model::ModelInput as FeederModel;
+        use crate::tasks::feeder_dikti::downstream::feeder_request::{
             InputRequestData, RequestData,
         };
 
@@ -228,11 +228,11 @@ impl EstimateRiwayatPendidikanMahasiswa {
         println!("📦 Fetched {} records at offset={}", records.len(), offset);
 
         // Enqueue worker with actual data
-        let worker_args = crate::workers::feeder_dikti::downstream::master::upsert::get_list_riwayat_pendidikan_mahasiswa::WorkerArgs {
+        let worker_args = crate::workers::feeder_dikti::downstream::master::upsert::get_krs_mahasiswa::WorkerArgs {
             records,
         };
 
-        match crate::workers::feeder_dikti::downstream::master::upsert::get_list_riwayat_pendidikan_mahasiswa::Worker::perform_later(app_context, worker_args).await {
+        match crate::workers::feeder_dikti::downstream::master::upsert::get_krs_mahasiswa::Worker::perform_later(app_context, worker_args).await {
             Ok(_) => {
                 println!("✅ Enqueued worker for offset={}", offset);
                 Ok(())
@@ -250,8 +250,8 @@ impl EstimateRiwayatPendidikanMahasiswa {
         _limit: i32,
         offset: i32,
     ) -> Result<bool, TaskError> {
-        use crate::models::feeder::master::riwayat_pendidikan_mahasiswa::feeder_model::ModelInput as FeederModel;
-        use crate::tasks::feeder_dikti::downstream::request_only_data::{
+        use crate::models::feeder::master::kartu_rencana_studi_mahasiswa::feeder_model::ModelInput as FeederModel;
+        use crate::tasks::feeder_dikti::downstream::feeder_request::{
             InputRequestData, RequestData,
         };
 
@@ -341,12 +341,11 @@ impl EstimateRiwayatPendidikanMahasiswa {
 }
 
 #[async_trait]
-impl Task for EstimateRiwayatPendidikanMahasiswa {
+impl Task for EstimateKRSMahasiswa {
     fn task(&self) -> TaskInfo {
         TaskInfo {
             name: TASK_NAME.to_string(),
-            detail: "Fetch and process List Riwayat Pendidikan Mahasiswa data from Feeder Dikti"
-                .to_string(),
+            detail: "Fetch and process KRS Mahasiswa data from Feeder Dikti".to_string(),
         }
     }
 

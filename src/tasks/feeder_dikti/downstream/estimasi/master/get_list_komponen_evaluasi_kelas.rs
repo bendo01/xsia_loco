@@ -5,12 +5,12 @@ use loco_rs::prelude::*;
 use sea_orm::{ColumnTrait, EntityTrait, QueryFilter, Set, TransactionTrait};
 
 // Configuration constants
-const TASK_NAME: &str = "EstimateBiodataMahasiswa";
-const API_ACTION: &str = "GetBiodataMahasiswa";
+const TASK_NAME: &str = "EstimateKomponenEvaluasiKelas";
+const API_ACTION: &str = "GetListKomponenEvaluasiKelas";
 
 // API Request Configuration
 const DEFAULT_LIMIT: i32 = 1000; // Records per API request page
-const DEFAULT_ORDER: &str = "nik ASC"; // Sort order for API results
+const DEFAULT_ORDER: &str = "nomor_urut ASC"; // Sort order for API results
 const DEFAULT_FILTER: &str = ""; // Filter criteria (empty = no filter)
 
 // Worker Configuration
@@ -42,9 +42,9 @@ impl From<TaskError> for Error {
     }
 }
 
-pub struct EstimateBiodataMahasiswa;
+pub struct EstimateKomponenEvaluasiKelas;
 
-impl EstimateBiodataMahasiswa {
+impl EstimateKomponenEvaluasiKelas {
     /// Extract institution ID from app context settings
     fn get_institution_id(app_context: &AppContext) -> Result<Uuid, TaskError> {
         let current_settings = app_context
@@ -187,8 +187,8 @@ impl EstimateBiodataMahasiswa {
         limit: i32,
         offset: i32,
     ) -> Result<(), TaskError> {
-        use crate::models::feeder::master::biodata_mahasiswa::feeder_model::ModelInput as FeederModel;
-        use crate::tasks::feeder_dikti::downstream::request_only_data::{
+        use crate::models::feeder::master::komponen_evaluasi_kelas::feeder_model::ModelInput as FeederModel;
+        use crate::tasks::feeder_dikti::downstream::feeder_request::{
             InputRequestData, RequestData,
         };
 
@@ -229,11 +229,11 @@ impl EstimateBiodataMahasiswa {
         println!("📦 Fetched {} records at offset={}", records.len(), offset);
 
         // Enqueue worker with actual data
-        let worker_args = crate::workers::feeder_dikti::downstream::master::upsert::get_biodata_mahasiswa::WorkerArgs {
+        let worker_args = crate::workers::feeder_dikti::downstream::master::upsert::get_list_komponen_evaluasi_kelas::WorkerArgs {
             records,
         };
 
-        match crate::workers::feeder_dikti::downstream::master::upsert::get_biodata_mahasiswa::Worker::perform_later(app_context, worker_args).await {
+        match crate::workers::feeder_dikti::downstream::master::upsert::get_list_komponen_evaluasi_kelas::Worker::perform_later(app_context, worker_args).await {
             Ok(_) => {
                 println!("✅ Enqueued worker for offset={}", offset);
                 Ok(())
@@ -251,8 +251,8 @@ impl EstimateBiodataMahasiswa {
         _limit: i32,
         offset: i32,
     ) -> Result<bool, TaskError> {
-        use crate::models::feeder::master::biodata_mahasiswa::feeder_model::ModelInput as FeederModel;
-        use crate::tasks::feeder_dikti::downstream::request_only_data::{
+        use crate::models::feeder::master::komponen_evaluasi_kelas::feeder_model::ModelInput as FeederModel;
+        use crate::tasks::feeder_dikti::downstream::feeder_request::{
             InputRequestData, RequestData,
         };
 
@@ -342,11 +342,11 @@ impl EstimateBiodataMahasiswa {
 }
 
 #[async_trait]
-impl Task for EstimateBiodataMahasiswa {
+impl Task for EstimateKomponenEvaluasiKelas {
     fn task(&self) -> TaskInfo {
         TaskInfo {
             name: TASK_NAME.to_string(),
-            detail: "Fetch and process Biodata Mahasiswa data from Feeder Dikti".to_string(),
+            detail: "Fetch and process Komponen Evaluasi Kelas data from Feeder Dikti".to_string(),
         }
     }
 

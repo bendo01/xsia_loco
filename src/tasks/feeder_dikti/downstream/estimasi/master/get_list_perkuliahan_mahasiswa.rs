@@ -187,7 +187,7 @@ impl EstimatePerkuliahanMahasiswa {
         offset: i32,
     ) -> Result<(), TaskError> {
         use crate::models::feeder::master::perkuliahan_mahasiswa::feeder_model::ModelInput as FeederModel;
-        use crate::tasks::feeder_dikti::downstream::request_only_data::{
+        use crate::tasks::feeder_dikti::downstream::feeder_request::{
             InputRequestData, RequestData,
         };
 
@@ -251,7 +251,7 @@ impl EstimatePerkuliahanMahasiswa {
         offset: i32,
     ) -> Result<bool, TaskError> {
         use crate::models::feeder::master::perkuliahan_mahasiswa::feeder_model::ModelInput as FeederModel;
-        use crate::tasks::feeder_dikti::downstream::request_only_data::{
+        use crate::tasks::feeder_dikti::downstream::feeder_request::{
             InputRequestData, RequestData,
         };
 

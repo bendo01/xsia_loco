@@ -1,9 +1,0 @@
-pub mod execute_worker_get_biodata_mahasiswa;
-pub mod execute_worker_get_krs_mahasiswa;
-pub mod execute_worker_get_list_komponen_evaluasi_kelas;
-pub mod execute_worker_get_list_mahasiswa;
-pub mod execute_worker_get_list_perkuliahan_mahasiswa;
-pub mod execute_worker_get_list_riwayat_pendidikan_mahasiswa;
-pub mod execute_worker_get_nilai_transfer_pendidikan_mahasiswa;
-pub mod execute_worker_get_riwayat_nilai_mahasiswa;
-pub mod execute_worker_get_transkrip_mahasiswa;

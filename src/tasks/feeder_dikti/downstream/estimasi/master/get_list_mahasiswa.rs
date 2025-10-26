@@ -5,12 +5,12 @@ use loco_rs::prelude::*;
 use sea_orm::{ColumnTrait, EntityTrait, QueryFilter, Set, TransactionTrait};
 
 // Configuration constants
-const TASK_NAME: &str = "EstimateNilaiTransferPendidikanMahasiswa";
-const API_ACTION: &str = "GetNilaiTransferPendidikanMahasiswa";
+const TASK_NAME: &str = "EstimateMahasiswa";
+const API_ACTION: &str = "GetListMahasiswa";
 
 // API Request Configuration
 const DEFAULT_LIMIT: i32 = 1000; // Records per API request page
-const DEFAULT_ORDER: &str = "id_transfer ASC"; // Sort order for API results
+const DEFAULT_ORDER: &str = "nipd ASC"; // Sort order for API results
 const DEFAULT_FILTER: &str = ""; // Filter criteria (empty = no filter)
 
 // Worker Configuration
@@ -42,9 +42,9 @@ impl From<TaskError> for Error {
     }
 }
 
-pub struct EstimateNilaiTransferPendidikanMahasiswa;
+pub struct EstimateMahasiswa;
 
-impl EstimateNilaiTransferPendidikanMahasiswa {
+impl EstimateMahasiswa {
     /// Extract institution ID from app context settings
     fn get_institution_id(app_context: &AppContext) -> Result<Uuid, TaskError> {
         let current_settings = app_context
@@ -105,9 +105,10 @@ impl EstimateNilaiTransferPendidikanMahasiswa {
             }
             None => {
                 // Create new record
+                // let pk_id = Uuid::from(uuid7::uuid7());
                 let uuid_v7 = uuid7::uuid7();
                 let uuid_string = uuid_v7.to_string();
-                let pk_id: Uuid = Uuid::parse_str(&uuid_string).expect("Invalid UUID string");
+                let pk_id: Uuid = Uuid::parse_str(&uuid_string).expect("Invalid UUID string"); // Handle parsing errors appropriately
 
                 let new_record = FeederAkumulasiEstimasi::ActiveModel {
                     id: Set(pk_id),
@@ -186,8 +187,8 @@ impl EstimateNilaiTransferPendidikanMahasiswa {
         limit: i32,
         offset: i32,
     ) -> Result<(), TaskError> {
-        use crate::models::feeder::master::nilai_transfer_pendidikan_mahasiswa::feeder_model::ModelInput as FeederModel;
-        use crate::tasks::feeder_dikti::downstream::request_only_data::{
+        use crate::models::feeder::master::mahasiswa::feeder_model::ModelInput as FeederModel;
+        use crate::tasks::feeder_dikti::downstream::feeder_request::{
             InputRequestData, RequestData,
         };
 
@@ -228,11 +229,11 @@ impl EstimateNilaiTransferPendidikanMahasiswa {
         println!("📦 Fetched {} records at offset={}", records.len(), offset);
 
         // Enqueue worker with actual data
-        let worker_args = crate::workers::feeder_dikti::downstream::master::upsert::get_list_nilai_transfer_pendidikan_mahasiswa::WorkerArgs {
+        let worker_args = crate::workers::feeder_dikti::downstream::master::upsert::get_list_mahasiswa::WorkerArgs {
             records,
         };
 
-        match crate::workers::feeder_dikti::downstream::master::upsert::get_list_nilai_transfer_pendidikan_mahasiswa::Worker::perform_later(app_context, worker_args).await {
+        match crate::workers::feeder_dikti::downstream::master::upsert::get_list_mahasiswa::Worker::perform_later(app_context, worker_args).await {
             Ok(_) => {
                 println!("✅ Enqueued worker for offset={}", offset);
                 Ok(())
@@ -250,8 +251,8 @@ impl EstimateNilaiTransferPendidikanMahasiswa {
         _limit: i32,
         offset: i32,
     ) -> Result<bool, TaskError> {
-        use crate::models::feeder::master::nilai_transfer_pendidikan_mahasiswa::feeder_model::ModelInput as FeederModel;
-        use crate::tasks::feeder_dikti::downstream::request_only_data::{
+        use crate::models::feeder::master::mahasiswa::feeder_model::ModelInput as FeederModel;
+        use crate::tasks::feeder_dikti::downstream::feeder_request::{
             InputRequestData, RequestData,
         };
 
@@ -341,12 +342,11 @@ impl EstimateNilaiTransferPendidikanMahasiswa {
 }
 
 #[async_trait]
-impl Task for EstimateNilaiTransferPendidikanMahasiswa {
+impl Task for EstimateMahasiswa {
     fn task(&self) -> TaskInfo {
         TaskInfo {
             name: TASK_NAME.to_string(),
-            detail: "Fetch and process Nilai Transfer Pendidikan Mahasiswa data from Feeder Dikti"
-                .to_string(),
+            detail: "Fetch and process List Mahasiswa data from Feeder Dikti".to_string(),
         }
     }
 

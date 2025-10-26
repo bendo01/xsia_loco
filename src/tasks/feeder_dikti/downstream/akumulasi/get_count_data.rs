@@ -7,9 +7,7 @@ use uuid::Uuid; // Removed unused `uuid` macro import
 
 use crate::common::settings::Settings;
 use crate::models::feeder::akumulasi::jumlah_data::_entities::jumlah_data as FeederAkumulasiJumlahData;
-use crate::tasks::feeder_dikti::downstream::request_data_akumulasi::{
-    InputRequestData, RequestDataAkumulasi,
-};
+use crate::tasks::feeder_dikti::downstream::feeder_request::{InputRequestData, RequestData};
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct GetCountData;

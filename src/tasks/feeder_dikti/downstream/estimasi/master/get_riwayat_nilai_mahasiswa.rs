@@ -5,12 +5,12 @@ use loco_rs::prelude::*;
 use sea_orm::{ColumnTrait, EntityTrait, QueryFilter, Set, TransactionTrait};
 
 // Configuration constants
-const TASK_NAME: &str = "EstimateMahasiswa";
-const API_ACTION: &str = "GetListMahasiswa";
+const TASK_NAME: &str = "EstimateRiwayatNilaiMahasiswa";
+const API_ACTION: &str = "GetRiwayatNilaiMahasiswa";
 
 // API Request Configuration
 const DEFAULT_LIMIT: i32 = 1000; // Records per API request page
-const DEFAULT_ORDER: &str = "nipd ASC"; // Sort order for API results
+const DEFAULT_ORDER: &str = "nim ASC"; // Sort order for API results
 const DEFAULT_FILTER: &str = ""; // Filter criteria (empty = no filter)
 
 // Worker Configuration
@@ -42,9 +42,9 @@ impl From<TaskError> for Error {
     }
 }
 
-pub struct EstimateMahasiswa;
+pub struct EstimateRiwayatNilaiMahasiswa;
 
-impl EstimateMahasiswa {
+impl EstimateRiwayatNilaiMahasiswa {
     /// Extract institution ID from app context settings
     fn get_institution_id(app_context: &AppContext) -> Result<Uuid, TaskError> {
         let current_settings = app_context
@@ -105,10 +105,9 @@ impl EstimateMahasiswa {
             }
             None => {
                 // Create new record
-                // let pk_id = Uuid::from(uuid7::uuid7());
                 let uuid_v7 = uuid7::uuid7();
                 let uuid_string = uuid_v7.to_string();
-                let pk_id: Uuid = Uuid::parse_str(&uuid_string).expect("Invalid UUID string"); // Handle parsing errors appropriately
+                let pk_id: Uuid = Uuid::parse_str(&uuid_string).expect("Invalid UUID string");
 
                 let new_record = FeederAkumulasiEstimasi::ActiveModel {
                     id: Set(pk_id),
@@ -187,8 +186,8 @@ impl EstimateMahasiswa {
         limit: i32,
         offset: i32,
     ) -> Result<(), TaskError> {
-        use crate::models::feeder::master::mahasiswa::feeder_model::ModelInput as FeederModel;
-        use crate::tasks::feeder_dikti::downstream::request_only_data::{
+        use crate::models::feeder::master::riwayat_nilai_mahasiswa::feeder_model::ModelInput as FeederModel;
+        use crate::tasks::feeder_dikti::downstream::feeder_request::{
             InputRequestData, RequestData,
         };
 
@@ -229,11 +228,11 @@ impl EstimateMahasiswa {
         println!("📦 Fetched {} records at offset={}", records.len(), offset);
 
         // Enqueue worker with actual data
-        let worker_args = crate::workers::feeder_dikti::downstream::master::upsert::get_list_mahasiswa::WorkerArgs {
+        let worker_args = crate::workers::feeder_dikti::downstream::master::upsert::get_riwayat_nilai_mahasiswa::WorkerArgs {
             records,
         };
 
-        match crate::workers::feeder_dikti::downstream::master::upsert::get_list_mahasiswa::Worker::perform_later(app_context, worker_args).await {
+        match crate::workers::feeder_dikti::downstream::master::upsert::get_riwayat_nilai_mahasiswa::Worker::perform_later(app_context, worker_args).await {
             Ok(_) => {
                 println!("✅ Enqueued worker for offset={}", offset);
                 Ok(())
@@ -251,8 +250,8 @@ impl EstimateMahasiswa {
         _limit: i32,
         offset: i32,
     ) -> Result<bool, TaskError> {
-        use crate::models::feeder::master::mahasiswa::feeder_model::ModelInput as FeederModel;
-        use crate::tasks::feeder_dikti::downstream::request_only_data::{
+        use crate::models::feeder::master::riwayat_nilai_mahasiswa::feeder_model::ModelInput as FeederModel;
+        use crate::tasks::feeder_dikti::downstream::feeder_request::{
             InputRequestData, RequestData,
         };
 
@@ -342,11 +341,11 @@ impl EstimateMahasiswa {
 }
 
 #[async_trait]
-impl Task for EstimateMahasiswa {
+impl Task for EstimateRiwayatNilaiMahasiswa {
     fn task(&self) -> TaskInfo {
         TaskInfo {
             name: TASK_NAME.to_string(),
-            detail: "Fetch and process List Mahasiswa data from Feeder Dikti".to_string(),
+            detail: "Fetch and process Riwayat Nilai Mahasiswa data from Feeder Dikti".to_string(),
         }
     }
 

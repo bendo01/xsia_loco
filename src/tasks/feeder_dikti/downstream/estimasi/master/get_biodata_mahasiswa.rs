@@ -5,12 +5,12 @@ use loco_rs::prelude::*;
 use sea_orm::{ColumnTrait, EntityTrait, QueryFilter, Set, TransactionTrait};
 
 // Configuration constants
-const TASK_NAME: &str = "EstimateRiwayatNilaiMahasiswa";
-const API_ACTION: &str = "GetRiwayatNilaiMahasiswa";
+const TASK_NAME: &str = "EstimateBiodataMahasiswa";
+const API_ACTION: &str = "GetBiodataMahasiswa";
 
 // API Request Configuration
 const DEFAULT_LIMIT: i32 = 1000; // Records per API request page
-const DEFAULT_ORDER: &str = "nim ASC"; // Sort order for API results
+const DEFAULT_ORDER: &str = "nik ASC"; // Sort order for API results
 const DEFAULT_FILTER: &str = ""; // Filter criteria (empty = no filter)
 
 // Worker Configuration
@@ -42,9 +42,9 @@ impl From<TaskError> for Error {
     }
 }
 
-pub struct EstimateRiwayatNilaiMahasiswa;
+pub struct EstimateBiodataMahasiswa;
 
-impl EstimateRiwayatNilaiMahasiswa {
+impl EstimateBiodataMahasiswa {
     /// Extract institution ID from app context settings
     fn get_institution_id(app_context: &AppContext) -> Result<Uuid, TaskError> {
         let current_settings = app_context
@@ -105,9 +105,10 @@ impl EstimateRiwayatNilaiMahasiswa {
             }
             None => {
                 // Create new record
+                // let pk_id = Uuid::from(uuid7::uuid7());
                 let uuid_v7 = uuid7::uuid7();
                 let uuid_string = uuid_v7.to_string();
-                let pk_id: Uuid = Uuid::parse_str(&uuid_string).expect("Invalid UUID string");
+                let pk_id: Uuid = Uuid::parse_str(&uuid_string).expect("Invalid UUID string"); // Handle parsing errors appropriately
 
                 let new_record = FeederAkumulasiEstimasi::ActiveModel {
                     id: Set(pk_id),
@@ -186,8 +187,8 @@ impl EstimateRiwayatNilaiMahasiswa {
         limit: i32,
         offset: i32,
     ) -> Result<(), TaskError> {
-        use crate::models::feeder::master::riwayat_nilai_mahasiswa::feeder_model::ModelInput as FeederModel;
-        use crate::tasks::feeder_dikti::downstream::request_only_data::{
+        use crate::models::feeder::master::biodata_mahasiswa::feeder_model::ModelInput as FeederModel;
+        use crate::tasks::feeder_dikti::downstream::feeder_request::{
             InputRequestData, RequestData,
         };
 
@@ -228,11 +229,11 @@ impl EstimateRiwayatNilaiMahasiswa {
         println!("📦 Fetched {} records at offset={}", records.len(), offset);
 
         // Enqueue worker with actual data
-        let worker_args = crate::workers::feeder_dikti::downstream::master::upsert::get_riwayat_nilai_mahasiswa::WorkerArgs {
+        let worker_args = crate::workers::feeder_dikti::downstream::master::upsert::get_biodata_mahasiswa::WorkerArgs {
             records,
         };
 
-        match crate::workers::feeder_dikti::downstream::master::upsert::get_riwayat_nilai_mahasiswa::Worker::perform_later(app_context, worker_args).await {
+        match crate::workers::feeder_dikti::downstream::master::upsert::get_biodata_mahasiswa::Worker::perform_later(app_context, worker_args).await {
             Ok(_) => {
                 println!("✅ Enqueued worker for offset={}", offset);
                 Ok(())
@@ -250,8 +251,8 @@ impl EstimateRiwayatNilaiMahasiswa {
         _limit: i32,
         offset: i32,
     ) -> Result<bool, TaskError> {
-        use crate::models::feeder::master::riwayat_nilai_mahasiswa::feeder_model::ModelInput as FeederModel;
-        use crate::tasks::feeder_dikti::downstream::request_only_data::{
+        use crate::models::feeder::master::biodata_mahasiswa::feeder_model::ModelInput as FeederModel;
+        use crate::tasks::feeder_dikti::downstream::feeder_request::{
             InputRequestData, RequestData,
         };
 
@@ -341,11 +342,11 @@ impl EstimateRiwayatNilaiMahasiswa {
 }
 
 #[async_trait]
-impl Task for EstimateRiwayatNilaiMahasiswa {
+impl Task for EstimateBiodataMahasiswa {
     fn task(&self) -> TaskInfo {
         TaskInfo {
             name: TASK_NAME.to_string(),
-            detail: "Fetch and process Riwayat Nilai Mahasiswa data from Feeder Dikti".to_string(),
+            detail: "Fetch and process Biodata Mahasiswa data from Feeder Dikti".to_string(),
         }
     }
 

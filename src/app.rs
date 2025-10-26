@@ -222,6 +222,7 @@ impl Hooks for App {
         queue.register(crate::workers::feeder_dikti::downstream::master::upsert::get_list_riwayat_pendidikan_mahasiswa::Worker::build(ctx)).await?;
         queue.register(crate::workers::feeder_dikti::downstream::master::upsert::get_krs_mahasiswa::Worker::build(ctx)).await?;
         queue.register(crate::workers::feeder_dikti::downstream::master::upsert::get_riwayat_nilai_mahasiswa::Worker::build(ctx)).await?;
+        queue.register(crate::workers::feeder_dikti::downstream::master::upsert::get_transkrip_mahasiswa::Worker::build(ctx)).await?;
         Ok(())
     }
 
@@ -229,27 +230,30 @@ impl Hooks for App {
     fn register_tasks(tasks: &mut Tasks) {
         tasks.register(tasks::feeder_dikti::downstream::akumulasi::execute_worker_get_count_data::ExecuteWorkerGetCountData);
         // tasks-inject (do not remove)
-        tasks.register(tasks::feeder_dikti::downstream::estimasi::get_list_komponen_evaluasi_kelas::EstimateKomponenEvaluasiKelas);
+        tasks.register(tasks::feeder_dikti::downstream::estimasi::master::get_list_komponen_evaluasi_kelas::EstimateKomponenEvaluasiKelas);
         tasks.register(
-            tasks::feeder_dikti::downstream::estimasi::get_list_mahasiswa::EstimateMahasiswa,
+            tasks::feeder_dikti::downstream::estimasi::master::get_list_mahasiswa::EstimateMahasiswa,
         );
         tasks.register(
-            tasks::feeder_dikti::downstream::estimasi::get_biodata_mahasiswa::EstimateBiodataMahasiswa,
+            tasks::feeder_dikti::downstream::estimasi::master::get_biodata_mahasiswa::EstimateBiodataMahasiswa,
         );
         tasks.register(
-            tasks::feeder_dikti::downstream::estimasi::get_list_perkuliahan_mahasiswa::EstimatePerkuliahanMahasiswa,
+            tasks::feeder_dikti::downstream::estimasi::master::get_list_perkuliahan_mahasiswa::EstimatePerkuliahanMahasiswa,
         );
         tasks.register(
-            tasks::feeder_dikti::downstream::estimasi::get_list_nilai_transfer_pendidikan_mahasiswa::EstimateNilaiTransferPendidikanMahasiswa,
+            tasks::feeder_dikti::downstream::estimasi::master::get_list_nilai_transfer_pendidikan_mahasiswa::EstimateNilaiTransferPendidikanMahasiswa,
         );
         tasks.register(
-            tasks::feeder_dikti::downstream::estimasi::get_list_riwayat_pendidikan_mahasiswa::EstimateRiwayatPendidikanMahasiswa,
+            tasks::feeder_dikti::downstream::estimasi::master::get_list_riwayat_pendidikan_mahasiswa::EstimateRiwayatPendidikanMahasiswa,
         );
         tasks.register(
-            tasks::feeder_dikti::downstream::estimasi::get_krs_mahasiswa::EstimateKRSMahasiswa,
+            tasks::feeder_dikti::downstream::estimasi::master::get_krs_mahasiswa::EstimateKRSMahasiswa,
         );
         tasks.register(
-            tasks::feeder_dikti::downstream::estimasi::get_riwayat_nilai_mahasiswa::EstimateRiwayatNilaiMahasiswa,
+            tasks::feeder_dikti::downstream::estimasi::master::get_riwayat_nilai_mahasiswa::EstimateRiwayatNilaiMahasiswa,
+        );
+        tasks.register(
+            tasks::feeder_dikti::downstream::estimasi::master::get_transkrip_mahasiswa::EstimateTranskripMahasiswa,
         );
 
         tasks.register(tasks::tui::generate_hash_password::GenerateHashPassword);
