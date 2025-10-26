@@ -228,7 +228,6 @@ impl Hooks for App {
 
     #[allow(unused_variables)]
     fn register_tasks(tasks: &mut Tasks) {
-        tasks.register(tasks::feeder_dikti::downstream::akumulasi::execute_worker_get_count_data::ExecuteWorkerGetCountData);
         // tasks-inject (do not remove)
         tasks.register(tasks::feeder_dikti::downstream::estimasi::master::get_list_komponen_evaluasi_kelas::EstimateKomponenEvaluasiKelas);
         tasks.register(
