@@ -36,7 +36,7 @@ impl MigrationTrait for Migration {
                 mulai_surat_tugas date,
                 tgl_create date,
                 tgl_ptk_keluar timestamp(0) without time zone,
-                id_stat_pegawai character varying(255),
+                id_stat_pegawai integer,
                 id_jns_keluar character varying(255),
                 id_ikatan_kerja character varying(255),
                 a_sp_homebase character varying(255),
