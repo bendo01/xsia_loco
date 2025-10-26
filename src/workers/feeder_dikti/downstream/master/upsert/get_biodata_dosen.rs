@@ -160,7 +160,7 @@ impl Worker {
             active.no_sk_cpns = Set(record.no_sk_cpns.clone());
             active.tanggal_sk_cpns = Set(record.tanggal_sk_cpns);
             active.no_sk_pengangkatan = Set(record.no_sk_pengangkatan.clone());
-            active.mulai_sk_pengangkatan = Set(record.mulai_sk_pengangkatan.clone());
+            active.mulai_sk_pengangkatan = Set(record.mulai_sk_pengangkatan.map(|d| d.to_string()));
             active.id_lembaga_pengangkatan = Set(record.id_lembaga_pengangkatan.clone());
             active.nama_lembaga_pengangkatan = Set(record.nama_lembaga_pengangkatan.clone());
             active.id_pangkat_golongan = Set(record.id_pangkat_golongan.clone());
@@ -217,7 +217,7 @@ impl Worker {
                 no_sk_cpns: Set(record.no_sk_cpns.clone()),
                 tanggal_sk_cpns: Set(record.tanggal_sk_cpns),
                 no_sk_pengangkatan: Set(record.no_sk_pengangkatan.clone()),
-                mulai_sk_pengangkatan: Set(record.mulai_sk_pengangkatan.clone()),
+                mulai_sk_pengangkatan: Set(record.mulai_sk_pengangkatan.map(|d| d.to_string())),
                 id_lembaga_pengangkatan: Set(record.id_lembaga_pengangkatan.clone()),
                 nama_lembaga_pengangkatan: Set(record.nama_lembaga_pengangkatan.clone()),
                 id_pangkat_golongan: Set(record.id_pangkat_golongan.clone()),

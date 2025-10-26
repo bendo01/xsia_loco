@@ -165,3 +165,30 @@ where
         Ok(None)
     }
 }
+
+/// Deserialize optional date from ISO datetime string (e.g., "2013-01-03T00:00:00.000Z") or `null`.
+/// Extracts just the date part, discarding the time component.
+pub fn de_opt_date_time_iso<'de, D>(d: D) -> Result<Option<NaiveDate>, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let s: Option<String> = Option::deserialize(d)?;
+    if let Some(s) = s {
+        let s = s.trim();
+        if s.is_empty() {
+            return Ok(None);
+        }
+
+        // Parse ISO datetime and extract date part
+        // Format: "2013-01-03T00:00:00.000Z" or similar
+        if let Some(date_part) = s.split('T').next() {
+            NaiveDate::parse_from_str(date_part, "%Y-%m-%d")
+                .map(Some)
+                .map_err(D::Error::custom)
+        } else {
+            Err(D::Error::custom(format!("invalid ISO datetime: {}", s)))
+        }
+    } else {
+        Ok(None)
+    }
+}
