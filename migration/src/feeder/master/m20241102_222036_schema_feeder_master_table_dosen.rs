@@ -25,7 +25,7 @@ impl MigrationTrait for Migration {
                 nidn character varying(255),
                 nip character varying(255),
                 jenis_kelamin character varying(255),
-                id_agama character varying(255),
+                id_agama integer,
                 nama_agama character varying(255),
                 tanggal_lahir date,
                 id_status_aktif character varying(255),

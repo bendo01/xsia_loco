@@ -11,7 +11,7 @@ pub struct Model {
     pub nidn: Option<String>,
     pub nip: Option<String>,
     pub jenis_kelamin: Option<String>,
-    pub id_agama: Option<String>,
+    pub id_agama: Option<i32>,
     pub nama_agama: Option<String>,
     pub tanggal_lahir: Option<Date>,
     pub id_status_aktif: Option<String>,
