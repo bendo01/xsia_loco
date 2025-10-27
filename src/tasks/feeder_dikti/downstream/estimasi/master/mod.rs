@@ -12,3 +12,4 @@ pub mod get_riwayat_nilai_mahasiswa;
 pub mod get_transkrip_mahasiswa;
 pub mod get_aktifitas_mengajar_dosen;
 pub mod get_detail_kelas_kuliah;
+pub mod get_list_kurikulum;
