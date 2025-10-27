@@ -125,9 +125,15 @@ impl Worker {
         let txn = ctx.db.begin().await?;
         let sync_time = Local::now().naive_local();
 
-        let id_registrasi_dosen_uuid = record.id_registrasi_dosen.unwrap();
-        let id_perguruan_tinggi_uuid = record.id_perguruan_tinggi.unwrap();
-        let id_prodi_uuid = record.id_prodi.unwrap();
+        let id_registrasi_dosen_uuid = record.id_registrasi_dosen.ok_or_else(|| {
+            Error::Message("id_registrasi_dosen is required but was None".to_string())
+        })?;
+        let id_perguruan_tinggi_uuid = record.id_perguruan_tinggi.ok_or_else(|| {
+            Error::Message("id_perguruan_tinggi is required but was None".to_string())
+        })?;
+        let id_prodi_uuid = record.id_prodi.ok_or_else(|| {
+            Error::Message("id_prodi is required but was None".to_string())
+        })?;
 
         // Check if record exists
         let existing = penugasan_dosen::Entity::find()
