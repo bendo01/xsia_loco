@@ -91,6 +91,26 @@ where
     }
 }
 
+/// Deserialize `f32` from number or string.
+pub fn de_f32<'de, D>(deserializer: D) -> Result<f32, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let v: Value = Value::deserialize(deserializer)?;
+    match v {
+        Value::Number(n) => n
+            .as_f64()
+            .map(|x| x as f32)
+            .ok_or_else(|| serde::de::Error::custom("expected float")),
+        Value::String(s) => s
+            .parse::<f32>()
+            .map_err(|e| serde::de::Error::custom(format!("invalid f32: {e}"))),
+        other => Err(serde::de::Error::custom(format!(
+            "unexpected type for f32: {other:?}"
+        ))),
+    }
+}
+
 // ---------- helpers ----------
 pub fn de_opt_string_or_int<'de, D>(d: D) -> Result<Option<String>, D::Error>
 where
