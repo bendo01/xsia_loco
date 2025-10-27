@@ -126,7 +126,7 @@ impl Worker {
         let txn = ctx.db.begin().await?;
         let sync_time = Local::now().naive_local();
 
-        let id_registrasi_dosen_uuid = record.id_registrasi_dosen.unwrap();
+        let id_registrasi_dosen_uuid = record.id_registrasi_dosen.as_ref().and_then(|s| Uuid::parse_str(s).ok()).unwrap();
 
         // Check if record exists
         let existing = penugasan_dosen::Entity::find()
@@ -140,15 +140,15 @@ impl Worker {
             let mut active: penugasan_dosen::ActiveModel = existing_record.into_active_model();
 
             active.jk = Set(record.jk.clone());
-            active.id_dosen = Set(record.id_dosen);
+            active.id_dosen = Set(record.id_dosen.as_ref().and_then(|s| Uuid::parse_str(s).ok()));
             active.nama_dosen = Set(record.nama_dosen.clone());
             active.nidn = Set(record.nidn.clone());
             active.nuptk = Set(record.nuptk.clone());
-            active.id_tahun_ajaran = Set(record.id_tahun_ajaran.clone());
+            active.id_tahun_ajaran = Set(record.id_tahun_ajaran.as_ref().and_then(|s| Uuid::parse_str(s).ok()));
             active.nama_tahun_ajaran = Set(record.nama_tahun_ajaran.clone());
-            active.id_perguruan_tinggi = Set(record.id_perguruan_tinggi);
+            active.id_perguruan_tinggi = Set(record.id_perguruan_tinggi.as_ref().and_then(|s| Uuid::parse_str(s).ok()));
             active.nama_perguruan_tinggi = Set(record.nama_perguruan_tinggi.clone());
-            active.id_prodi = Set(record.id_prodi);
+            active.id_prodi = Set(record.id_prodi.as_ref().and_then(|s| Uuid::parse_str(s).ok()));
             active.nama_program_studi = Set(record.nama_program_studi.clone());
             active.nomor_surat_tugas = Set(record.nomor_surat_tugas.clone());
             active.tanggal_surat_tugas = Set(record.tanggal_surat_tugas);
@@ -177,15 +177,15 @@ impl Worker {
                 id: Set(pk_id),
                 id_registrasi_dosen: Set(Some(id_registrasi_dosen_uuid)),
                 jk: Set(record.jk.clone()),
-                id_dosen: Set(record.id_dosen),
+                id_dosen: Set(record.id_dosen.as_ref().and_then(|s| Uuid::parse_str(s).ok())),
                 nama_dosen: Set(record.nama_dosen.clone()),
                 nidn: Set(record.nidn.clone()),
                 nuptk: Set(record.nuptk.clone()),
-                id_tahun_ajaran: Set(record.id_tahun_ajaran.clone()),
+                id_tahun_ajaran: Set(record.id_tahun_ajaran.as_ref().and_then(|s| Uuid::parse_str(s).ok())),
                 nama_tahun_ajaran: Set(record.nama_tahun_ajaran.clone()),
-                id_perguruan_tinggi: Set(record.id_perguruan_tinggi),
+                id_perguruan_tinggi: Set(record.id_perguruan_tinggi.as_ref().and_then(|s| Uuid::parse_str(s).ok())),
                 nama_perguruan_tinggi: Set(record.nama_perguruan_tinggi.clone()),
-                id_prodi: Set(record.id_prodi),
+                id_prodi: Set(record.id_prodi.as_ref().and_then(|s| Uuid::parse_str(s).ok())),
                 nama_program_studi: Set(record.nama_program_studi.clone()),
                 nomor_surat_tugas: Set(record.nomor_surat_tugas.clone()),
                 tanggal_surat_tugas: Set(record.tanggal_surat_tugas),
