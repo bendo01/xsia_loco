@@ -1,19 +1,20 @@
 use crate::library::deserialization::{de_opt_date_dmy, de_opt_date_time_iso, de_opt_i32};
 use serde::{Deserialize, Serialize};
+use uuid::Uuid;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ModelInput {
-    pub id_registrasi_dosen: String,
+    pub id_registrasi_dosen: Option<Uuid>,
     pub jk: Option<String>,
-    pub id_dosen: Option<String>,
+    pub id_dosen: Option<Uuid>,
     pub nama_dosen: Option<String>,
     pub nidn: Option<String>,
     pub nuptk: Option<String>,
     pub id_tahun_ajaran: Option<String>,
     pub nama_tahun_ajaran: Option<String>,
-    pub id_perguruan_tinggi: Option<String>,
+    pub id_perguruan_tinggi: Option<Uuid>,
     pub nama_perguruan_tinggi: Option<String>,
-    pub id_prodi: Option<String>,
+    pub id_prodi: Option<Uuid>,
     pub nama_program_studi: Option<String>,
     pub nomor_surat_tugas: Option<String>,
     #[serde(deserialize_with = "de_opt_date_dmy")]

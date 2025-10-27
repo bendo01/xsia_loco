@@ -66,7 +66,7 @@ impl BackgroundWorker<WorkerArgs> for Worker {
                 Ok(action) => {
                     success_count += 1;
                     println!(
-                        "  ✅ Record {}/{}: {} - id_registrasi_dosen={}, nama_dosen={:?}",
+                        "  ✅ Record {}/{}: {} - id_registrasi_dosen={:?}, nama_dosen={:?}",
                         index + 1,
                         args.records.len(),
                         action,
@@ -77,7 +77,7 @@ impl BackgroundWorker<WorkerArgs> for Worker {
                 Err(e) => {
                     error_count += 1;
                     eprintln!(
-                        "  ❌ Record {}/{}: Failed - id_registrasi_dosen={}, nama_dosen={:?}, error: {}",
+                        "  ❌ Record {}/{}: Failed - id_registrasi_dosen={:?}, nama_dosen={:?}, error: {}",
                         index + 1,
                         args.records.len(),
                         record.id_registrasi_dosen,
@@ -121,17 +121,17 @@ impl Worker {
     /// # Returns
     /// * `Result<String>` - "INSERTED" or "UPDATED" on success, error otherwise
     async fn upsert_record(ctx: &AppContext, record: &ModelInput) -> Result<String> {
-        // id_registrasi_dosen is required (not Option in ModelInput)
-        let id_registrasi_dosen = &record.id_registrasi_dosen;
 
         // Start transaction
         let txn = ctx.db.begin().await?;
         let sync_time = Local::now().naive_local();
 
+        let id_registrasi_dosen_uuid = record.id_registrasi_dosen.unwrap();
+
         // Check if record exists
         let existing = penugasan_dosen::Entity::find()
             .filter(penugasan_dosen::Column::DeletedAt.is_null())
-            .filter(penugasan_dosen::Column::IdRegistrasiDosen.eq(id_registrasi_dosen))
+            .filter(penugasan_dosen::Column::IdRegistrasiDosen.eq(id_registrasi_dosen_uuid))
             .one(&txn)
             .await?;
 
@@ -140,15 +140,15 @@ impl Worker {
             let mut active: penugasan_dosen::ActiveModel = existing_record.into_active_model();
 
             active.jk = Set(record.jk.clone());
-            active.id_dosen = Set(record.id_dosen.clone());
+            active.id_dosen = Set(record.id_dosen);
             active.nama_dosen = Set(record.nama_dosen.clone());
             active.nidn = Set(record.nidn.clone());
             active.nuptk = Set(record.nuptk.clone());
             active.id_tahun_ajaran = Set(record.id_tahun_ajaran.clone());
             active.nama_tahun_ajaran = Set(record.nama_tahun_ajaran.clone());
-            active.id_perguruan_tinggi = Set(record.id_perguruan_tinggi.clone());
+            active.id_perguruan_tinggi = Set(record.id_perguruan_tinggi);
             active.nama_perguruan_tinggi = Set(record.nama_perguruan_tinggi.clone());
-            active.id_prodi = Set(record.id_prodi.clone());
+            active.id_prodi = Set(record.id_prodi);
             active.nama_program_studi = Set(record.nama_program_studi.clone());
             active.nomor_surat_tugas = Set(record.nomor_surat_tugas.clone());
             active.tanggal_surat_tugas = Set(record.tanggal_surat_tugas);
@@ -175,17 +175,17 @@ impl Worker {
 
             let new_record = penugasan_dosen::ActiveModel {
                 id: Set(pk_id),
-                id_registrasi_dosen: Set(Some(id_registrasi_dosen.clone())),
+                id_registrasi_dosen: Set(Some(id_registrasi_dosen_uuid)),
                 jk: Set(record.jk.clone()),
-                id_dosen: Set(record.id_dosen.clone()),
+                id_dosen: Set(record.id_dosen),
                 nama_dosen: Set(record.nama_dosen.clone()),
                 nidn: Set(record.nidn.clone()),
                 nuptk: Set(record.nuptk.clone()),
                 id_tahun_ajaran: Set(record.id_tahun_ajaran.clone()),
                 nama_tahun_ajaran: Set(record.nama_tahun_ajaran.clone()),
-                id_perguruan_tinggi: Set(record.id_perguruan_tinggi.clone()),
+                id_perguruan_tinggi: Set(record.id_perguruan_tinggi),
                 nama_perguruan_tinggi: Set(record.nama_perguruan_tinggi.clone()),
-                id_prodi: Set(record.id_prodi.clone()),
+                id_prodi: Set(record.id_prodi),
                 nama_program_studi: Set(record.nama_program_studi.clone()),
                 nomor_surat_tugas: Set(record.nomor_surat_tugas.clone()),
                 tanggal_surat_tugas: Set(record.tanggal_surat_tugas),
