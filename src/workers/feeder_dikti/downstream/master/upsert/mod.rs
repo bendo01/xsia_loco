@@ -10,3 +10,4 @@ pub mod get_list_perkuliahan_mahasiswa;
 pub mod get_list_riwayat_pendidikan_mahasiswa;
 pub mod get_riwayat_nilai_mahasiswa;
 pub mod get_transkrip_mahasiswa;
+pub mod get_aktifitas_mengajar_dosen;
