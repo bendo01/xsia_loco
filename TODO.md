@@ -6,3 +6,7 @@
 [x] fix data structure database on table contact.residences
 [] fix on ui app list model adjust with academic reference registration types on create person
 [] add data 446591f8-f9ae-4888-b080-3bc3c16baccb, 15, O, Wali on person_reference.relative_types
+
+password
+
+kptk
