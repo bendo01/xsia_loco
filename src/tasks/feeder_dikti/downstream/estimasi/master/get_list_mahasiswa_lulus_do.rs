@@ -5,12 +5,12 @@ use loco_rs::prelude::*;
 use sea_orm::{ColumnTrait, EntityTrait, QueryFilter, Set, TransactionTrait};
 
 // Configuration constants
-const TASK_NAME: &str = "EstimateGetDosenPengajarKelasKuliah";
-const API_ACTION: &str = "GetDosenPengajarKelasKuliah";
+const TASK_NAME: &str = "EstimateMahasiswaLulusDo";
+const API_ACTION: &str = "GetListMahasiswaLulusDO";
 
 // API Request Configuration
 const DEFAULT_LIMIT: i32 = 1000; // Records per API request page
-const DEFAULT_ORDER: &str = "nama_kelas_kuliah ASC"; // Sort order for API results
+const DEFAULT_ORDER: &str = "nim ASC"; // Sort order for API results
 const DEFAULT_FILTER: &str = ""; // Filter criteria (empty = no filter)
 
 // Worker Configuration
@@ -42,9 +42,9 @@ impl From<TaskError> for Error {
     }
 }
 
-pub struct EstimateGetDosenPengajarKelasKuliah;
+pub struct EstimateMahasiswaLulusDo;
 
-impl EstimateGetDosenPengajarKelasKuliah {
+impl EstimateMahasiswaLulusDo {
     /// Extract institution ID from app context settings
     fn get_institution_id(app_context: &AppContext) -> Result<Uuid, TaskError> {
         let current_settings = app_context
@@ -105,9 +105,10 @@ impl EstimateGetDosenPengajarKelasKuliah {
             }
             None => {
                 // Create new record
+                // let pk_id = Uuid::from(uuid7::uuid7());
                 let uuid_v7 = uuid7::uuid7();
                 let uuid_string = uuid_v7.to_string();
-                let pk_id: Uuid = Uuid::parse_str(&uuid_string).expect("Invalid UUID string");
+                let pk_id: Uuid = Uuid::parse_str(&uuid_string).expect("Invalid UUID string"); // Handle parsing errors appropriately
 
                 let new_record = FeederAkumulasiEstimasi::ActiveModel {
                     id: Set(pk_id),
@@ -186,7 +187,7 @@ impl EstimateGetDosenPengajarKelasKuliah {
         limit: i32,
         offset: i32,
     ) -> Result<(), TaskError> {
-        use crate::models::feeder::master::dosen_pengajar_kelas_kuliah::feeder_model::ModelInput as FeederModel;
+        use crate::models::feeder::master::mahasiswa_lulusan_dropout::feeder_model::ModelInput as FeederModel;
         use crate::tasks::feeder_dikti::downstream::feeder_request::{
             InputRequestData, RequestData,
         };
@@ -228,11 +229,11 @@ impl EstimateGetDosenPengajarKelasKuliah {
         println!("📦 Fetched {} records at offset={}", records.len(), offset);
 
         // Enqueue worker with actual data
-        let worker_args = crate::workers::feeder_dikti::downstream::master::upsert::get_dosen_pengajar_kelas_kuliah::WorkerArgs {
+        let worker_args = crate::workers::feeder_dikti::downstream::master::upsert::get_list_mahasiswa_lulus_do::WorkerArgs {
             records,
         };
 
-        match crate::workers::feeder_dikti::downstream::master::upsert::get_dosen_pengajar_kelas_kuliah::Worker::perform_later(app_context, worker_args).await {
+        match crate::workers::feeder_dikti::downstream::master::upsert::get_list_mahasiswa_lulus_do::Worker::perform_later(app_context, worker_args).await {
             Ok(_) => {
                 println!("✅ Enqueued worker for offset={}", offset);
                 Ok(())
@@ -250,7 +251,7 @@ impl EstimateGetDosenPengajarKelasKuliah {
         _limit: i32,
         offset: i32,
     ) -> Result<bool, TaskError> {
-        use crate::models::feeder::master::dosen_pengajar_kelas_kuliah::feeder_model::ModelInput as FeederModel;
+        use crate::models::feeder::master::mahasiswa_lulusan_dropout::feeder_model::ModelInput as FeederModel;
         use crate::tasks::feeder_dikti::downstream::feeder_request::{
             InputRequestData, RequestData,
         };
@@ -341,11 +342,11 @@ impl EstimateGetDosenPengajarKelasKuliah {
 }
 
 #[async_trait]
-impl Task for EstimateGetDosenPengajarKelasKuliah {
+impl Task for EstimateMahasiswaLulusDo {
     fn task(&self) -> TaskInfo {
         TaskInfo {
             name: TASK_NAME.to_string(),
-            detail: "Fetch and process Dosen Pengajar Kelas Kuliah data from Feeder Dikti".to_string(),
+            detail: "Fetch and process List Mahasiswa Lulus Do data from Feeder Dikti".to_string(),
         }
     }
 

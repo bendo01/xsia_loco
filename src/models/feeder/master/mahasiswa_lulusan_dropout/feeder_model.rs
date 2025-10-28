@@ -5,14 +5,14 @@ use crate::library::deserialization::{
 };
 use chrono::NaiveDate;
 use serde::{Deserialize, Serialize};
-// use uuid::Uuid; // Removed unused `uuid` macro import
+use uuid::Uuid; // Removed unused `uuid` macro import
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct ModelInput {
-    pub id_registrasi_mahasiswa: Option<String>,
-    pub id_mahasiswa: Option<String>,
-    pub id_perguruan_tinggi: Option<String>,
-    pub id_prodi: Option<String>,
+    pub id_registrasi_mahasiswa: Option<Uuid>,
+    pub id_mahasiswa: Option<Uuid>,
+    pub id_perguruan_tinggi: Option<Uuid>,
+    pub id_prodi: Option<Uuid>,
     #[serde(deserialize_with = "de_opt_date_dmy")]
     pub tgl_masuk_sp: Option<NaiveDate>,
     #[serde(deserialize_with = "de_opt_date_dmy")]
@@ -35,8 +35,8 @@ pub struct ModelInput {
     pub ipk: Option<f32>,
     pub sert_prof: Option<String>,
     pub a_pindah_mhs_asing: Option<String>,
-    pub id_pt_asal: Option<String>,
-    pub id_prodi_asal: Option<String>,
+    pub id_pt_asal: Option<Uuid>,
+    pub id_prodi_asal: Option<Uuid>,
     pub nm_pt_asal: Option<String>,
     pub nm_prodi_asal: Option<String>,
     pub id_jns_daftar: Option<String>,

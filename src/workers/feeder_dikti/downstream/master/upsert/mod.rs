@@ -14,3 +14,4 @@ pub mod get_aktifitas_mengajar_dosen;
 pub mod get_detail_kelas_kuliah;
 pub mod get_list_kurikulum;
 pub mod get_dosen_pengajar_kelas_kuliah;
+pub mod get_list_mahasiswa_lulus_do;
