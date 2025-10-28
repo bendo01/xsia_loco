@@ -1,4 +1,4 @@
-use crate::library::deserialization::{de_opt_f32, de_opt_i32};
+use crate::library::deserialization::{de_opt_f32, de_opt_i32, de_opt_string_or_int};
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
@@ -20,6 +20,7 @@ pub struct ModelInput {
     pub rencana_minggu_pertemuan: Option<i32>,
     #[serde(deserialize_with = "de_opt_i32")]
     pub realisasi_minggu_pertemuan: Option<i32>,
+    #[serde(deserialize_with = "de_opt_string_or_int")]
     pub id_jenis_evaluasi: Option<String>,
     pub nama_jenis_evaluasi: Option<String>,
     pub id_prodi: Option<Uuid>,
