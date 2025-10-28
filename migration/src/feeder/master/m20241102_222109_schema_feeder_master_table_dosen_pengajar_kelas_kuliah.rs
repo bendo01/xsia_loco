@@ -24,6 +24,7 @@ impl MigrationTrait for Migration {
                 id_registrasi_dosen uuid,
                 id_dosen uuid,
                 nidn character varying(255),
+                nuptk character varying(255),
                 nama_dosen character varying(255),
                 id_kelas_kuliah uuid,
                 nama_kelas_kuliah character varying(255),
