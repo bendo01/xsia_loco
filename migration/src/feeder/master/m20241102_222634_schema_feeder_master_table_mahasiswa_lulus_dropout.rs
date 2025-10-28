@@ -17,37 +17,64 @@ impl MigrationTrait for Migration {
         .await?;
         db.execute_unprepared(
             "
-            CREATE TABLE IF NOT EXISTS feeder_master.mahasiswa_lulus_dropout
+            CREATE TABLE IF NOT EXISTS feeder_master.mahasiswa_lulusan_dropout
             (
                 id uuid DEFAULT uuid_generate_v7(),
-                id_registrasi_mahasiswa uuid,
-                id_mahasiswa uuid,
-                nim character varying(255),
-                nama_mahasiswa character varying(255),
-                id_jenis_keluar uuid,
-                nama_jenis_keluar character varying(255),
-                tanggal_keluar date,
-                keterangan character varying(255),
-                nomor_sk_yudisium character varying(255),
-                tanggal_sk_yudisium date,
-                ipk real,
-                nomor_ijazah character varying(255),
-                jalur_skripsi character varying(255),
-                judul_skripsi character varying(255),
-                bulan_awal_bimbingan date,
-                bulan_akhir_bimbingan date,
-                id_dosen uuid,
-                nidn character varying(255),
-                nama_dosen character varying(255),
-                pembimbing_ke integer,
-                id_periode_keluar uuid,
                 created_at timestamp(0) without time zone DEFAULT now(),
                 updated_at timestamp(0) without time zone DEFAULT now(),
                 deleted_at timestamp(0) without time zone,
                 sync_at timestamp(0) without time zone,
                 created_by uuid DEFAULT '00000000-0000-0000-0000-000000000000'::uuid,
                 updated_by uuid DEFAULT '00000000-0000-0000-0000-000000000000'::uuid,
-                CONSTRAINT feeder_master_mahasiswa_lulus_dropout_pkey PRIMARY KEY (id)
+                id_registrasi_mahasiswa uuid,
+                id_mahasiswa uuid,
+                id_perguruan_tinggi uuid,
+                id_prodi uuid,
+                tgl_masuk_sp date,
+                tgl_keluar date,
+                skhun text,
+                no_peserta_ujian text,
+                no_seri_ijazah text,
+                tgl_create date,
+                sks_diakui real,
+                jalur_skripsi text,
+                judul_skripsi text,
+                bln_awal_bimbingan text,
+                bln_akhir_bimbingan text,
+                sk_yudisium text,
+                tgl_sk_yudisium date,
+                ipk real,
+                sert_prof text,
+                a_pindah_mhs_asing text,
+                id_pt_asal uuid,
+                id_prodi_asal uuid,
+                nm_pt_asal text,
+                nm_prodi_asal text,
+                id_jns_daftar text,
+                id_jns_keluar text,
+                id_jalur_masuk text,
+                id_pembiayaan text,
+                id_minat_bidang text,
+                bidang_mayor text,
+                bidang_minor text,
+                biaya_masuk_kuliah real,
+                namapt text,
+                id_jur text,
+                nm_jns_daftar text,
+                nm_smt text,
+                nim text,
+                nama_mahasiswa text,
+                nama_program_studi text,
+                angkatan text,
+                id_jenis_keluar text,
+                nama_jenis_keluar text,
+                tanggal_keluar date,
+                id_periode_keluar text,
+                keterangan text,
+                no_sertifikat_profesi text,
+                tanggal_terbit_ijazah date,
+                status_sync text,
+                CONSTRAINT feeder_master_mahasiswa_lulusan_dropout_pkey PRIMARY KEY (id)
             )
             ",
         )
@@ -58,7 +85,7 @@ impl MigrationTrait for Migration {
     async fn down(&self, manager: &SchemaManager) -> Result<(), DbErr> {
         manager
             .get_connection()
-            .execute_unprepared("DROP TABLE IF EXISTS feeder_master.mahasiswa_lulus_dropout")
+            .execute_unprepared("DROP TABLE IF EXISTS feeder_master.mahasiswa_lulusan_dropout")
             .await?;
 
         Ok(())
