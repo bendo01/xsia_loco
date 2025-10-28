@@ -1,32 +1,37 @@
-use sea_orm::entity::prelude::*;
+use crate::library::deserialization::{
+    de_opt_f32,
+    de_opt_i32,
+};
+use loco_rs::prelude::Date;
 use serde::{Deserialize, Serialize};
+use uuid::Uuid; // Removed unused `uuid` macro import
 
-#[derive(Clone, Debug, PartialEq, DeriveEntityModel, Serialize, Deserialize)]
-#[sea_orm(schema_name = "feeder_master", table_name = "nilai_perkuliahan_kelas")]
-pub struct Model {
-    #[sea_orm(primary_key, auto_increment = false)]
-    pub id: Uuid,
-    pub sync_at: Option<DateTime>,
-    pub created_by: Option<Uuid>,
-    pub updated_by: Option<Uuid>,
-    pub created_at: Option<DateTime>,
-    pub updated_at: Option<DateTime>,
-    pub deleted_at: Option<DateTime>,
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct ModelInput {
     pub id_matkul: Uuid,
     pub kode_mata_kuliah: String,
     pub nama_mata_kuliah: String,
     pub id_kelas_kuliah: Uuid,
     pub nama_kelas_kuliah: String,
+    #[serde(deserialize_with = "de_opt_f32")]
     pub sks_mata_kuliah: Option<f32>,
     pub jumlah_mahasiswa_krs: Option<i32>,
+    #[serde(deserialize_with = "de_opt_i32")]
     pub jumlah_mahasiswa_dapat_nilai: Option<i32>,
+    #[serde(deserialize_with = "de_opt_f32")]
     pub sks_tm: Option<f32>,
+    #[serde(deserialize_with = "de_opt_f32")]
     pub sks_prak: Option<f32>,
+    #[serde(deserialize_with = "de_opt_f32")]
     pub sks_prak_lap: Option<f32>,
+    #[serde(deserialize_with = "de_opt_f32")]
     pub sks_sim: Option<f32>,
     pub bahasan_case: Option<String>,
+    #[serde(deserialize_with = "de_opt_i32")]
     pub a_selenggara_pditt: Option<i32>,
+    #[serde(deserialize_with = "de_opt_i32")]
     pub a_pengguna_pditt: Option<i32>,
+    #[serde(deserialize_with = "de_opt_i32")]
     pub kuota_pditt: Option<i32>,
     pub tgl_mulai_koas: Option<Date>,
     pub tgl_selesai_koas: Option<Date>,
@@ -35,13 +40,10 @@ pub struct Model {
     pub id_sms: Uuid,
     pub id_smt: String,
     pub tgl_create: Date,
+    #[serde(deserialize_with = "de_opt_i32")]
     pub lingkup_kelas: Option<i32>,
     pub mode_kuliah: Option<String>,
     pub nm_smt: String,
     pub nama_prodi: String,
     pub status_sync: String,
-
 }
-
-#[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
-pub enum Relation {}

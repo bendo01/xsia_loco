@@ -16,3 +16,4 @@ pub mod get_list_kurikulum;
 pub mod get_dosen_pengajar_kelas_kuliah;
 pub mod get_list_mahasiswa_lulus_do;
 pub mod get_list_matakuliah;
+pub mod get_list_nilai_perkuliahan_kelas;
