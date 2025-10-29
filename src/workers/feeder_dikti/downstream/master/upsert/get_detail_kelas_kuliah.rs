@@ -158,8 +158,7 @@ impl Worker {
             active.kapasitas = Set(record.kapasitas);
             active.tanggal_tutup_daftar = Set(record.tanggal_tutup_daftar);
             active.prodi_penyelenggara = Set(record.prodi_penyelenggara.clone());
-            active.perguruan_tinggi_penyelenggara =
-                Set(record.perguruan_tinggi_penyelenggara.clone());
+            active.perguruan_tinggi_penyelenggara = Set(record.perguruan_tinggi_penyelenggara.clone());
             active.sync_at = Set(Some(sync_time));
             active.updated_at = Set(Some(sync_time));
 

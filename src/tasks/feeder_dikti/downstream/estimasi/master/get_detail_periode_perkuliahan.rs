@@ -5,12 +5,12 @@ use loco_rs::prelude::*;
 use sea_orm::{ColumnTrait, EntityTrait, QueryFilter, Set, TransactionTrait};
 
 // Configuration constants
-const TASK_NAME: &str = "EstimatePenugasanDosen";
-const API_ACTION: &str = "GetListPenugasanDosen";
+const TASK_NAME: &str = "EstimateGetDetailPeriodePerkuliahan";
+const API_ACTION: &str = "GetDetailPeriodePerkuliahan";
 
 // API Request Configuration
 const DEFAULT_LIMIT: i32 = 1000; // Records per API request page
-const DEFAULT_ORDER: &str = "nuptk ASC"; // Sort order for API results
+const DEFAULT_ORDER: &str = "id_semester ASC"; // Sort order for API results
 const DEFAULT_FILTER: &str = ""; // Filter criteria (empty = no filter)
 
 // Worker Configuration
@@ -42,9 +42,9 @@ impl From<TaskError> for Error {
     }
 }
 
-pub struct EstimatePenugasanDosen;
+pub struct EstimateGetDetailPeriodePerkuliahan;
 
-impl EstimatePenugasanDosen {
+impl EstimateGetDetailPeriodePerkuliahan {
     /// Extract institution ID from app context settings
     fn get_institution_id(app_context: &AppContext) -> Result<Uuid, TaskError> {
         let current_settings = app_context
@@ -186,7 +186,7 @@ impl EstimatePenugasanDosen {
         limit: i32,
         offset: i32,
     ) -> Result<(), TaskError> {
-        use crate::models::feeder::master::penugasan_dosen::feeder_model::ModelInput as FeederModel;
+        use crate::models::feeder::master::periode_perkuliahan::feeder_model::ModelInputPeriodePerkuliahan as FeederModel;
         use crate::tasks::feeder_dikti::downstream::feeder_request::{
             InputRequestData, RequestData,
         };
@@ -228,12 +228,11 @@ impl EstimatePenugasanDosen {
         println!("📦 Fetched {} records at offset={}", records.len(), offset);
 
         // Enqueue worker with actual data
-        let worker_args =
-            crate::workers::feeder_dikti::downstream::master::upsert::get_list_penugasan_dosen::WorkerArgs {
-                records,
-            };
+        let worker_args = crate::workers::feeder_dikti::downstream::master::upsert::get_detail_periode_perkuliahan::WorkerArgs {
+            records,
+        };
 
-        match crate::workers::feeder_dikti::downstream::master::upsert::get_list_penugasan_dosen::Worker::perform_later(app_context, worker_args).await {
+        match crate::workers::feeder_dikti::downstream::master::upsert::get_detail_periode_perkuliahan::Worker::perform_later(app_context, worker_args).await {
             Ok(_) => {
                 println!("✅ Enqueued worker for offset={}", offset);
                 Ok(())
@@ -251,7 +250,7 @@ impl EstimatePenugasanDosen {
         _limit: i32,
         offset: i32,
     ) -> Result<bool, TaskError> {
-        use crate::models::feeder::master::penugasan_dosen::feeder_model::ModelInput as FeederModel;
+        use crate::models::feeder::master::periode_perkuliahan::feeder_model::ModelInputPeriodePerkuliahan as FeederModel;
         use crate::tasks::feeder_dikti::downstream::feeder_request::{
             InputRequestData, RequestData,
         };
@@ -342,11 +341,11 @@ impl EstimatePenugasanDosen {
 }
 
 #[async_trait]
-impl Task for EstimatePenugasanDosen {
+impl Task for EstimateGetDetailPeriodePerkuliahan {
     fn task(&self) -> TaskInfo {
         TaskInfo {
             name: TASK_NAME.to_string(),
-            detail: "Fetch and process List Penugasan Dosen data from Feeder Dikti".to_string(),
+            detail: "Fetch and process GetDetailPeriodePerkuliahan data from Feeder Dikti".to_string(),
         }
     }
 

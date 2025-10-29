@@ -135,9 +135,7 @@ impl Worker {
         // Check if record exists using composite key
         let existing = dosen_pengajar_kelas_kuliah::Entity::find()
             .filter(dosen_pengajar_kelas_kuliah::Column::DeletedAt.is_null())
-            .filter(
-                dosen_pengajar_kelas_kuliah::Column::IdAktivitasMengajar.eq(id_aktivitas_mengajar),
-            )
+            .filter(dosen_pengajar_kelas_kuliah::Column::IdAktivitasMengajar.eq(id_aktivitas_mengajar))
             .filter(dosen_pengajar_kelas_kuliah::Column::IdRegistrasiDosen.eq(id_registrasi_dosen))
             .filter(dosen_pengajar_kelas_kuliah::Column::IdKelasKuliah.eq(id_kelas_kuliah))
             .one(&txn)
@@ -145,8 +143,7 @@ impl Worker {
 
         let action = if let Some(existing_record) = existing {
             // Update existing record
-            let mut active: dosen_pengajar_kelas_kuliah::ActiveModel =
-                existing_record.into_active_model();
+            let mut active: dosen_pengajar_kelas_kuliah::ActiveModel = existing_record.into_active_model();
 
             active.id_dosen = Set(record.id_dosen);
             active.nidn = Set(record.nidn.clone());

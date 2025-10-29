@@ -174,86 +174,19 @@ impl RequestData {
                     Ok(response_text) => {
                         // tracing::debug!("Raw response text: {}", response_text);
 
-                        // First try to trim whitespace and parse
-                        let trimmed_text = response_text.trim();
-
                         // Try to parse the response text as JSON
-                        match serde_json::from_str::<ReturnData<T>>(trimmed_text) {
+                        match serde_json::from_str::<ReturnData<T>>(&response_text) {
                             Ok(data) => {
                                 // tracing::info!("Successfully parsed response for action: {}", input.act);
                                 data
                             }
                             Err(err) => {
-                                // If parsing fails due to trailing input, try to clean the JSON
-                                if err.to_string().contains("trailing") {
-                                    // Try to extract valid JSON by finding matching braces
-                                    // Count braces to find where the JSON actually ends
-                                    let mut brace_count = 0;
-                                    let mut bracket_count = 0;
-                                    let mut in_string = false;
-                                    let mut escape_next = false;
-                                    let mut json_end: Option<usize> = None;
-
-                                    for (i, ch) in trimmed_text.char_indices() {
-                                        if escape_next {
-                                            escape_next = false;
-                                            continue;
-                                        }
-
-                                        match ch {
-                                            '\\' if in_string => escape_next = true,
-                                            '"' => in_string = !in_string,
-                                            '{' if !in_string => brace_count += 1,
-                                            '}' if !in_string => {
-                                                brace_count -= 1;
-                                                if brace_count == 0 && bracket_count == 0 {
-                                                    json_end = Some(i);
-                                                    break;
-                                                }
-                                            }
-                                            '[' if !in_string => bracket_count += 1,
-                                            ']' if !in_string => {
-                                                bracket_count -= 1;
-                                                if brace_count == 0 && bracket_count == 0 {
-                                                    json_end = Some(i);
-                                                    break;
-                                                }
-                                            }
-                                            _ => {}
-                                        }
-                                    }
-
-                                    if let Some(end_pos) = json_end {
-                                        let clean_json = &trimmed_text[..=end_pos];
-                                        match serde_json::from_str::<ReturnData<T>>(clean_json) {
-                                            Ok(data) => {
-                                                // tracing::info!("Successfully parsed cleaned JSON for action: {}", input.act);
-                                                data
-                                            }
-                                            Err(_) => {
-                                                // tracing::error!("JSON parsing failed for action: {}. Error: {}. Response: {}",
-                                                //     input.act, err, response_text);
-                                                return Err(Error::Message(format!(
-                                                    "Failed to parse response JSON for action '{}': {}. Response was: {}",
-                                                    input.act, err, response_text
-                                                )));
-                                            }
-                                        }
-                                    } else {
-                                        // tracing::error!("Could not find valid JSON end for action: {}. Response: {}", input.act, response_text);
-                                        return Err(Error::Message(format!(
-                                            "Failed to parse response JSON for action '{}': {}. Response was: {}",
-                                            input.act, err, response_text
-                                        )));
-                                    }
-                                } else {
-                                    // tracing::error!("JSON parsing failed for action: {}. Error: {}. Response: {}",
-                                    //     input.act, err, response_text);
-                                    return Err(Error::Message(format!(
-                                        "Failed to parse response JSON for action '{}': {}. Response was: {}",
-                                        input.act, err, response_text
-                                    )));
-                                }
+                                // tracing::error!("JSON parsing failed for action: {}. Error: {}. Response: {}",
+                                //     input.act, err, response_text);
+                                return Err(Error::Message(format!(
+                                    "Failed to parse response JSON for action '{}': {}. Response was: {}",
+                                    input.act, err, response_text
+                                )));
                             }
                         }
                     }
@@ -363,86 +296,19 @@ impl RequestData {
                     Ok(response_text) => {
                         // tracing::debug!("Raw response text: {}", response_text);
 
-                        // First try to trim whitespace and parse
-                        let trimmed_text = response_text.trim();
-
                         // Try to parse the response text as JSON
-                        match serde_json::from_str::<ReturnDataScalar>(trimmed_text) {
+                        match serde_json::from_str::<ReturnDataScalar>(&response_text) {
                             Ok(data) => {
                                 // tracing::info!("Successfully parsed scalar response for action: {}", input.act);
                                 data
                             }
                             Err(err) => {
-                                // If parsing fails due to trailing input, try to clean the JSON
-                                if err.to_string().contains("trailing") {
-                                    // Try to extract valid JSON by finding matching braces
-                                    // Count braces to find where the JSON actually ends
-                                    let mut brace_count = 0;
-                                    let mut bracket_count = 0;
-                                    let mut in_string = false;
-                                    let mut escape_next = false;
-                                    let mut json_end: Option<usize> = None;
-
-                                    for (i, ch) in trimmed_text.char_indices() {
-                                        if escape_next {
-                                            escape_next = false;
-                                            continue;
-                                        }
-
-                                        match ch {
-                                            '\\' if in_string => escape_next = true,
-                                            '"' => in_string = !in_string,
-                                            '{' if !in_string => brace_count += 1,
-                                            '}' if !in_string => {
-                                                brace_count -= 1;
-                                                if brace_count == 0 && bracket_count == 0 {
-                                                    json_end = Some(i);
-                                                    break;
-                                                }
-                                            }
-                                            '[' if !in_string => bracket_count += 1,
-                                            ']' if !in_string => {
-                                                bracket_count -= 1;
-                                                if brace_count == 0 && bracket_count == 0 {
-                                                    json_end = Some(i);
-                                                    break;
-                                                }
-                                            }
-                                            _ => {}
-                                        }
-                                    }
-
-                                    if let Some(end_pos) = json_end {
-                                        let clean_json = &trimmed_text[..=end_pos];
-                                        match serde_json::from_str::<ReturnDataScalar>(clean_json) {
-                                            Ok(data) => {
-                                                // tracing::info!("Successfully parsed cleaned scalar JSON for action: {}", input.act);
-                                                data
-                                            }
-                                            Err(_) => {
-                                                // tracing::error!("JSON parsing failed for action: {}. Error: {}. Response: {}",
-                                                //     input.act, err, response_text);
-                                                return Err(Error::Message(format!(
-                                                    "Failed to parse response JSON for action '{}': {}. Response was: {}",
-                                                    input.act, err, response_text
-                                                )));
-                                            }
-                                        }
-                                    } else {
-                                        // tracing::error!("Could not find valid JSON end for action: {}. Response: {}", input.act, response_text);
-                                        return Err(Error::Message(format!(
-                                            "Failed to parse response JSON for action '{}': {}. Response was: {}",
-                                            input.act, err, response_text
-                                        )));
-                                    }
-                                } else {
-                                    // tracing::error!("JSON parsing failed for action: {}. Error: {}. Response: {}",
-                                    //     input.act, err, response_text);
-                                    return Err(Error::Message(format!(
-                                        "Failed to parse response JSON for action '{}': {}. Response was: {}",
-                                        input.act, err, response_text
-                                    )));
-                                }
+                                // tracing::error!("JSON parsing failed for action: {}. Error: {}. Response: {}",
+                                //     input.act, err, response_text);
+                                return Err(Error::Message(format!(
+                                    "Failed to parse response JSON for action '{}': {}. Response was: {}",
+                                    input.act, err, response_text
+                                )));
                             }
                         }
                     }

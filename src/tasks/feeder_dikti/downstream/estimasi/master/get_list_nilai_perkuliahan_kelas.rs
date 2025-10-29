@@ -346,8 +346,7 @@ impl Task for EstimateNilaiPerkuliahanKelas {
     fn task(&self) -> TaskInfo {
         TaskInfo {
             name: TASK_NAME.to_string(),
-            detail: "Fetch and process List Nilai Perkuliahan Kelas data from Feeder Dikti"
-                .to_string(),
+            detail: "Fetch and process List Nilai Perkuliahan Kelas data from Feeder Dikti".to_string(),
         }
     }
 

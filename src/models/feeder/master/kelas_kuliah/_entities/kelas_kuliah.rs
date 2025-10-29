@@ -1,6 +1,6 @@
-use chrono::NaiveDate;
 use sea_orm::entity::prelude::*;
 use serde::{Deserialize, Serialize};
+use chrono::NaiveDate;
 
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel, Serialize, Deserialize)]
 #[sea_orm(schema_name = "feeder_master", table_name = "kelas_kuliah")]

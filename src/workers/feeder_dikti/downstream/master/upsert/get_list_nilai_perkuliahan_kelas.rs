@@ -3,9 +3,7 @@ use loco_rs::prelude::*;
 use sea_orm::{ActiveModelTrait, ColumnTrait, EntityTrait, QueryFilter, Set, TransactionTrait};
 use serde::{Deserialize, Serialize};
 
-use crate::models::feeder::master::nilai_perkuliahan_kelas::{
-    _entities::nilai_perkuliahan_kelas, feeder_model::ModelInput,
-};
+use crate::models::feeder::master::nilai_perkuliahan_kelas::{_entities::nilai_perkuliahan_kelas, feeder_model::ModelInput};
 
 pub struct Worker {
     pub ctx: AppContext,
@@ -137,8 +135,7 @@ impl Worker {
 
         let action = if let Some(existing_record) = existing {
             // Update existing record
-            let mut active: nilai_perkuliahan_kelas::ActiveModel =
-                existing_record.into_active_model();
+            let mut active: nilai_perkuliahan_kelas::ActiveModel = existing_record.into_active_model();
 
             active.id_matkul = Set(record.id_matkul);
             active.kode_mata_kuliah = Set(record.kode_mata_kuliah.clone());
@@ -185,7 +182,7 @@ impl Worker {
                 id_matkul: Set(record.id_matkul),
                 kode_mata_kuliah: Set(record.kode_mata_kuliah.clone()),
                 nama_mata_kuliah: Set(record.nama_mata_kuliah.clone()),
-                nama_kelas_kuliah: Set(record.nama_kelas_kuliah.clone().unwrap_or_default()),
+                nama_kelas_kuliah: Set(record.nama_kelas_kuliah.clone()),
                 sks_mata_kuliah: Set(record.sks_mata_kuliah),
                 jumlah_mahasiswa_krs: Set(record.jumlah_mahasiswa_krs),
                 jumlah_mahasiswa_dapat_nilai: Set(record.jumlah_mahasiswa_dapat_nilai),

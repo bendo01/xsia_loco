@@ -1,5 +1,3 @@
-use crate::models::feeder::master::kartu_rencana_studi_mahasiswa::_entities::kartu_rencana_studi_mahasiswa as FeederMasterKartuRencanaStudiMahasiswa;
-use crate::models::feeder::master::nilai_transfer_pendidikan_mahasiswa::_entities::nilai_transfer_pendidikan_mahasiswa as FeederMasterNilaiTransferPendidikanMahasiswa;
 use chrono::NaiveDate;
 use sea_orm::entity::prelude::*;
 use serde::{Deserialize, Serialize};

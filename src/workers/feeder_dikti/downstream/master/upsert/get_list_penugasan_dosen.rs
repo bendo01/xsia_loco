@@ -131,9 +131,9 @@ impl Worker {
         let id_perguruan_tinggi_uuid = record.id_perguruan_tinggi.ok_or_else(|| {
             Error::Message("id_perguruan_tinggi is required but was None".to_string())
         })?;
-        let id_prodi_uuid = record
-            .id_prodi
-            .ok_or_else(|| Error::Message("id_prodi is required but was None".to_string()))?;
+        let id_prodi_uuid = record.id_prodi.ok_or_else(|| {
+            Error::Message("id_prodi is required but was None".to_string())
+        })?;
 
         // Check if record exists
         let existing = penugasan_dosen::Entity::find()
