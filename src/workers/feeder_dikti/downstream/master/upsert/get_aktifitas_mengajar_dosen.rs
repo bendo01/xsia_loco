@@ -154,7 +154,8 @@ impl Worker {
 
         let action = if let Some(existing_record) = existing {
             // Update existing record
-            let mut active: aktifitas_mengajar_dosen::ActiveModel = existing_record.into_active_model();
+            let mut active: aktifitas_mengajar_dosen::ActiveModel =
+                existing_record.into_active_model();
 
             active.id_dosen = Set(Some(record.id_dosen));
             active.nama_dosen = Set(Some(record.nama_dosen.clone()));

@@ -1,7 +1,4 @@
-use crate::library::deserialization::{
-    de_opt_f32,
-    de_opt_i32,
-};
+use crate::library::deserialization::{de_opt_date_dmy, de_opt_f32, de_opt_i32};
 use loco_rs::prelude::Date;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid; // Removed unused `uuid` macro import
@@ -12,9 +9,10 @@ pub struct ModelInput {
     pub kode_mata_kuliah: String,
     pub nama_mata_kuliah: String,
     pub id_kelas_kuliah: Uuid,
-    pub nama_kelas_kuliah: String,
+    pub nama_kelas_kuliah: Option<String>,
     #[serde(deserialize_with = "de_opt_f32")]
     pub sks_mata_kuliah: Option<f32>,
+    #[serde(deserialize_with = "de_opt_i32")]
     pub jumlah_mahasiswa_krs: Option<i32>,
     #[serde(deserialize_with = "de_opt_i32")]
     pub jumlah_mahasiswa_dapat_nilai: Option<i32>,
@@ -33,7 +31,9 @@ pub struct ModelInput {
     pub a_pengguna_pditt: Option<i32>,
     #[serde(deserialize_with = "de_opt_i32")]
     pub kuota_pditt: Option<i32>,
+    #[serde(deserialize_with = "de_opt_date_dmy")]
     pub tgl_mulai_koas: Option<Date>,
+    #[serde(deserialize_with = "de_opt_date_dmy")]
     pub tgl_selesai_koas: Option<Date>,
     pub id_mou: Option<Uuid>,
     pub id_kls_pditt: Option<Uuid>,

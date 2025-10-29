@@ -3,9 +3,7 @@ use loco_rs::prelude::*;
 use sea_orm::{ActiveModelTrait, ColumnTrait, EntityTrait, QueryFilter, Set, TransactionTrait};
 use serde::{Deserialize, Serialize};
 
-use crate::models::feeder::master::kurikulum::{
-    _entities::kurikulum, feeder_model::ModelInput,
-};
+use crate::models::feeder::master::kurikulum::{_entities::kurikulum, feeder_model::ModelInput};
 
 pub struct Worker {
     pub ctx: AppContext,

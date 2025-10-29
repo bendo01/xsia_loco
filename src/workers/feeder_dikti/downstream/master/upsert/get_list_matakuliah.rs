@@ -120,7 +120,9 @@ impl Worker {
     /// * `Result<String>` - "INSERTED" or "UPDATED" on success, error otherwise
     async fn upsert_record(ctx: &AppContext, record: &ModelInput) -> Result<String> {
         // Use id_matkul as the primary key since id is not provided in the API response
-        let id = record.id_matkul.ok_or_else(|| Error::Message("id_matkul is required".to_string()))?;
+        let id = record
+            .id_matkul
+            .ok_or_else(|| Error::Message("id_matkul is required".to_string()))?;
 
         // kode_mata_kuliah is required (not Option in ModelInput)
         let kode_mata_kuliah = &record.kode_mata_kuliah;

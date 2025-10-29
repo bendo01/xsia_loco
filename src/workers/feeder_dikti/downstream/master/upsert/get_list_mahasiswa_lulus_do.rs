@@ -3,7 +3,9 @@ use loco_rs::prelude::*;
 use sea_orm::{ActiveModelTrait, ColumnTrait, EntityTrait, QueryFilter, Set, TransactionTrait};
 use serde::{Deserialize, Serialize};
 
-use crate::models::feeder::master::mahasiswa_lulusan_dropout::{_entities::mahasiswa_lulusan_dropout, feeder_model::ModelInput};
+use crate::models::feeder::master::mahasiswa_lulusan_dropout::{
+    _entities::mahasiswa_lulusan_dropout, feeder_model::ModelInput,
+};
 
 pub struct Worker {
     pub ctx: AppContext,
@@ -131,13 +133,17 @@ impl Worker {
         // Check if record exists
         let existing = mahasiswa_lulusan_dropout::Entity::find()
             .filter(mahasiswa_lulusan_dropout::Column::DeletedAt.is_null())
-            .filter(mahasiswa_lulusan_dropout::Column::IdRegistrasiMahasiswa.eq(id_registrasi_mahasiswa))
+            .filter(
+                mahasiswa_lulusan_dropout::Column::IdRegistrasiMahasiswa
+                    .eq(id_registrasi_mahasiswa),
+            )
             .one(&txn)
             .await?;
 
         let action = if let Some(existing_record) = existing {
             // Update existing record
-            let mut active: mahasiswa_lulusan_dropout::ActiveModel = existing_record.into_active_model();
+            let mut active: mahasiswa_lulusan_dropout::ActiveModel =
+                existing_record.into_active_model();
 
             active.id_mahasiswa = Set(record.id_mahasiswa);
             active.id_perguruan_tinggi = Set(record.id_perguruan_tinggi);

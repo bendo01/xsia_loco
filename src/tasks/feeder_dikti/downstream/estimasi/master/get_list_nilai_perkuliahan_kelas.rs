@@ -10,7 +10,7 @@ const API_ACTION: &str = "GetListNilaiPerkuliahanKelas";
 
 // API Request Configuration
 const DEFAULT_LIMIT: i32 = 1000; // Records per API request page
-const DEFAULT_ORDER: &str = "id_kelas_kuliah ASC"; // Sort order for API results
+const DEFAULT_ORDER: &str = "kode_mata_kuliah ASC"; // Sort order for API results
 const DEFAULT_FILTER: &str = ""; // Filter criteria (empty = no filter)
 
 // Worker Configuration
@@ -346,7 +346,8 @@ impl Task for EstimateNilaiPerkuliahanKelas {
     fn task(&self) -> TaskInfo {
         TaskInfo {
             name: TASK_NAME.to_string(),
-            detail: "Fetch and process List Nilai Perkuliahan Kelas data from Feeder Dikti".to_string(),
+            detail: "Fetch and process List Nilai Perkuliahan Kelas data from Feeder Dikti"
+                .to_string(),
         }
     }
 

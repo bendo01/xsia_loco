@@ -40,7 +40,6 @@ pub struct Model {
     pub nm_smt: String,
     pub nama_prodi: String,
     pub status_sync: String,
-
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]

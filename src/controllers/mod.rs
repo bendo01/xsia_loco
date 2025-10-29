@@ -5,6 +5,7 @@ pub mod building;
 pub mod contact;
 pub mod document;
 pub mod experiment;
+pub mod feeder;
 pub mod institution;
 pub mod literate;
 pub mod location;
