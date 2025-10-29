@@ -1,4 +1,4 @@
-use crate::library::deserialization::{de_opt_date_dmy, de_opt_f32, de_opt_i32};
+use crate::library::deserialization::{de_date_dmy, de_opt_date_dmy, de_opt_f32, de_opt_i32};
 use loco_rs::prelude::Date;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid; // Removed unused `uuid` macro import
@@ -39,6 +39,7 @@ pub struct ModelInput {
     pub id_kls_pditt: Option<Uuid>,
     pub id_sms: Uuid,
     pub id_smt: String,
+    #[serde(deserialize_with = "de_date_dmy")]
     pub tgl_create: Date,
     #[serde(deserialize_with = "de_opt_i32")]
     pub lingkup_kelas: Option<i32>,

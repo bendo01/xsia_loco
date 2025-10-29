@@ -169,6 +169,18 @@ where
     })
 }
 
+/// Deserialize required date in `DD-MM-YYYY` format.
+pub fn de_date_dmy<'de, D>(d: D) -> Result<NaiveDate, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let s: String = String::deserialize(d)?;
+    // FEEDER sering kirim dd-MM-yyyy
+    NaiveDate::parse_from_str(&s, "%d-%m-%Y")
+        .or_else(|_| NaiveDate::parse_from_str(&s, "%Y-%m-%d"))
+        .map_err(D::Error::custom)
+}
+
 /// Deserialize optional date in `DD-MM-YYYY` format or `null`.
 pub fn de_opt_date_dmy<'de, D>(d: D) -> Result<Option<NaiveDate>, D::Error>
 where
