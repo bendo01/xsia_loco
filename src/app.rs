@@ -297,10 +297,10 @@ impl Hooks for App {
             tasks::feeder_dikti::downstream::estimasi::master::get_list_nilai_perkuliahan_kelas::EstimateNilaiPerkuliahanKelas,
         );
         tasks.register(
-            tasks::feeder_dikti::downstream::estimasi::master::get_detail_periode_perkuliahan::EstimateGetDetailPeriodePerkuliahan,
+            tasks::feeder_dikti::downstream::estimasi::master::get_detail_periode_perkuliahan::EstimateDetailPeriodePerkuliahan,
         );
         tasks.register(
-            tasks::feeder_dikti::downstream::estimasi::master::get_list_periode_perkuliahan::EstimateGetListPeriodePerkuliahan,
+            tasks::feeder_dikti::downstream::estimasi::master::get_list_periode_perkuliahan::EstimateListPeriodePerkuliahan,
         );
 
         tasks.register(tasks::tui::generate_hash_password::GenerateHashPassword);
