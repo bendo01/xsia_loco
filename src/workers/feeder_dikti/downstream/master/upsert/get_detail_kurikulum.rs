@@ -3,7 +3,7 @@ use loco_rs::prelude::*;
 use sea_orm::{ActiveModelTrait, ColumnTrait, EntityTrait, QueryFilter, Set, TransactionTrait};
 use serde::{Deserialize, Serialize};
 
-use crate::models::feeder::master::kurikulum::{_entities::kurikulum, feeder_model::ModelInputListKurikulum};
+use crate::models::feeder::master::kurikulum::{_entities::kurikulum, feeder_model::ModelInputDetailKurikulum};
 
 pub struct Worker {
     pub ctx: AppContext,
@@ -11,7 +11,7 @@ pub struct Worker {
 
 #[derive(Deserialize, Debug, Serialize)]
 pub struct WorkerArgs {
-    pub records: Vec<ModelInputListKurikulum>,
+    pub records: Vec<ModelInputDetailKurikulum>,
 }
 
 #[async_trait]
@@ -31,7 +31,7 @@ impl BackgroundWorker<WorkerArgs> for Worker {
     /// This name is used when enqueueing jobs and identifying the worker in logs.
     /// The implementation returns the struct name as a string.
     fn class_name() -> String {
-        "GetListKurikulum".to_string()
+        "GetDetailKurikulum".to_string()
     }
 
     /// Returns tags associated with this worker.
@@ -44,8 +44,8 @@ impl BackgroundWorker<WorkerArgs> for Worker {
 
     /// Performs the actual work when a job is processed.
     ///
-    /// This function processes a batch of kurikulum records:
-    /// 1. Converts each `ModelInputListKurikulum` to database entity
+    /// This function processes a batch of kurikulum detail records:
+    /// 1. Converts each `ModelInputDetailKurikulum` to database entity
     /// 2. Checks if record exists by `id_kurikulum`
     /// 3. Updates existing record or inserts new one
     /// 4. Tracks sync timestamp
@@ -53,7 +53,7 @@ impl BackgroundWorker<WorkerArgs> for Worker {
     /// # Returns
     /// * `Result<()>` - Ok if all records processed successfully, Err otherwise
     async fn perform(&self, args: WorkerArgs) -> Result<()> {
-        println!("=================GetListKurikulum=======================");
+        println!("=================GetDetailKurikulum=======================");
         println!("📦 Processing batch of {} records", args.records.len());
 
         let mut success_count = 0;
@@ -106,7 +106,7 @@ impl BackgroundWorker<WorkerArgs> for Worker {
 }
 
 impl Worker {
-    /// Upsert a single kurikulum record into the database.
+    /// Upsert a single kurikulum detail record into the database.
     ///
     /// This function performs an "upsert" operation:
     /// - If a record with the same `id_kurikulum` exists, it updates it
@@ -118,11 +118,11 @@ impl Worker {
     ///
     /// # Returns
     /// * `Result<String>` - "INSERTED" or "UPDATED" on success, error otherwise
-    async fn upsert_record(ctx: &AppContext, record: &ModelInputListKurikulum) -> Result<String> {
-        // id_kurikulum is required (not Option in ModelInputListKurikulum)
+    async fn upsert_record(ctx: &AppContext, record: &ModelInputDetailKurikulum) -> Result<String> {
+        // id_kurikulum is required (not Option in ModelInputDetailKurikulum)
         let id_kurikulum = record.id_kurikulum;
 
-        // nama_kurikulum is required (not Option in ModelInputListKurikulum)
+        // nama_kurikulum is required (not Option in ModelInputDetailKurikulum)
         let nama_kurikulum = &record.nama_kurikulum;
 
         // Start transaction
@@ -143,15 +143,11 @@ impl Worker {
             active.nama_kurikulum = Set(Some(nama_kurikulum.clone()));
             active.id_prodi = Set(Some(record.id_prodi));
             active.nama_program_studi = Set(Some(record.nama_program_studi.clone()));
-            active.id_jenj_didik = Set(record.id_jenj_didik.map(|v| v as i32));
-            active.jml_sem_normal = Set(record.jml_sem_normal.map(|v| v as i32));
             active.id_semester = Set(Some(record.id_semester.clone()));
             active.semester_mulai_berlaku = Set(Some(record.semester_mulai_berlaku.clone()));
             active.jumlah_sks_lulus = Set(record.jumlah_sks_lulus);
             active.jumlah_sks_wajib = Set(record.jumlah_sks_wajib);
             active.jumlah_sks_pilihan = Set(record.jumlah_sks_pilihan);
-            active.jumlah_sks_mata_kuliah_wajib = Set(record.jumlah_sks_mata_kuliah_wajib);
-            active.jumlah_sks_mata_kuliah_pilihan = Set(record.jumlah_sks_mata_kuliah_pilihan);
             active.status_sync = Set(Some(record.status_sync.clone()));
             active.sync_at = Set(Some(sync_time));
             active.updated_at = Set(Some(sync_time));
@@ -171,15 +167,15 @@ impl Worker {
                 nama_kurikulum: Set(Some(nama_kurikulum.clone())),
                 id_prodi: Set(Some(record.id_prodi)),
                 nama_program_studi: Set(Some(record.nama_program_studi.clone())),
-                id_jenj_didik: Set(record.id_jenj_didik.map(|v| v as i32)),
-                jml_sem_normal: Set(record.jml_sem_normal.map(|v| v as i32)),
+                id_jenj_didik: Set(None),
+                jml_sem_normal: Set(None),
                 id_semester: Set(Some(record.id_semester.clone())),
                 semester_mulai_berlaku: Set(Some(record.semester_mulai_berlaku.clone())),
                 jumlah_sks_lulus: Set(record.jumlah_sks_lulus),
                 jumlah_sks_wajib: Set(record.jumlah_sks_wajib),
                 jumlah_sks_pilihan: Set(record.jumlah_sks_pilihan),
-                jumlah_sks_mata_kuliah_wajib: Set(record.jumlah_sks_mata_kuliah_wajib),
-                jumlah_sks_mata_kuliah_pilihan: Set(record.jumlah_sks_mata_kuliah_pilihan),
+                jumlah_sks_mata_kuliah_wajib: Set(None),
+                jumlah_sks_mata_kuliah_pilihan: Set(None),
                 status_sync: Set(Some(record.status_sync.clone())),
                 sync_at: Set(Some(sync_time)),
                 created_at: Set(Some(sync_time)),
