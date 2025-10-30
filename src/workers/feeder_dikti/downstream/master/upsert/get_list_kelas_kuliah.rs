@@ -4,7 +4,7 @@ use sea_orm::{ActiveModelTrait, ColumnTrait, EntityTrait, QueryFilter, Set, Tran
 use serde::{Deserialize, Serialize};
 
 use crate::models::feeder::master::kelas_kuliah::{
-    _entities::kelas_kuliah, feeder_model::ModelInputDetailKelasKuliah,
+    _entities::kelas_kuliah, feeder_model::ModelInputListKelasKuliah,
 };
 
 pub struct Worker {
@@ -13,7 +13,7 @@ pub struct Worker {
 
 #[derive(Deserialize, Debug, Serialize)]
 pub struct WorkerArgs {
-    pub records: Vec<ModelInputDetailKelasKuliah>,
+    pub records: Vec<ModelInputListKelasKuliah>,
 }
 
 #[async_trait]
@@ -23,7 +23,7 @@ impl BackgroundWorker<WorkerArgs> for Worker {
     }
 
     fn class_name() -> String {
-        "GetDetailKelasKuliah".to_string()
+        "GetListKelasKuliah".to_string()
     }
 
     fn tags() -> Vec<String> {
@@ -31,7 +31,7 @@ impl BackgroundWorker<WorkerArgs> for Worker {
     }
 
     async fn perform(&self, args: WorkerArgs) -> Result<()> {
-        println!("=================GetDetailKelasKuliah=======================");
+        println!("=================GetListKelasKuliah=======================");
         println!("📦 Processing batch of {} records", args.records.len());
 
         let mut success_count = 0;
@@ -85,7 +85,7 @@ impl BackgroundWorker<WorkerArgs> for Worker {
 impl Worker {
     async fn upsert_record(
         ctx: &AppContext,
-        record: &ModelInputDetailKelasKuliah,
+        record: &ModelInputListKelasKuliah,
     ) -> Result<String> {
         let id_kelas_kuliah = record.id_kelas_kuliah;
 
@@ -109,18 +109,11 @@ impl Worker {
             active.kode_mata_kuliah = Set(record.kode_mata_kuliah.clone());
             active.nama_mata_kuliah = Set(record.nama_mata_kuliah.clone());
             active.nama_kelas_kuliah = Set(record.nama_kelas_kuliah.clone());
-            active.sks_mk = Set(record.sks_mk);
-            active.sks_tm = Set(record.sks_tm);
-            active.sks_prak = Set(record.sks_prak);
-            active.sks_prak_lap = Set(record.sks_prak_lap);
-            active.sks_sim = Set(record.sks_sim);
-            active.bahasan = Set(record.bahasan.clone());
-            active.tanggal_mulai_efektif = Set(record.tanggal_mulai_efektif);
-            active.tanggal_akhir_efektif = Set(record.tanggal_akhir_efektif);
-            active.kapasitas = Set(record.kapasitas);
-            active.tanggal_tutup_daftar = Set(record.tanggal_tutup_daftar);
-            active.prodi_penyelenggara = Set(record.prodi_penyelenggara.clone());
-            active.perguruan_tinggi_penyelenggara = Set(record.perguruan_tinggi_penyelenggara.clone());
+            active.sks = Set(record.sks);
+            active.id_dosen = Set(record.id_dosen.clone());
+            active.nama_dosen = Set(record.nama_dosen.clone());
+            active.jumlah_mahasiswa = Set(record.jumlah_mahasiswa);
+            active.apa_untuk_pditt = Set(record.apa_untuk_pditt.map(|v| v != 0));
             active.sync_at = Set(Some(sync_time));
             active.updated_at = Set(Some(sync_time));
 
@@ -143,23 +136,23 @@ impl Worker {
                 kode_mata_kuliah: Set(record.kode_mata_kuliah.clone()),
                 nama_mata_kuliah: Set(record.nama_mata_kuliah.clone()),
                 nama_kelas_kuliah: Set(record.nama_kelas_kuliah.clone()),
-                sks_mk: Set(record.sks_mk),
-                sks_tm: Set(record.sks_tm),
-                sks_prak: Set(record.sks_prak),
-                sks_prak_lap: Set(record.sks_prak_lap),
-                sks_sim: Set(record.sks_sim),
-                bahasan: Set(record.bahasan.clone()),
-                tanggal_mulai_efektif: Set(record.tanggal_mulai_efektif),
-                tanggal_akhir_efektif: Set(record.tanggal_akhir_efektif),
-                kapasitas: Set(record.kapasitas),
-                tanggal_tutup_daftar: Set(record.tanggal_tutup_daftar),
-                prodi_penyelenggara: Set(record.prodi_penyelenggara.clone()),
-                perguruan_tinggi_penyelenggara: Set(record.perguruan_tinggi_penyelenggara.clone()),
-                sks: Set(None),
-                id_dosen: Set(None),
-                nama_dosen: Set(None),
-                jumlah_mahasiswa: Set(None),
-                apa_untuk_pditt: Set(None),
+                sks: Set(record.sks),
+                id_dosen: Set(record.id_dosen.clone()),
+                nama_dosen: Set(record.nama_dosen.clone()),
+                jumlah_mahasiswa: Set(record.jumlah_mahasiswa),
+                apa_untuk_pditt: Set(record.apa_untuk_pditt.map(|v| v != 0)),
+                sks_mk: Set(None),
+                sks_tm: Set(None),
+                sks_prak: Set(None),
+                sks_prak_lap: Set(None),
+                sks_sim: Set(None),
+                bahasan: Set(None),
+                tanggal_mulai_efektif: Set(None),
+                tanggal_akhir_efektif: Set(None),
+                kapasitas: Set(None),
+                tanggal_tutup_daftar: Set(None),
+                prodi_penyelenggara: Set(None),
+                perguruan_tinggi_penyelenggara: Set(None),
                 sync_at: Set(Some(sync_time)),
                 created_at: Set(Some(sync_time)),
                 updated_at: Set(Some(sync_time)),

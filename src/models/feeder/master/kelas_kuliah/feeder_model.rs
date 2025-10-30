@@ -1,4 +1,4 @@
-use crate::library::deserialization::{de_f32, de_opt_date_dmy, de_opt_i32, de_opt_bool};
+use crate::library::deserialization::{de_opt_f32, de_opt_date_dmy, de_opt_i32};
 use chrono::NaiveDate;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
@@ -13,15 +13,15 @@ pub struct ModelInputDetailKelasKuliah {
     pub id_matkul: Option<Uuid>,
     pub kode_mata_kuliah: Option<String>,
     pub nama_mata_kuliah: Option<String>,
-    #[serde(deserialize_with = "de_f32")]
+    #[serde(deserialize_with = "de_opt_f32")]
     pub sks_mk: Option<f32>,
-    #[serde(deserialize_with = "de_f32")]
+    #[serde(deserialize_with = "de_opt_f32")]
     pub sks_tm: Option<f32>,
-    #[serde(deserialize_with = "de_f32")]
+    #[serde(deserialize_with = "de_opt_f32")]
     pub sks_prak: Option<f32>,
-    #[serde(deserialize_with = "de_f32")]
+    #[serde(deserialize_with = "de_opt_f32")]
     pub sks_prak_lap: Option<f32>,
-    #[serde(deserialize_with = "de_f32")]
+    #[serde(deserialize_with = "de_opt_f32")]
     pub sks_sim: Option<f32>,
     pub nama_kelas_kuliah: Option<String>,
     pub bahasan: Option<String>,
@@ -48,12 +48,12 @@ pub struct ModelInputListKelasKuliah {
     pub kode_mata_kuliah: Option<String>,
     pub nama_mata_kuliah: Option<String>,
     pub nama_kelas_kuliah: Option<String>,
-    #[serde(deserialize_with = "de_f32")]
+    #[serde(deserialize_with = "de_opt_f32")]
     pub sks: Option<f32>,
     pub id_dosen: Option<String>,
     pub nama_dosen: Option<String>,
     #[serde(deserialize_with = "de_opt_i32")]
     pub jumlah_mahasiswa: Option<i32>,
-    #[serde(deserialize_with = "de_opt_bool")]
+    #[serde(deserialize_with = "de_opt_i32")]
     pub apa_untuk_pditt: Option<i32>,
 }

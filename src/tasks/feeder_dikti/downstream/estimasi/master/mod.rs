@@ -19,3 +19,4 @@ pub mod get_list_matakuliah;
 pub mod get_list_nilai_perkuliahan_kelas;
 pub mod get_detail_periode_perkuliahan;
 pub mod get_list_periode_perkuliahan;
+pub mod get_list_kelas_kuliah;

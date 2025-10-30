@@ -279,7 +279,7 @@ impl Hooks for App {
             tasks::feeder_dikti::downstream::estimasi::master::get_aktifitas_mengajar_dosen::EstimateAktifitasMengajarDosen,
         );
         tasks.register(
-            tasks::feeder_dikti::downstream::estimasi::master::get_detail_kelas_kuliah::EstimateGetDetailKelasKuliah,
+            tasks::feeder_dikti::downstream::estimasi::master::get_detail_kelas_kuliah::EstimateDetailKelasKuliah,
         );
         tasks.register(
             tasks::feeder_dikti::downstream::estimasi::master::get_list_kurikulum::EstimateListKurikulum,

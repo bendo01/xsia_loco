@@ -5,8 +5,8 @@ use loco_rs::prelude::*;
 use sea_orm::{ColumnTrait, EntityTrait, QueryFilter, Set, TransactionTrait};
 
 // Configuration constants
-const TASK_NAME: &str = "EstimateDetailKelasKuliah";
-const API_ACTION: &str = "GetDetailKelasKuliah";
+const TASK_NAME: &str = "EstimateListKelasKuliah";
+const API_ACTION: &str = "GetListKelasKuliah";
 
 // API Request Configuration
 const DEFAULT_LIMIT: i32 = 1000; // Records per API request page
@@ -38,9 +38,9 @@ impl From<TaskError> for Error {
     }
 }
 
-pub struct EstimateDetailKelasKuliah;
+pub struct EstimateListKelasKuliah;
 
-impl EstimateDetailKelasKuliah {
+impl EstimateListKelasKuliah {
     fn get_institution_id(app_context: &AppContext) -> Result<Uuid, TaskError> {
         let current_settings = app_context
             .config
@@ -175,7 +175,7 @@ impl EstimateDetailKelasKuliah {
         limit: i32,
         offset: i32,
     ) -> Result<(), TaskError> {
-        use crate::models::feeder::master::kelas_kuliah::feeder_model::ModelInputDetailKelasKuliah as FeederModel;
+        use crate::models::feeder::master::kelas_kuliah::feeder_model::ModelInputListKelasKuliah as FeederModel;
         use crate::tasks::feeder_dikti::downstream::feeder_request::{
             InputRequestData, RequestData,
         };
@@ -213,11 +213,11 @@ impl EstimateDetailKelasKuliah {
 
         println!("📦 Fetched {} records at offset={}", records.len(), offset);
 
-        let worker_args = crate::workers::feeder_dikti::downstream::master::upsert::get_detail_kelas_kuliah::WorkerArgs {
+        let worker_args = crate::workers::feeder_dikti::downstream::master::upsert::get_list_kelas_kuliah::WorkerArgs {
             records,
         };
 
-        match crate::workers::feeder_dikti::downstream::master::upsert::get_detail_kelas_kuliah::Worker::perform_later(app_context, worker_args).await {
+        match crate::workers::feeder_dikti::downstream::master::upsert::get_list_kelas_kuliah::Worker::perform_later(app_context, worker_args).await {
             Ok(_) => {
                 println!("✅ Enqueued worker for offset={}", offset);
                 Ok(())
@@ -234,7 +234,7 @@ impl EstimateDetailKelasKuliah {
         _limit: i32,
         offset: i32,
     ) -> Result<bool, TaskError> {
-        use crate::models::feeder::master::kelas_kuliah::feeder_model::ModelInputDetailKelasKuliah as FeederModel;
+        use crate::models::feeder::master::kelas_kuliah::feeder_model::ModelInputListKelasKuliah as FeederModel;
         use crate::tasks::feeder_dikti::downstream::feeder_request::{
             InputRequestData, RequestData,
         };
@@ -319,11 +319,11 @@ impl EstimateDetailKelasKuliah {
 }
 
 #[async_trait]
-impl Task for EstimateDetailKelasKuliah {
+impl Task for EstimateListKelasKuliah {
     fn task(&self) -> TaskInfo {
         TaskInfo {
             name: TASK_NAME.to_string(),
-            detail: "Fetch and process Detail Kelas Kuliah data from Feeder Dikti".to_string(),
+            detail: "Fetch and process List Kelas Kuliah data from Feeder Dikti".to_string(),
         }
     }
 
