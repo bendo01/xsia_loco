@@ -1,1 +1,1 @@
-pub mod nilai_perkuliahan_kelas;
+pub mod detail_nilai_perkuliahan_kelas;
