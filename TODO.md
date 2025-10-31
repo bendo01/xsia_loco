@@ -14,9 +14,9 @@
 
 - [x] GetDetailMahasiswaLulusDO_m.json
 
-- [] GetDetailMataKuliah_mw.json
+- [x] GetDetailMataKuliah_m.json
 
-- [x] GetDetailNilaiPerkuliahanKelas_m.json
+- [x] GetDetailNilaiPerkuliahanKelas.json
 
 - [] GetDetailPenugasanDosen_mh.json
 
@@ -40,9 +40,9 @@
 
 - [x] GetListMahasiswaLulusDO_m.json
 
-- [x] GetListMataKuliah_mw.json
+- [x] GetListMataKuliah_m.json
 
-- [] GetListNilaiPerkuliahanKelas_m.json
+- [x] GetListNilaiPerkuliahanKelas_m.json
 
 - [] GetListPenugasanDosen_mh.json
 

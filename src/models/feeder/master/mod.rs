@@ -47,3 +47,4 @@ pub mod skala_nilai_program_studi;
 pub mod substansi_matakuliah;
 pub mod transkrip_mahasiswa;
 pub mod uji_mahasiswa;
+pub mod detail_nilai_perkuliahan_kelas;
