@@ -39,7 +39,9 @@ pub struct ModelInputDetailMatakuliah {
     pub ada_acara_praktek: Option<bool>,
     #[serde(deserialize_with = "de_opt_boolish")]
     pub ada_diktat: Option<bool>,
+    #[serde(deserialize_with = "de_opt_iso_datetime")]
     pub tanggal_mulai_efektif: Option<NaiveDateTime>,
+    #[serde(deserialize_with = "de_opt_iso_datetime")]
     pub tanggal_selesai_efektif: Option<NaiveDateTime>,
 }
 
