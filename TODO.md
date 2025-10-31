@@ -28,13 +28,13 @@
 
 - [x] GetDosenPengajarKelasKuliah
 
-- [ ] GetKRSMahasiswa
+- [x] GetKRSMahasiswa
 
-- [ ] GetListDosen
+- [x] GetListDosen
 
 - [x] GetListKelasKuliah_m
 
-- [ ] GetListKomponenEvaluasiKelas
+- [x] GetListKomponenEvaluasiKelas
 
 - [x] GetListKurikulum_m
 
@@ -48,7 +48,7 @@
 
 - [x] GetListPenugasanSemuaDosen_m
 
-- [ ] GetListPeriodePerkuliahan_m
+- [x] GetListPeriodePerkuliahan_m
 
 - [x] GetListPerkuliahanMahasiswa
 
@@ -64,7 +64,7 @@
 
 - [ ] GetMatkulKurikulum_h
 
-- [ ] GetNilaiTransferPendidikanMahasiswa
+- [x] GetNilaiTransferPendidikanMahasiswa
 
 - [ ] GetPerhitunganSKS_h
 
@@ -84,4 +84,4 @@
 
 - [x] GetTranskripMahasiswa
 
-- [ ] RiwayatPendidikanMahasiswa
+- [x] GetListRiwayatPendidikanMahasiswa
