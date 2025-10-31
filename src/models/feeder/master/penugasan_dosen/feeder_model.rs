@@ -1,4 +1,4 @@
-use crate::library::deserialization::{de_opt_date_dmy, de_opt_date_time_iso, de_opt_i32};
+use crate::library::deserialization::{de_opt_date_dmy, de_opt_iso_tanggal, de_opt_i32};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
@@ -23,7 +23,7 @@ pub struct ModelInput {
     pub mulai_surat_tugas: Option<chrono::NaiveDate>,
     #[serde(deserialize_with = "de_opt_date_dmy")]
     pub tgl_create: Option<chrono::NaiveDate>,
-    #[serde(deserialize_with = "de_opt_date_time_iso")]
+    #[serde(deserialize_with = "de_opt_iso_tanggal")]
     pub tgl_ptk_keluar: Option<chrono::NaiveDate>,
     #[serde(deserialize_with = "de_opt_i32")]
     pub id_stat_pegawai: Option<i32>,

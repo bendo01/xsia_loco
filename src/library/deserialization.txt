@@ -188,7 +188,7 @@ where
 
 /// Deserialize optional date from ISO datetime string (e.g., "2013-01-03T00:00:00.000Z") or `null`.
 /// Extracts just the date part, discarding the time component.
-pub fn de_opt_iso_tanggal<'de, D>(d: D) -> Result<Option<NaiveDate>, D::Error>
+pub fn de_opt_iso_datetime<'de, D>(d: D) -> Result<Option<NaiveDate>, D::Error>
 where
     D: Deserializer<'de>,
 {
@@ -211,10 +211,9 @@ where
     } else {
         Ok(None)
     }
-}
 
 /// Deserialize optional NaiveDateTime from ISO datetime string (e.g., "2020-12-09T14:36:42.000Z") or `null`.
-pub fn de_opt_iso_datetime<'de, D>(d: D) -> Result<Option<NaiveDateTime>, D::Error>
+pub fn de_opt_datetime_iso<'de, D>(d: D) -> Result<Option<NaiveDateTime>, D::Error>
 where
     D: Deserializer<'de>,
 {
@@ -235,6 +234,7 @@ where
             .map(Some)
             .map_err(D::Error::custom)
     } else {
-        Ok(None)
+        return Ok(None);
     }
+}
 }
