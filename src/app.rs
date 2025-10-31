@@ -232,6 +232,7 @@ impl Hooks for App {
         queue.register(crate::workers::feeder_dikti::downstream::master::upsert::get_list_kurikulum::Worker::build(ctx)).await?;
         queue.register(crate::workers::feeder_dikti::downstream::master::upsert::get_detail_kurikulum::Worker::build(ctx)).await?;
         queue.register(crate::workers::feeder_dikti::downstream::master::upsert::get_list_mahasiswa_lulus_do::Worker::build(ctx)).await?;
+        queue.register(crate::workers::feeder_dikti::downstream::master::upsert::get_detail_mahasiswa_lulus_do::Worker::build(ctx)).await?;
         queue.register(crate::workers::feeder_dikti::downstream::master::upsert::get_dosen_pengajar_kelas_kuliah::Worker::build(ctx)).await?;
         queue.register(crate::workers::feeder_dikti::downstream::master::upsert::get_list_matakuliah::Worker::build(ctx)).await?;
         queue.register(crate::workers::feeder_dikti::downstream::master::upsert::get_list_nilai_perkuliahan_kelas::Worker::build(ctx)).await?;
@@ -293,7 +294,10 @@ impl Hooks for App {
             tasks::feeder_dikti::downstream::estimasi::master::get_detail_kurikulum::EstimateDetailKurikulum,
         );
         tasks.register(
-            tasks::feeder_dikti::downstream::estimasi::master::get_list_mahasiswa_lulus_do::EstimateMahasiswaLulusDo,
+            tasks::feeder_dikti::downstream::estimasi::master::get_list_mahasiswa_lulus_do::EstimateListMahasiswaLulusDO,
+        );
+        tasks.register(
+            tasks::feeder_dikti::downstream::estimasi::master::get_detail_mahasiswa_lulus_do::EstimateDetailMahasiswaLulusDO,
         );
         tasks.register(
             tasks::feeder_dikti::downstream::estimasi::master::get_dosen_pengajar_kelas_kuliah::EstimateGetDosenPengajarKelasKuliah,

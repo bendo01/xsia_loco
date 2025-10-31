@@ -26,54 +26,89 @@ impl MigrationTrait for Migration {
                 sync_at timestamp(0) without time zone,
                 created_by uuid DEFAULT '00000000-0000-0000-0000-000000000000'::uuid,
                 updated_by uuid DEFAULT '00000000-0000-0000-0000-000000000000'::uuid,
+                
+                -- Registration identifiers
                 id_registrasi_mahasiswa uuid,
                 id_mahasiswa uuid,
                 id_perguruan_tinggi uuid,
                 id_prodi uuid,
+                
+                -- Student information
+                nama_program_studi varchar(255),
+                nim varchar(255),
+                nama_mahasiswa varchar(255),
+                angkatan varchar(255),
+                
+                -- Entry dates
                 tgl_masuk_sp date,
-                tgl_keluar date,
-                skhun text,
-                no_peserta_ujian text,
-                no_seri_ijazah text,
                 tgl_create date,
-                sks_diakui real,
-                jalur_skripsi text,
+                
+                -- Exit information
+                tgl_keluar date,
+                tanggal_keluar date,
+                id_jenis_keluar varchar(255) NOT NULL,
+                nama_jenis_keluar varchar(255) NOT NULL,
+                id_periode_keluar varchar(255) NOT NULL,
+                keterangan text,
+                
+                -- Graduation decree
+                nomor_sk_yudisium varchar(255),
+                tanggal_sk_yudisium date,
+                
+                -- Academic performance
+                ipk real DEFAULT 0,
+                
+                -- Certificate information
+                nomor_ijazah varchar(255),
+                asal_ijazah varchar(10) NOT NULL,
+                no_sertifikat_profesi varchar(255),
+                tanggal_terbit_ijazah date,
+                
+                -- Thesis information
+                jalur_skripsi varchar(255),
                 judul_skripsi text,
-                bln_awal_bimbingan text,
-                bln_akhir_bimbingan text,
-                sk_yudisium text,
-                tgl_sk_yudisium date,
-                ipk real,
-                sert_prof text,
-                a_pindah_mhs_asing text,
+                
+                -- Guidance period
+                bulan_awal_bimbingan varchar(255),
+                bulan_akhir_bimbingan varchar(255),
+                
+                -- Advisor information
+                id_dosen uuid,
+                nidn varchar(255),
+                nuptk varchar(255),
+                nama_dosen varchar(255),
+                pembimbing_ke integer,
+                
+                -- Admission information
+                skhun varchar(255),
+                no_peserta_ujian varchar(255),
+                sks_diakui varchar(255),
+                id_jns_daftar varchar(255),
+                nm_jns_daftar varchar(255),
+                id_jalur_masuk varchar(255),
+                id_pembiayaan varchar(255),
+                biaya_masuk_kuliah varchar(255),
+                
+                -- Interest fields
+                id_minat_bidang varchar(255),
+                bidang_mayor varchar(255),
+                bidang_minor varchar(255),
+                
+                -- Transfer student information
+                a_pindah_mhs_asing varchar(255),
                 id_pt_asal uuid,
                 id_prodi_asal uuid,
-                nm_pt_asal text,
-                nm_prodi_asal text,
-                id_jns_daftar text,
-                id_jns_keluar text,
-                id_jalur_masuk text,
-                id_pembiayaan text,
-                id_minat_bidang text,
-                bidang_mayor text,
-                bidang_minor text,
-                biaya_masuk_kuliah real,
-                namapt text,
-                id_jur text,
-                nm_jns_daftar text,
-                nm_smt text,
-                nim text,
-                nama_mahasiswa text,
-                nama_program_studi text,
-                angkatan text,
-                id_jenis_keluar text,
-                nama_jenis_keluar text,
-                tanggal_keluar date,
-                id_periode_keluar text,
-                keterangan text,
-                no_sertifikat_profesi text,
-                tanggal_terbit_ijazah date,
-                status_sync text,
+                nm_pt_asal varchar(255),
+                nm_prodi_asal varchar(255),
+                
+                -- Institution information
+                namapt varchar(255),
+                id_jur varchar(255),
+                nm_smt varchar(255),
+                
+                -- Sync status
+                status_sync varchar(255),
+                
                 CONSTRAINT feeder_master_mahasiswa_lulusan_dropout_pkey PRIMARY KEY (id)
             )
             ",

@@ -21,3 +21,4 @@ pub mod get_detail_periode_perkuliahan;
 pub mod get_list_periode_perkuliahan;
 pub mod get_list_kelas_kuliah;
 pub mod get_detail_kurikulum;
+pub mod get_detail_mahasiswa_lulus_do;
