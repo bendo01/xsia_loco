@@ -1,6 +1,6 @@
 # TODO
 
-- [] GetaAktivitasKuliahMahasiswa
+- [ ] GetaAktivitasKuliahMahasiswa
 
 - [x] GetAktivitasMengajarDosen
 
@@ -22,19 +22,19 @@
 
 - [x] GetDetailPeriodePerkuliahan_m
 
-- [] GetDetailPerkuliahanMahasiswa
+- [ ] GetDetailPerkuliahanMahasiswa
 
-- [] GetDosenPembimbing
+- [ ] GetDosenPembimbing
 
-- [] GetDosenPengajarKelasKuliah
+- [ ] GetDosenPengajarKelasKuliah
 
-- [] GetKRSMahasiswa
+- [ ] GetKRSMahasiswa
 
-- [] GetListDosen
+- [ ] GetListDosen
 
 - [x] GetListKelasKuliah_m
 
-- [] GetListKomponenEvaluasiKelas
+- [ ] GetListKomponenEvaluasiKelas
 
 - [x] GetListKurikulum_m
 
@@ -48,40 +48,40 @@
 
 - [x] GetListPenugasanSemuaDosen_m
 
-- [] GetListPeriodePerkuliahan_m
+- [ ] GetListPeriodePerkuliahan_m
 
-- [] GetListPerkuliahanMahasiswa
+- [ ] GetListPerkuliahanMahasiswa
 
-- [] GetListRencanaEvaluasi_h
+- [ ] GetListRencanaEvaluasi_h
 
-- [] GetListRencanaPembelajaran_h
+- [ ] GetListRencanaPembelajaran_h
 
-- [] GetListSkalaNilaiProdi_h
+- [ ] GetListSkalaNilaiProdi_h
 
-- [] GetListSubstansiKuliah_h
+- [ ] GetListSubstansiKuliah_h
 
-- [] GetMahasiswaBimbinganDosen_h
+- [ ] GetMahasiswaBimbinganDosen_h
 
-- [] GetMatkulKurikulum_h
+- [ ] GetMatkulKurikulum_h
 
-- [] GetNilaiTransferPendidikanMahasiswa
+- [ ] GetNilaiTransferPendidikanMahasiswa
 
-- [] GetPerhitunganSKS_h
+- [ ] GetPerhitunganSKS_h
 
-- [] GetPesertaKelasKuliah_h
+- [ ] GetPesertaKelasKuliah_h
 
-- [] GetRiwayatFungsionalDosen_h
+- [ ] GetRiwayatFungsionalDosen_h
 
 - [x] GetRiwayatNilaiMahasiswa
 
-- [] GetRiwayatPangkatDosen_h
+- [ ] GetRiwayatPangkatDosen_h
 
-- [] GetRiwayatPendidikanDosen_h
+- [ ] GetRiwayatPendidikanDosen_h
 
-- [] GetRiwayatPenelitianDosen_h
+- [ ] GetRiwayatPenelitianDosen_h
 
-- [] GetRiwayatSertifikasiDosen_h
+- [ ] GetRiwayatSertifikasiDosen_h
 
 - [x] GetTranskripMahasiswa
 
-- [] RiwayatPendidikanMahasiswa
+- [ ] RiwayatPendidikanMahasiswa
