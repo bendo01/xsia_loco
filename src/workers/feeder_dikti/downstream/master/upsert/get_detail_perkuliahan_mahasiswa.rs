@@ -4,7 +4,7 @@ use sea_orm::{ActiveModelTrait, ColumnTrait, EntityTrait, QueryFilter, Set, Tran
 use serde::{Deserialize, Serialize};
 
 use crate::models::feeder::master::perkuliahan_mahasiswa::{
-    _entities::perkuliahan_mahasiswa, feeder_model::ModelInputListPerkuliahanMahasiswa,
+    _entities::perkuliahan_mahasiswa, feeder_model::ModelInputDetailPerkuliahanMahasiswa,
 };
 
 pub struct Worker {
@@ -13,7 +13,7 @@ pub struct Worker {
 
 #[derive(Deserialize, Debug, Serialize)]
 pub struct WorkerArgs {
-    pub records: Vec<ModelInputListPerkuliahanMahasiswa>,
+    pub records: Vec<ModelInputDetailPerkuliahanMahasiswa>,
 }
 
 #[async_trait]
@@ -23,7 +23,7 @@ impl BackgroundWorker<WorkerArgs> for Worker {
     }
 
     fn class_name() -> String {
-        "GetListPerkuliahanMahasiswa".to_string()
+        "GetDetailPerkuliahanMahasiswa".to_string()
     }
 
     fn tags() -> Vec<String> {
@@ -31,7 +31,7 @@ impl BackgroundWorker<WorkerArgs> for Worker {
     }
 
     async fn perform(&self, args: WorkerArgs) -> Result<()> {
-        println!("=================GetListPerkuliahanMahasiswa=======================");
+        println!("=================GetDetailPerkuliahanMahasiswa=======================");
         println!("📦 Processing batch of {} records", args.records.len());
 
         let mut success_count = 0;
@@ -85,7 +85,7 @@ impl BackgroundWorker<WorkerArgs> for Worker {
 }
 
 impl Worker {
-    async fn upsert_record(ctx: &AppContext, record: &ModelInputListPerkuliahanMahasiswa) -> Result<String> {
+    async fn upsert_record(ctx: &AppContext, record: &ModelInputDetailPerkuliahanMahasiswa) -> Result<String> {
         // Validate that required fields exist - using composite key (id_registrasi_mahasiswa + id_semester)
         let id_registrasi_mahasiswa = record
             .id_registrasi_mahasiswa
@@ -112,12 +112,11 @@ impl Worker {
             // Update existing record
             let mut active: perkuliahan_mahasiswa::ActiveModel = existing_record.into_active_model();
 
-            active.nim = Set(record.nim.clone());
-            active.nama_mahasiswa = Set(record.nama_mahasiswa.clone());
             active.id_prodi = Set(record.id_prodi);
             active.nama_program_studi = Set(record.nama_program_studi.clone());
             active.angkatan = Set(record.angkatan.clone());
-            active.id_periode_masuk = Set(record.id_periode_masuk.clone());
+            active.nim = Set(record.nim.clone());
+            active.nama_mahasiswa = Set(record.nama_mahasiswa.clone());
             active.nama_semester = Set(record.nama_semester.clone());
             active.id_status_mahasiswa = Set(record.id_status_mahasiswa.clone());
             active.nama_status_mahasiswa = Set(record.nama_status_mahasiswa.clone());
@@ -125,8 +124,6 @@ impl Worker {
             active.ipk = Set(record.ipk);
             active.sks_semester = Set(record.sks_semester);
             active.sks_total = Set(record.sks_total);
-            active.biaya_kuliah_smt = Set(record.biaya_kuliah_smt);
-            active.id_pembiayaan = Set(record.id_pembiayaan.clone());
             active.status_sync = Set(record.status_sync.clone());
             active.sync_at = Set(Some(sync_time));
             active.updated_at = Set(Some(sync_time));
@@ -148,7 +145,7 @@ impl Worker {
                 angkatan: Set(record.angkatan.clone()),
                 id_prodi: Set(record.id_prodi),
                 nama_program_studi: Set(record.nama_program_studi.clone()),
-                id_periode_masuk: Set(record.id_periode_masuk.clone()),
+                id_periode_masuk: Set(None), // Not in Detail API
                 id_semester: Set(Some(id_semester.clone())),
                 nama_semester: Set(record.nama_semester.clone()),
                 id_status_mahasiswa: Set(record.id_status_mahasiswa.clone()),
@@ -157,8 +154,8 @@ impl Worker {
                 ipk: Set(record.ipk),
                 sks_semester: Set(record.sks_semester),
                 sks_total: Set(record.sks_total),
-                biaya_kuliah_smt: Set(record.biaya_kuliah_smt),
-                id_pembiayaan: Set(record.id_pembiayaan.clone()),
+                biaya_kuliah_smt: Set(None), // Not in Detail API
+                id_pembiayaan: Set(None), // Not in Detail API
                 status_sync: Set(record.status_sync.clone()),
                 sync_at: Set(Some(sync_time)),
                 created_at: Set(Some(sync_time)),
