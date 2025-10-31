@@ -22,11 +22,11 @@
 
 - [x] GetDetailPeriodePerkuliahan_m
 
-- [ ] GetDetailPerkuliahanMahasiswa
+- [x] GetDetailPerkuliahanMahasiswa
 
 - [ ] GetDosenPembimbing
 
-- [ ] GetDosenPengajarKelasKuliah
+- [x] GetDosenPengajarKelasKuliah
 
 - [ ] GetKRSMahasiswa
 
@@ -50,7 +50,7 @@
 
 - [ ] GetListPeriodePerkuliahan_m
 
-- [ ] GetListPerkuliahanMahasiswa
+- [x] GetListPerkuliahanMahasiswa
 
 - [ ] GetListRencanaEvaluasi_h
 
