@@ -240,6 +240,8 @@ impl Hooks for App {
         queue.register(crate::workers::feeder_dikti::downstream::master::upsert::get_detail_nilai_perkuliahan_kelas::Worker::build(ctx)).await?;
         queue.register(crate::workers::feeder_dikti::downstream::master::upsert::get_detail_periode_perkuliahan::Worker::build(ctx)).await?;
         queue.register(crate::workers::feeder_dikti::downstream::master::upsert::get_list_periode_perkuliahan::Worker::build(ctx)).await?;
+        queue.register(crate::workers::feeder_dikti::downstream::master::upsert::get_detail_penugasan_dosen::Worker::build(ctx)).await?;
+        queue.register(crate::workers::feeder_dikti::downstream::master::upsert::get_list_penugasan_semua_dosen::Worker::build(ctx)).await?;
         Ok(())
     }
 
@@ -278,7 +280,7 @@ impl Hooks for App {
             tasks::feeder_dikti::downstream::estimasi::master::get_transkrip_mahasiswa::EstimateTranskripMahasiswa,
         );
         tasks.register(
-            tasks::feeder_dikti::downstream::estimasi::master::get_list_penugasan_dosen::EstimatePenugasanDosen,
+            tasks::feeder_dikti::downstream::estimasi::master::get_list_penugasan_dosen::EstimateListPenugasanDosen,
         );
         tasks.register(
             tasks::feeder_dikti::downstream::estimasi::master::get_aktifitas_mengajar_dosen::EstimateAktifitasMengajarDosen,
@@ -321,6 +323,15 @@ impl Hooks for App {
         );
         tasks.register(
             tasks::feeder_dikti::downstream::estimasi::master::get_list_periode_perkuliahan::EstimateListPeriodePerkuliahan,
+        );
+        tasks.register(
+            tasks::feeder_dikti::downstream::estimasi::master::get_detail_penugasan_dosen::EstimateDetailPenugasanDosen,
+        );
+        tasks.register(
+            tasks::feeder_dikti::downstream::estimasi::master::get_list_penugasan_dosen::EstimateListPenugasanDosen,
+        );
+        tasks.register(
+            tasks::feeder_dikti::downstream::estimasi::master::get_list_penugasan_semua_dosen::EstimateListPenugasanSemuaDosen,
         );
 
         tasks.register(tasks::tui::generate_hash_password::GenerateHashPassword);

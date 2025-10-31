@@ -1,87 +1,87 @@
 # TODO
 
-- [] GetaAktivitasKuliahMahasiswa.json
+- [] GetaAktivitasKuliahMahasiswa
 
-- [x] GetAktivitasMengajarDosen.json
+- [x] GetAktivitasMengajarDosen
 
-- [x] GetBiodataDosen.json
+- [x] GetBiodataDosen
 
-- [x] GetBiodataMahasiswa.json
+- [x] GetBiodataMahasiswa
 
-- [x] GetDetailKelasKuliah_m.json
+- [x] GetDetailKelasKuliah_m
 
-- [x] GetDetailKurikulum_m.json
+- [x] GetDetailKurikulum_m
 
-- [x] GetDetailMahasiswaLulusDO_m.json
+- [x] GetDetailMahasiswaLulusDO_m
 
-- [x] GetDetailMataKuliah_m.json
+- [x] GetDetailMataKuliah_m
 
-- [x] GetDetailNilaiPerkuliahanKelas.json
+- [x] GetDetailNilaiPerkuliahanKelas
 
-- [] GetDetailPenugasanDosen_mh.json
+- [x] GetDetailPenugasanDosen_m
 
-- [] GetDetailPeriodePerkuliahan.json
+- [x] GetDetailPeriodePerkuliahan_m
 
-- [] GetDetailPerkuliahanMahasiswa.json
+- [] GetDetailPerkuliahanMahasiswa
 
-- [] GetDosenPembimbing.json
+- [] GetDosenPembimbing
 
-- [] GetDosenPengajarKelasKuliah.json
+- [] GetDosenPengajarKelasKuliah
 
-- [] GetKRSMahasiswa.json
+- [] GetKRSMahasiswa
 
-- [] GetListDosen.json
+- [] GetListDosen
 
-- [x] GetListKelasKuliah_m.json
+- [x] GetListKelasKuliah_m
 
-- [] GetListKomponenEvaluasiKelas.json
+- [] GetListKomponenEvaluasiKelas
 
-- [x] GetListKurikulum_m.json
+- [x] GetListKurikulum_m
 
-- [x] GetListMahasiswaLulusDO_m.json
+- [x] GetListMahasiswaLulusDO_m
 
-- [x] GetListMataKuliah_m.json
+- [x] GetListMataKuliah_m
 
-- [x] GetListNilaiPerkuliahanKelas_m.json
+- [x] GetListNilaiPerkuliahanKelas_m
 
-- [] GetListPenugasanDosen_mh.json
+- [x] GetListPenugasanDosen_m
 
-- [] GetListPenugasanSemuaDosen_mh.json
+- [x] GetListPenugasanSemuaDosen_m
 
-- [] GetListPeriodePerkuliahan_h.json
+- [] GetListPeriodePerkuliahan_m
 
-- [] GetListPerkuliahanMahasiswa.json
+- [] GetListPerkuliahanMahasiswa
 
-- [] GetListRencanaEvaluasi_h.json
+- [] GetListRencanaEvaluasi_h
 
-- [] GetListRencanaPembelajaran_h.json
+- [] GetListRencanaPembelajaran_h
 
-- [] GetListSkalaNilaiProdi_h.json
+- [] GetListSkalaNilaiProdi_h
 
-- [] GetListSubstansiKuliah_h.json
+- [] GetListSubstansiKuliah_h
 
-- [] GetMahasiswaBimbinganDosen_h.json
+- [] GetMahasiswaBimbinganDosen_h
 
-- [] GetMatkulKurikulum_h.json
+- [] GetMatkulKurikulum_h
 
-- [] GetNilaiTransferPendidikanMahasiswa.json
+- [] GetNilaiTransferPendidikanMahasiswa
 
-- [] GetPerhitunganSKS_h.json
+- [] GetPerhitunganSKS_h
 
-- [] GetPesertaKelasKuliah_h.json
+- [] GetPesertaKelasKuliah_h
 
-- [] GetRiwayatFungsionalDosen_h.json
+- [] GetRiwayatFungsionalDosen_h
 
-- [x] GetRiwayatNilaiMahasiswa.json
+- [x] GetRiwayatNilaiMahasiswa
 
-- [] GetRiwayatPangkatDosen_h.json
+- [] GetRiwayatPangkatDosen_h
 
-- [] GetRiwayatPendidikanDosen_h.json
+- [] GetRiwayatPendidikanDosen_h
 
-- [] GetRiwayatPenelitianDosen_h.json
+- [] GetRiwayatPenelitianDosen_h
 
-- [] GetRiwayatSertifikasiDosen_h.json
+- [] GetRiwayatSertifikasiDosen_h
 
-- [x] GetTranskripMahasiswa.json
+- [x] GetTranskripMahasiswa
 
-- [] RiwayatPendidikanMahasiswa.json
+- [] RiwayatPendidikanMahasiswa

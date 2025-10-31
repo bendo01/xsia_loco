@@ -5,8 +5,8 @@ use loco_rs::prelude::*;
 use sea_orm::{ColumnTrait, EntityTrait, QueryFilter, Set, TransactionTrait};
 
 // Configuration constants
-const TASK_NAME: &str = "EstimateListPenugasanDosen";
-const API_ACTION: &str = "GetListPenugasanDosen";
+const TASK_NAME: &str = "EstimateDetailPenugasanDosen";
+const API_ACTION: &str = "GetDetailPenugasanDosen";
 
 // API Request Configuration
 const DEFAULT_LIMIT: i32 = 1000; // Records per API request page
@@ -38,9 +38,9 @@ impl From<TaskError> for Error {
     }
 }
 
-pub struct EstimateListPenugasanDosen;
+pub struct EstimateDetailPenugasanDosen;
 
-impl EstimateListPenugasanDosen {
+impl EstimateDetailPenugasanDosen {
     /// Extract institution ID from app context settings
     fn get_institution_id(app_context: &AppContext) -> Result<Uuid, TaskError> {
         let current_settings = app_context
@@ -182,7 +182,7 @@ impl EstimateListPenugasanDosen {
         limit: i32,
         offset: i32,
     ) -> Result<(), TaskError> {
-        use crate::models::feeder::master::penugasan_dosen::feeder_model::ModelInputListPenugasanDosen as FeederModel;
+        use crate::models::feeder::master::penugasan_dosen::feeder_model::ModelInputDetailPenugasanDosen as FeederModel;
         use crate::tasks::feeder_dikti::downstream::feeder_request::{
             InputRequestData, RequestData,
         };
@@ -224,11 +224,11 @@ impl EstimateListPenugasanDosen {
         println!("📦 Fetched {} records at offset={}", records.len(), offset);
 
         // Enqueue worker with actual data
-        let worker_args = crate::workers::feeder_dikti::downstream::master::upsert::get_list_penugasan_dosen::WorkerArgs {
+        let worker_args = crate::workers::feeder_dikti::downstream::master::upsert::get_detail_penugasan_dosen::WorkerArgs {
             records,
         };
 
-        match crate::workers::feeder_dikti::downstream::master::upsert::get_list_penugasan_dosen::Worker::perform_later(app_context, worker_args).await {
+        match crate::workers::feeder_dikti::downstream::master::upsert::get_detail_penugasan_dosen::Worker::perform_later(app_context, worker_args).await {
             Ok(_) => {
                 println!("✅ Enqueued worker for offset={}", offset);
                 Ok(())
@@ -246,7 +246,7 @@ impl EstimateListPenugasanDosen {
         _limit: i32,
         offset: i32,
     ) -> Result<bool, TaskError> {
-        use crate::models::feeder::master::penugasan_dosen::feeder_model::ModelInputListPenugasanDosen as FeederModel;
+        use crate::models::feeder::master::penugasan_dosen::feeder_model::ModelInputDetailPenugasanDosen as FeederModel;
         use crate::tasks::feeder_dikti::downstream::feeder_request::{
             InputRequestData, RequestData,
         };
@@ -337,11 +337,11 @@ impl EstimateListPenugasanDosen {
 }
 
 #[async_trait]
-impl Task for EstimateListPenugasanDosen {
+impl Task for EstimateDetailPenugasanDosen {
     fn task(&self) -> TaskInfo {
         TaskInfo {
             name: TASK_NAME.to_string(),
-            detail: "Fetch and process List Penugasan Dosen data from Feeder Dikti".to_string(),
+            detail: "Fetch and process Detail Penugasan Dosen data from Feeder Dikti".to_string(),
         }
     }
 

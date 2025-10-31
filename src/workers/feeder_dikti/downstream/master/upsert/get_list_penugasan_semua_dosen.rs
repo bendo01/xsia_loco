@@ -4,7 +4,7 @@ use sea_orm::{ActiveModelTrait, ColumnTrait, EntityTrait, QueryFilter, Set, Tran
 use serde::{Deserialize, Serialize};
 
 use crate::models::feeder::master::penugasan_dosen::{
-    _entities::penugasan_dosen, feeder_model::ModelInputListPenugasanDosen,
+    _entities::penugasan_dosen, feeder_model::ModelInputListPenugasanSemuaDosen,
 };
 
 pub struct Worker {
@@ -13,7 +13,7 @@ pub struct Worker {
 
 #[derive(Deserialize, Debug, Serialize)]
 pub struct WorkerArgs {
-    pub records: Vec<ModelInputListPenugasanDosen>,
+    pub records: Vec<ModelInputListPenugasanSemuaDosen>,
 }
 
 #[async_trait]
@@ -23,7 +23,7 @@ impl BackgroundWorker<WorkerArgs> for Worker {
     }
 
     fn class_name() -> String {
-        "GetListPenugasanDosen".to_string()
+        "GetListPenugasanSemuaDosen".to_string()
     }
 
     fn tags() -> Vec<String> {
@@ -31,7 +31,7 @@ impl BackgroundWorker<WorkerArgs> for Worker {
     }
 
     async fn perform(&self, args: WorkerArgs) -> Result<()> {
-        println!("=================GetListPenugasanDosen=======================");
+        println!("=================GetListPenugasanSemuaDosen=======================");
         println!("📦 Processing batch of {} records", args.records.len());
 
         let mut success_count = 0;
@@ -84,7 +84,7 @@ impl BackgroundWorker<WorkerArgs> for Worker {
 }
 
 impl Worker {
-    async fn upsert_record(ctx: &AppContext, record: &ModelInputListPenugasanDosen) -> Result<String> {
+    async fn upsert_record(ctx: &AppContext, record: &ModelInputListPenugasanSemuaDosen) -> Result<String> {
         // Validate that id_registrasi_dosen exists (it's the unique key)
         let id_registrasi_dosen = record
             .id_registrasi_dosen
@@ -107,23 +107,14 @@ impl Worker {
 
             active.id_dosen = Set(record.id_dosen);
             active.nama_dosen = Set(record.nama_dosen.clone());
-            active.jenis_kelamin = Set(record.jenis_kelamin.clone());
-            active.nidn = Set(record.nidn.clone());
             active.nuptk = Set(record.nuptk.clone());
+            active.jenis_kelamin = Set(record.jenis_kelamin.clone());
             active.id_tahun_ajaran = Set(record.id_tahun_ajaran.clone());
             active.nama_tahun_ajaran = Set(record.nama_tahun_ajaran.clone());
-            active.id_perguruan_tinggi = Set(record.id_perguruan_tinggi);
-            active.nama_perguruan_tinggi = Set(record.nama_perguruan_tinggi.clone());
             active.id_prodi = Set(record.id_prodi);
             active.nama_program_studi = Set(record.nama_program_studi.clone());
             active.nomor_surat_tugas = Set(record.nomor_surat_tugas.clone());
             active.tanggal_surat_tugas = Set(record.tanggal_surat_tugas.map(|d| d.format("%d-%m-%Y").to_string()));
-            active.mulai_surat_tugas = Set(record.mulai_surat_tugas.map(|d| d.format("%d-%m-%Y").to_string()));
-            active.tgl_create = Set(record.tgl_create.map(|d| d.format("%d-%m-%Y").to_string()));
-            active.tgl_ptk_keluar = Set(record.tgl_ptk_keluar.map(|d| d.format("%d-%m-%Y").to_string()));
-            active.id_stat_pegawai = Set(record.id_stat_pegawai);
-            active.id_jns_keluar = Set(record.id_jns_keluar.as_ref().and_then(|s| s.parse::<i32>().ok()));
-            active.id_ikatan_kerja = Set(record.id_ikatan_kerja.clone());
             active.apakah_homebase = Set(record.apakah_homebase.as_ref().and_then(|s| {
                 match s.as_str() {
                     "1" => Some(true),
@@ -148,23 +139,14 @@ impl Worker {
                 id_registrasi_dosen: Set(Some(id_registrasi_dosen)),
                 id_dosen: Set(record.id_dosen),
                 nama_dosen: Set(record.nama_dosen.clone()),
-                jenis_kelamin: Set(record.jenis_kelamin.clone()),
-                nidn: Set(record.nidn.clone()),
                 nuptk: Set(record.nuptk.clone()),
+                jenis_kelamin: Set(record.jenis_kelamin.clone()),
                 id_tahun_ajaran: Set(record.id_tahun_ajaran.clone()),
                 nama_tahun_ajaran: Set(record.nama_tahun_ajaran.clone()),
-                id_perguruan_tinggi: Set(record.id_perguruan_tinggi),
-                nama_perguruan_tinggi: Set(record.nama_perguruan_tinggi.clone()),
                 id_prodi: Set(record.id_prodi),
                 nama_program_studi: Set(record.nama_program_studi.clone()),
                 nomor_surat_tugas: Set(record.nomor_surat_tugas.clone()),
                 tanggal_surat_tugas: Set(record.tanggal_surat_tugas.map(|d| d.format("%d-%m-%Y").to_string())),
-                mulai_surat_tugas: Set(record.mulai_surat_tugas.map(|d| d.format("%d-%m-%Y").to_string())),
-                tgl_create: Set(record.tgl_create.map(|d| d.format("%d-%m-%Y").to_string())),
-                tgl_ptk_keluar: Set(record.tgl_ptk_keluar.map(|d| d.format("%d-%m-%Y").to_string())),
-                id_stat_pegawai: Set(record.id_stat_pegawai),
-                id_jns_keluar: Set(record.id_jns_keluar.as_ref().and_then(|s| s.parse::<i32>().ok())),
-                id_ikatan_kerja: Set(record.id_ikatan_kerja.clone()),
                 apakah_homebase: Set(record.apakah_homebase.as_ref().and_then(|s| {
                     match s.as_str() {
                         "1" => Some(true),
@@ -178,6 +160,15 @@ impl Worker {
                 created_by: Set(None),
                 updated_by: Set(None),
                 deleted_at: Set(None),
+                nidn: Set(None),
+                id_perguruan_tinggi: Set(None),
+                nama_perguruan_tinggi: Set(None),
+                mulai_surat_tugas: Set(None),
+                tgl_create: Set(None),
+                tgl_ptk_keluar: Set(None),
+                id_stat_pegawai: Set(None),
+                id_jns_keluar: Set(None),
+                id_ikatan_kerja: Set(None),
             };
 
             new_record.insert(&txn).await?;
