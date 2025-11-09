@@ -36,9 +36,9 @@ impl PerkuliahanMahasiswaCnnModel {
 
     /// Forward pass
     pub fn forward(&self, input: Tensor<B, 3>) -> Tensor<B, 2> {
-        let batch_size = input.shape().dims()[0];
-        let seq_len = input.shape().dims()[1];
-        let n_features = input.shape().dims()[2];
+        let batch_size = input.shape().dims::<3>()[0];
+        let seq_len = input.shape().dims::<3>()[1];
+        let n_features = input.shape().dims::<3>()[2];
         let x = input.reshape([batch_size, seq_len * n_features]);
         let x = self.fc1.forward(x);
         let x = self.fc2.forward(x);

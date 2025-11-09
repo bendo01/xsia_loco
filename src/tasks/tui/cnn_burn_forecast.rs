@@ -1,10 +1,10 @@
 use loco_rs::prelude::*;
 use std::collections::HashMap;
 use uuid::Uuid;
-use anyhow::Context;
 
-use burn::record::{BinFileRecorder, FullPrecisionSettings};
-use burn::tensor::{backend::ndarray::NdArrayBackend, Tensor, TensorData};
+use burn::prelude::*;
+use burn::record::{BinFileRecorder, FullPrecisionSettings, Recorder};
+use burn::tensor::Tensor;
 use burn_ndarray::NdArrayDevice;
 
 use crate::models::burn::convolutional_neural_network::perkuliahan_mahasiswa::{PerkuliahanMahasiswaCnnModel, B as BackendB};
@@ -114,21 +114,22 @@ impl Task for ConvolutionalNeuralNetworkBurnForecast {
 
         // Burn tensor input [batch, SEQ_LEN, N_FEATURES]
         let device = NdArrayDevice::default();
-        let tensor_data = TensorData::new(data_flat, [batch, SEQ_LEN, N_FEATURES]);
+        let tensor_data = burn::tensor::TensorData::new(data_flat, [batch, SEQ_LEN, N_FEATURES]);
         let input_tensor = Tensor::<BackendB, 3>::from_data(tensor_data, &device);
 
         // Load model record
         let recorder = BinFileRecorder::<FullPrecisionSettings>::new();
-        let record = recorder
-            .load(&model_file)
-            .map_err(|e| Error::Message(format!("Gagal load model file '{model_file}': {e}")))?;
+        let record = <BinFileRecorder<FullPrecisionSettings> as Recorder<BackendB>>::load(
+            &recorder,
+            model_file.clone().into(),
+            &device
+        ).map_err(|e| Error::Message(format!("Gagal load model file '{model_file}': {e}")))?;
 
         let input_dim = SEQ_LEN * N_FEATURES;
         let hidden = 64;
 
-        let model = PerkuliahanMahasiswaCnnModel::new(input_dim, hidden, &device)
-            .load_record(record)
-            .map_err(|e| Error::Message(format!("Gagal load record ke model: {:?}", e)))?;
+        let base_model = PerkuliahanMahasiswaCnnModel::new(input_dim, hidden, &device);
+        let model = <PerkuliahanMahasiswaCnnModel as Module<BackendB>>::load_record(base_model, record);
 
         // Run inference
         let output = model.forward(input_tensor);
