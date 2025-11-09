@@ -28,7 +28,7 @@ impl Task for ConvolutionalNeuralNetworkTensor {
         const SEQ_LEN: usize = 8; // jumlah semester
         const N_FEATURES: usize = 4; // ips, ipk, sks_semester, sks_total
 
-        let saved_model_dir = std::env::var("SAVED_MODEL_DIR").unwrap_or_else(|_| "./saved_model".to_string());
+        let saved_model_dir = std::env::var("SAVED_MODEL_DIR").unwrap_or_else(|_| "./public/cnn_training".to_string());
         let tf_input_op_name = std::env::var("TF_INPUT_OP_NAME").unwrap_or_else(|_| "serving_default_input".to_string());
         let tf_output_op_name = std::env::var("TF_OUTPUT_OP_NAME").unwrap_or_else(|_| "StatefulPartitionedCall".to_string());
 

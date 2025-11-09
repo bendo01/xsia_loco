@@ -1,0 +1,46 @@
+// src/models/student_cnn_model.rs
+use burn::{
+    module::Module,
+    tensor::{backend::ndarray::NdArrayBackend, Tensor},
+    nn::{
+        linear::{Linear, LinearConfig},
+        activation::Sigmoid,
+        // For demonstration: use simple linear layers instead of 2D conv,
+        // because your input shape is [batch, seq_len, n_features].
+    },
+};
+
+pub type B = NdArrayBackend<f32>;
+
+/// A compact MLP model suitable for sequence features (SEQ_LEN x N_FEATURES).
+/// If you trained a CNN, replace this with the matching conv layers and shapes.
+///
+/// NOTE: Make sure this architecture exactly matches how you trained/saved the model.
+#[derive(Module, Debug)]
+pub struct PerkuliahanMahasiswaCnnModel {
+    fc1: Linear<B>,
+    fc2: Linear<B>,
+    sigmoid: Sigmoid,
+}
+
+impl PerkuliahanMahasiswaCnnModel {
+    /// Create model instance with same input size used in training
+    pub fn new(input_dim: usize, hidden: usize) -> Self {
+        Self {
+            fc1: LinearConfig::new(input_dim, hidden).init(),
+            fc2: LinearConfig::new(hidden, 1).init(),
+            sigmoid: Sigmoid::new(),
+        }
+    }
+
+    /// Forward pass
+    pub fn forward(&self, input: Tensor<B, 3>) -> Tensor<B, 2> {
+        let batch_size = input.shape().dims()[0];
+        let seq_len = input.shape().dims()[1];
+        let n_features = input.shape().dims()[2];
+        let x = input.reshape([batch_size, seq_len * n_features]);
+        let x = self.fc1.forward(x);
+        let x = self.fc2.forward(x);
+        self.sigmoid.forward(x)
+    }
+}
