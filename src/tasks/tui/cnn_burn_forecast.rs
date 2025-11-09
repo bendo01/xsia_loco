@@ -8,7 +8,6 @@ use burn::tensor::Tensor;
 use burn_ndarray::NdArrayDevice;
 
 use sea_orm::QueryOrder;
-// use sea_query::Order;
 
 use crate::models::burn::convolutional_neural_network::perkuliahan_mahasiswa::{
     PerkuliahanMahasiswaCnnModel, B as BackendB,
@@ -29,13 +28,12 @@ impl Task for ConvolutionalNeuralNetworkBurnForecast {
     fn task(&self) -> TaskInfo {
         TaskInfo {
             name: "ConvolutionalNeuralNetworkBurnForecast".to_string(),
-            detail: "Forecast kelulusan tepat waktu using Burn 0.19 CNN".to_string(),
+            detail: "Forecast kelulusan tepat waktu using Burn 0.19 CNN + metrics".to_string(),
         }
     }
 
     #[allow(clippy::too_many_lines)]
     async fn run(&self, app_context: &AppContext, _vars: &task::Vars) -> Result<(), Error> {
-        // Configuration constants
         const SEQ_LEN: usize = 8;
         const N_FEATURES: usize = 4;
 
@@ -81,25 +79,24 @@ impl Task for ConvolutionalNeuralNetworkBurnForecast {
             return Ok(());
         }
 
+        // --- Build tensor input ---
         let mut data_flat: Vec<f32> = Vec::with_capacity(batch * SEQ_LEN * N_FEATURES);
-        let mut mahasiswa_list: Vec<(Uuid, Option<String>, Option<String>)> =
+        let mut mahasiswa_list: Vec<(Uuid, Option<String>, Option<String>, f32)> =
             Vec::with_capacity(batch);
 
         for (student_id, info) in groups.iter() {
-            mahasiswa_list.push((*student_id, info.nim.clone(), info.nama.clone()));
-
             let rec_count = info.records.len();
             let start = if rec_count > SEQ_LEN { rec_count - SEQ_LEN } else { 0 };
             let slice = &info.records[start..];
 
             let mut seq: Vec<[f32; N_FEATURES]> = Vec::with_capacity(SEQ_LEN);
             for rec in slice.iter() {
-                seq.push([
-                    rec.ips.unwrap_or(0.0),
-                    rec.ipk.unwrap_or(0.0),
-                    rec.sks_semester.unwrap_or(0.0),
-                    rec.sks_total.unwrap_or(0.0),
-                ]);
+                // Normalize features (recommended)
+                let ips = rec.ips.unwrap_or(0.0) / 4.0;
+                let ipk = rec.ipk.unwrap_or(0.0) / 4.0;
+                let sks_smt = rec.sks_semester.unwrap_or(0.0) / 24.0;
+                let sks_tot = rec.sks_total.unwrap_or(0.0) / 160.0;
+                seq.push([ips, ipk, sks_smt, sks_tot]);
             }
 
             // Pad from start
@@ -116,6 +113,19 @@ impl Task for ConvolutionalNeuralNetworkBurnForecast {
                     data_flat.push(seq[t][f]);
                 }
             }
+
+            // Label: L (lulus) = 1, else 0
+            let label = if info
+                .records
+                .iter()
+                .any(|r| r.id_status_mahasiswa.as_deref() == Some("L"))
+            {
+                1.0
+            } else {
+                0.0
+            };
+
+            mahasiswa_list.push((*student_id, info.nim.clone(), info.nama.clone(), label));
         }
 
         // Build Burn tensor input: [batch, SEQ_LEN, N_FEATURES]
@@ -126,75 +136,114 @@ impl Task for ConvolutionalNeuralNetworkBurnForecast {
         // Permute to [batch, N_FEATURES, SEQ_LEN] for Conv1D
         input_tensor = input_tensor.permute([0, 2, 1]);
 
-        // CompactRecorder expects .mpk extension but we have .burn
-        // We need to temporarily rename or use a symbolic link approach
-        // For now, let's just specify the path without extension and let recorder add .burn
+        // CompactRecorder expects .burn
         let model_base_path = format!("{}/cnn_model_v19", saved_model_dir);
-        
-        // Check if .burn file exists, if so use it directly
         let burn_path = format!("{}.burn", model_base_path);
         let mpk_path = format!("{}.mpk", model_base_path);
-        
-        // If .burn exists but .mpk doesn't, create a temporary symlink
+
+        // Create temporary symlink if needed (.burn → .mpk)
         if std::path::Path::new(&burn_path).exists() && !std::path::Path::new(&mpk_path).exists() {
+            #[cfg(target_family = "unix")]
             std::os::unix::fs::symlink(&burn_path, &mpk_path)
                 .map_err(|e| Error::Message(format!("Failed to create symlink: {e}")))?;
         }
-        
+
         let recorder = CompactRecorder::new();
         let model = <PerkuliahanMahasiswaCnnModel as Module<BackendB>>::load_file::<CompactRecorder, _>(
             PerkuliahanMahasiswaCnnModel::new(N_FEATURES, SEQ_LEN, &device),
             model_base_path.clone(),
             &recorder,
-            &device
+            &device,
         )
         .map_err(|e| Error::Message(format!("Gagal load model file '{model_base_path}': {e}")))?;
-        
+
         // Clean up symlink if we created it
         if std::path::Path::new(&mpk_path).is_symlink() {
             let _ = std::fs::remove_file(&mpk_path);
         }
 
-        // Run inference
+        // --- Run inference ---
         let output = model.forward(input_tensor);
         let out_data = output.into_data();
         let out_values = out_data.as_slice().unwrap_or(&[]).to_vec();
 
-        // Create a list with predictions and sort by NIM
-        let mut results: Vec<(Option<String>, Option<String>, f32)> = mahasiswa_list
+        // --- Compute metrics ---
+        let mut tp = 0;
+        let mut tn = 0;
+        let mut fp = 0;
+        let mut fn_ = 0;
+
+        let mut results: Vec<(Option<String>, Option<String>, f32, f32, f32)> = mahasiswa_list
             .iter()
             .enumerate()
-            .map(|(i, (_id_reg, nim, nama))| {
+            .map(|(i, (_id_reg, nim, nama, label))| {
                 let prob = out_values.get(i).copied().unwrap_or(0.0);
-                (nim.clone(), nama.clone(), prob)
+                let pred_label = if prob >= 0.5 { 1.0 } else { 0.0 };
+
+                match (pred_label as i32, *label as i32) {
+                    (1, 1) => tp += 1,
+                    (0, 0) => tn += 1,
+                    (1, 0) => fp += 1,
+                    (0, 1) => fn_ += 1,
+                    _ => {}
+                }
+
+                (nim.clone(), nama.clone(), prob, pred_label, *label)
             })
             .collect();
 
-        // Sort by NIM in ascending order
+        // Sort by NIM ascending
         results.sort_by(|a, b| {
             let nim_a = a.0.as_deref().unwrap_or("");
             let nim_b = b.0.as_deref().unwrap_or("");
             nim_a.cmp(nim_b)
         });
 
-        // Output results
+        // --- Print predictions ---
         println!("\n=== HASIL PREDIKSI KELULUSAN TEPAT WAKTU ===");
         println!(
-            "{:<15} | {:<30} | {:<8} | {:<10}",
-            "NIM", "Nama Mahasiswa", "Prob", "Tepat Waktu"
+            "{:<15} | {:<30} | {:<8} | {:<10} | {:<6}",
+            "NIM", "Nama Mahasiswa", "Prob", "Prediksi", "Asli"
         );
-        println!("{:-<70}", "-");
+        println!("{:-<80}", "-");
 
-        for (nim, nama, prob) in results {
-            let predicted_on_time = prob >= 0.5;
+        for (nim, nama, prob, pred_label, label) in results {
             println!(
-                "{:<15} | {:<30} | {:<8.4} | {}",
+                "{:<15} | {:<30} | {:<8.4} | {:<10} | {:<6}",
                 nim.unwrap_or_else(|| "-".to_string()),
                 nama.unwrap_or_else(|| "-".to_string()),
                 prob,
-                if predicted_on_time { "✅ Ya" } else { "❌ Tidak" }
+                if pred_label == 1.0 { "✅ Ya" } else { "❌ Tidak" },
+                if label == 1.0 { "1" } else { "0" }
             );
         }
+
+        // --- Compute final metrics ---
+        let total = tp + tn + fp + fn_;
+        let accuracy = (tp + tn) as f32 / total as f32;
+        let precision = if tp + fp > 0 {
+            tp as f32 / (tp + fp) as f32
+        } else {
+            0.0
+        };
+        let recall = if tp + fn_ > 0 {
+            tp as f32 / (tp + fn_) as f32
+        } else {
+            0.0
+        };
+        let f1 = if precision + recall > 0.0 {
+            2.0 * (precision * recall) / (precision + recall)
+        } else {
+            0.0
+        };
+
+        println!("\n=== METRIK EVALUASI ===");
+        println!("Total data: {}", total);
+        println!("True Positive = {tp}, True Negative = {tn}, False Positive = {fp}, False Negative = {fn_}");
+        println!("Accuracy : {:.4}", accuracy);
+        println!("Precision: {:.4}", precision);
+        println!("Recall   : {:.4}", recall);
+        println!("F1 Score : {:.4}", f1);
 
         Ok(())
     }
