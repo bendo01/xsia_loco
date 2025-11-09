@@ -1,22 +1,23 @@
 // src/models/student_cnn_model.rs
 use burn::{
-    module::Module,
-    tensor::{backend::ndarray::NdArrayBackend, Tensor},
+    prelude::*,
     nn::{
-        linear::{Linear, LinearConfig},
+        Linear, LinearConfig,
         activation::Sigmoid,
         // For demonstration: use simple linear layers instead of 2D conv,
         // because your input shape is [batch, seq_len, n_features].
     },
+    tensor::Tensor,
 };
+use burn_ndarray::NdArray;
 
-pub type B = NdArrayBackend<f32>;
+pub type B = NdArray<f32>;
 
 /// A compact MLP model suitable for sequence features (SEQ_LEN x N_FEATURES).
 /// If you trained a CNN, replace this with the matching conv layers and shapes.
 ///
 /// NOTE: Make sure this architecture exactly matches how you trained/saved the model.
-#[derive(Module, Debug)]
+#[derive(Module, Debug, Clone)]
 pub struct PerkuliahanMahasiswaCnnModel {
     fc1: Linear<B>,
     fc2: Linear<B>,
