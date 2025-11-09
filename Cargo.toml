@@ -74,6 +74,10 @@ sha256 = "1.6.0"
 random-string = "1.1.0"
 colored = "3.0.0"
 
+ndarray = "0.15"
+ndarray-rand = "0.14"
+tensorflow = "0.21.0"
+
 [[bin]]
 name = "xsia_loco-cli"
 path = "src/bin/main.rs"
