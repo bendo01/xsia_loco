@@ -160,6 +160,23 @@ impl Task for ConvolutionalNeuralNetworkBurnForecast {
         let out_data = output.into_data();
         let out_values = out_data.as_slice().unwrap_or(&[]).to_vec();
 
+        // Create a list with predictions and sort by NIM
+        let mut results: Vec<(Option<String>, Option<String>, f32)> = mahasiswa_list
+            .iter()
+            .enumerate()
+            .map(|(i, (_id_reg, nim, nama))| {
+                let prob = out_values.get(i).copied().unwrap_or(0.0);
+                (nim.clone(), nama.clone(), prob)
+            })
+            .collect();
+
+        // Sort by NIM in ascending order
+        results.sort_by(|a, b| {
+            let nim_a = a.0.as_deref().unwrap_or("");
+            let nim_b = b.0.as_deref().unwrap_or("");
+            nim_a.cmp(nim_b)
+        });
+
         // Output results
         println!("\n=== HASIL PREDIKSI KELULUSAN TEPAT WAKTU ===");
         println!(
@@ -168,13 +185,12 @@ impl Task for ConvolutionalNeuralNetworkBurnForecast {
         );
         println!("{:-<70}", "-");
 
-        for (i, (_id_reg, nim, nama)) in mahasiswa_list.iter().enumerate() {
-            let prob = out_values.get(i).copied().unwrap_or(0.0);
+        for (nim, nama, prob) in results {
             let predicted_on_time = prob >= 0.5;
             println!(
                 "{:<15} | {:<30} | {:<8.4} | {}",
-                nim.clone().unwrap_or_else(|| "-".to_string()),
-                nama.clone().unwrap_or_else(|| "-".to_string()),
+                nim.unwrap_or_else(|| "-".to_string()),
+                nama.unwrap_or_else(|| "-".to_string()),
                 prob,
                 if predicted_on_time { "✅ Ya" } else { "❌ Tidak" }
             );
