@@ -3,11 +3,13 @@ use std::collections::HashMap;
 use uuid::Uuid;
 
 use burn::prelude::*;
-use burn::record::{BinFileRecorder, FullPrecisionSettings, Recorder};
+use burn::record::{CompactRecorder, Recorder};
 use burn::tensor::Tensor;
 use burn_ndarray::NdArrayDevice;
 
-use crate::models::burn::convolutional_neural_network::perkuliahan_mahasiswa::{PerkuliahanMahasiswaCnnModel, B as BackendB};
+use crate::models::burn::convolutional_neural_network::perkuliahan_mahasiswa::{
+    PerkuliahanMahasiswaCnnModel, B as BackendB,
+};
 use crate::models::feeder::master::perkuliahan_mahasiswa::_entities::perkuliahan_mahasiswa as FeederMasterPerkuliahanMahasiswa;
 
 #[derive(Clone)]
@@ -19,12 +21,12 @@ struct MahasiswaInfo {
 
 pub struct ConvolutionalNeuralNetworkBurnForecast;
 
-#[async_trait]
+#[async_trait::async_trait]
 impl Task for ConvolutionalNeuralNetworkBurnForecast {
     fn task(&self) -> TaskInfo {
         TaskInfo {
             name: "ConvolutionalNeuralNetworkBurnForecast".to_string(),
-            detail: "forecast simple 1D-CNN for kelulusan tepat waktu using burn 0.19".to_string(),
+            detail: "Forecast kelulusan tepat waktu using Burn 0.19 CNN".to_string(),
         }
     }
 
@@ -36,9 +38,9 @@ impl Task for ConvolutionalNeuralNetworkBurnForecast {
 
         let saved_model_dir =
             std::env::var("SAVED_MODEL_DIR").unwrap_or_else(|_| "./public/cnn_training".to_string());
-        let model_file = format!("{}/cnn_model_v19.mpk", saved_model_dir);
+        let model_file = format!("{}/cnn_model_v19.burn", saved_model_dir);
 
-        // Query database records via SeaORM
+        // Query database records
         let records = FeederMasterPerkuliahanMahasiswa::Entity::find()
             .all(&app_context.db)
             .await
@@ -77,7 +79,8 @@ impl Task for ConvolutionalNeuralNetworkBurnForecast {
         }
 
         let mut data_flat: Vec<f32> = Vec::with_capacity(batch * SEQ_LEN * N_FEATURES);
-        let mut mahasiswa_list: Vec<(Uuid, Option<String>, Option<String>)> = Vec::with_capacity(batch);
+        let mut mahasiswa_list: Vec<(Uuid, Option<String>, Option<String>)> =
+            Vec::with_capacity(batch);
 
         for (student_id, info) in groups.iter() {
             mahasiswa_list.push((*student_id, info.nim.clone(), info.nama.clone()));
@@ -96,7 +99,7 @@ impl Task for ConvolutionalNeuralNetworkBurnForecast {
                 ]);
             }
 
-            // pad from start
+            // Pad from start
             if seq.len() < SEQ_LEN {
                 let pad = SEQ_LEN - seq.len();
                 for _ in 0..pad {
@@ -104,7 +107,7 @@ impl Task for ConvolutionalNeuralNetworkBurnForecast {
                 }
             }
 
-            // flatten sequence
+            // Flatten
             for t in 0..SEQ_LEN {
                 for f in 0..N_FEATURES {
                     data_flat.push(seq[t][f]);
@@ -112,24 +115,28 @@ impl Task for ConvolutionalNeuralNetworkBurnForecast {
             }
         }
 
-        // Burn tensor input [batch, SEQ_LEN, N_FEATURES]
+        // Build Burn tensor input: [batch, SEQ_LEN, N_FEATURES]
         let device = NdArrayDevice::default();
         let tensor_data = burn::tensor::TensorData::new(data_flat, [batch, SEQ_LEN, N_FEATURES]);
-        let input_tensor = Tensor::<BackendB, 3>::from_data(tensor_data, &device);
+        let mut input_tensor = Tensor::<BackendB, 3>::from_data(tensor_data, &device);
 
-        // Load model record
-        let recorder = BinFileRecorder::<FullPrecisionSettings>::new();
-        let record = <BinFileRecorder<FullPrecisionSettings> as Recorder<BackendB>>::load(
+        // Permute to [batch, N_FEATURES, SEQ_LEN] for Conv1D
+        input_tensor = input_tensor.permute([0, 2, 1]);
+
+        // Load model (CompactRecorder)
+        let recorder = CompactRecorder::new();
+        let record = <CompactRecorder as Recorder<BackendB>>::load(
             &recorder,
             model_file.clone().into(),
-            &device
-        ).map_err(|e| Error::Message(format!("Gagal load model file '{model_file}': {e}")))?;
+            &device,
+        )
+        .map_err(|e| Error::Message(format!("Gagal load model file '{model_file}': {e}")))?;
 
-        let input_dim = SEQ_LEN * N_FEATURES;
-        let hidden = 64;
-
-        let base_model = PerkuliahanMahasiswaCnnModel::new(input_dim, hidden, &device);
-        let model = <PerkuliahanMahasiswaCnnModel as Module<BackendB>>::load_record(base_model, record);
+        // Create model instance (must match training)
+        let model = <PerkuliahanMahasiswaCnnModel as Module<BackendB>>::load_record(
+            PerkuliahanMahasiswaCnnModel::new(N_FEATURES, SEQ_LEN, &device),
+            record
+        );
 
         // Run inference
         let output = model.forward(input_tensor);

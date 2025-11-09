@@ -1,47 +1,40 @@
-// src/models/student_cnn_model.rs
 use burn::{
     prelude::*,
-    nn::{
-        Linear, LinearConfig,
-        activation::Sigmoid,
-        // For demonstration: use simple linear layers instead of 2D conv,
-        // because your input shape is [batch, seq_len, n_features].
-    },
+    nn::{conv::Conv1d, conv::Conv1dConfig, Linear, LinearConfig, Relu, activation::Sigmoid},
     tensor::Tensor,
 };
 use burn_ndarray::NdArray;
 
 pub type B = NdArray<f32>;
 
-/// A compact MLP model suitable for sequence features (SEQ_LEN x N_FEATURES).
-/// If you trained a CNN, replace this with the matching conv layers and shapes.
-///
-/// NOTE: Make sure this architecture exactly matches how you trained/saved the model.
 #[derive(Module, Debug, Clone)]
 pub struct PerkuliahanMahasiswaCnnModel {
+    conv1: Conv1d<B>,
     fc1: Linear<B>,
-    fc2: Linear<B>,
+    relu: Relu,
     sigmoid: Sigmoid,
 }
 
 impl PerkuliahanMahasiswaCnnModel {
-    /// Create model instance with same input size used in training
-    pub fn new(input_dim: usize, hidden: usize, device: &<B as Backend>::Device) -> Self {
+    /// Matches exactly the training CNNModel definition
+    pub fn new(n_features: usize, seq_len: usize, device: &<B as Backend>::Device) -> Self {
+        let conv1 = Conv1dConfig::new(n_features, 16, 3).init(device);
+        let fc_in = (seq_len - 2) * 16; // same as training (kernel_size = 3)
+        let fc1 = LinearConfig::new(fc_in, 1).init(device);
+
         Self {
-            fc1: LinearConfig::new(input_dim, hidden).init(device),
-            fc2: LinearConfig::new(hidden, 1).init(device),
+            conv1,
+            fc1,
+            relu: Relu::new(),
             sigmoid: Sigmoid::new(),
         }
     }
 
-    /// Forward pass
-    pub fn forward(&self, input: Tensor<B, 3>) -> Tensor<B, 2> {
-        let batch_size = input.shape().dims::<3>()[0];
-        let seq_len = input.shape().dims::<3>()[1];
-        let n_features = input.shape().dims::<3>()[2];
-        let x = input.reshape([batch_size, seq_len * n_features]);
+    pub fn forward(&self, x: Tensor<B, 3>) -> Tensor<B, 2> {
+        let x = self.conv1.forward(x);
+        let x = self.relu.forward(x);
+        let x = x.flatten(1, 2);
         let x = self.fc1.forward(x);
-        let x = self.fc2.forward(x);
         self.sigmoid.forward(x)
     }
 }
