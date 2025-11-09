@@ -51,7 +51,7 @@ impl Task for ConvolutionalNeuralNetwork {
                     .or_insert(MahasiswaInfo {
                         nim: rec.nim.clone(),
                         nama: rec.nama_mahasiswa.clone(),
-                        records: vec![rec],
+                        records: vec![rec.clone()],
                     });
             }
         }
