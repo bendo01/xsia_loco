@@ -140,16 +140,6 @@ impl Task for ConvolutionalNeuralNetworkBurnForecast {
         input_tensor = input_tensor.permute([0, 2, 1]); // [batch, N_FEATURES, SEQ_LEN]
 
         // === Load model ===
-        // CompactRecorder expects .mpk extension but we have .burn
-        let burn_path = format!("{}.burn", model_base_path);
-        let mpk_path = format!("{}.mpk", model_base_path);
-        
-        // If .burn exists but .mpk doesn't, create a temporary symlink
-        if std::path::Path::new(&burn_path).exists() && !std::path::Path::new(&mpk_path).exists() {
-            std::os::unix::fs::symlink(&burn_path, &mpk_path)
-                .map_err(|e| Error::Message(format!("Failed to create symlink: {e}")))?;
-        }
-        
         let recorder = CompactRecorder::new();
         let model = <PerkuliahanMahasiswaCnnModel as Module<BackendB>>::load_file::<CompactRecorder, _>(
             PerkuliahanMahasiswaCnnModel::new(N_FEATURES, SEQ_LEN, &device),
@@ -158,11 +148,6 @@ impl Task for ConvolutionalNeuralNetworkBurnForecast {
             &device,
         )
         .map_err(|e| Error::Message(format!("Gagal load model file '{model_base_path}': {e}")))?;
-        
-        // Clean up symlink if we created it
-        if std::path::Path::new(&mpk_path).is_symlink() {
-            let _ = std::fs::remove_file(&mpk_path);
-        }
 
         // === Run inference ===
         let output = model.forward(input_tensor);
