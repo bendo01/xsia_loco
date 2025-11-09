@@ -220,7 +220,7 @@ impl Task for ConvolutionalNeuralNetworkBurnForecast {
 
         println!("\n=== METRIK EVALUASI ===");
         println!("Total data: {}", total);
-        println!("TP = {tp}, TN = {tn}, FP = {fp}, FN = {fn_}");
+        println!("True Positive = {tp}, True Negative = {tn}, False Positive = {fp}, False Negative = {fn_}");
         println!("Accuracy : {:.4}", accuracy);
         println!("Precision: {:.4}", precision);
         println!("Recall   : {:.4}", recall);
