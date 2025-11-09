@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use uuid::Uuid;
 
 use burn::prelude::*;
-use burn::record::{CompactRecorder, Recorder};
+use burn::record::CompactRecorder;
 use burn::tensor::Tensor;
 use burn_ndarray::NdArrayDevice;
 
@@ -38,7 +38,6 @@ impl Task for ConvolutionalNeuralNetworkBurnForecast {
 
         let saved_model_dir =
             std::env::var("SAVED_MODEL_DIR").unwrap_or_else(|_| "./public/cnn_training".to_string());
-        let model_file = format!("{}/cnn_model_v19", saved_model_dir);
 
         // Query database records
         let records = FeederMasterPerkuliahanMahasiswa::Entity::find()
@@ -123,22 +122,34 @@ impl Task for ConvolutionalNeuralNetworkBurnForecast {
         // Permute to [batch, N_FEATURES, SEQ_LEN] for Conv1D
         input_tensor = input_tensor.permute([0, 2, 1]);
 
-        // Load model (CompactRecorder) - will look for .mpk extension automatically
-        // But we renamed it to .burn, so we need to specify the full path
-        let model_path = format!("{}.burn", model_file);
+        // CompactRecorder expects .mpk extension but we have .burn
+        // We need to temporarily rename or use a symbolic link approach
+        // For now, let's just specify the path without extension and let recorder add .burn
+        let model_base_path = format!("{}/cnn_model_v19", saved_model_dir);
+        
+        // Check if .burn file exists, if so use it directly
+        let burn_path = format!("{}.burn", model_base_path);
+        let mpk_path = format!("{}.mpk", model_base_path);
+        
+        // If .burn exists but .mpk doesn't, create a temporary symlink
+        if std::path::Path::new(&burn_path).exists() && !std::path::Path::new(&mpk_path).exists() {
+            std::os::unix::fs::symlink(&burn_path, &mpk_path)
+                .map_err(|e| Error::Message(format!("Failed to create symlink: {e}")))?;
+        }
+        
         let recorder = CompactRecorder::new();
-        let record = <CompactRecorder as Recorder<BackendB>>::load(
-            &recorder,
-            model_path.clone().into(),
-            &device,
-        )
-        .map_err(|e| Error::Message(format!("Gagal load model file '{model_path}': {e}")))?;
-
-        // Create model instance (must match training)
-        let model = <PerkuliahanMahasiswaCnnModel as Module<BackendB>>::load_record(
+        let model = <PerkuliahanMahasiswaCnnModel as Module<BackendB>>::load_file::<CompactRecorder, _>(
             PerkuliahanMahasiswaCnnModel::new(N_FEATURES, SEQ_LEN, &device),
-            record
-        );
+            model_base_path.clone(),
+            &recorder,
+            &device
+        )
+        .map_err(|e| Error::Message(format!("Gagal load model file '{model_base_path}': {e}")))?;
+        
+        // Clean up symlink if we created it
+        if std::path::Path::new(&mpk_path).is_symlink() {
+            let _ = std::fs::remove_file(&mpk_path);
+        }
 
         // Run inference
         let output = model.forward(input_tensor);
