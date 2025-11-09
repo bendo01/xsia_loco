@@ -1,52 +1,65 @@
 use loco_rs::prelude::*;
-use crate::models::feeder::master::perkuliahan_mahasiswa::_entities::perkuliahan_mahasiswa as FeederMasterPerkuliahanMahasiswa;
 use std::collections::HashMap;
 use uuid::Uuid;
 use sea_orm::QueryOrder;
-// use sea_query::Order;
 
 use burn::{
     module::Module,
-    nn::{conv::Conv1dConfig, conv::Conv1d, Linear, LinearConfig, Relu},
+    nn::{conv::Conv1dConfig, LinearConfig, Relu, activation::Sigmoid},
     optim::{AdamConfig, Optimizer, GradientsParams},
     record::CompactRecorder,
-    tensor::{backend::Backend, Tensor},
+    backend::{Autodiff, ndarray::{NdArray, NdArrayDevice}},
+    tensor::{Tensor, TensorData},
 };
-use burn::backend::{ndarray::{NdArray, NdArrayDevice}, Autodiff};
-use burn::tensor::TensorData;
+use crate::models::feeder::master::perkuliahan_mahasiswa::_entities::perkuliahan_mahasiswa as FeederMasterPerkuliahanMahasiswa;
+use crate::models::feeder::master::mahasiswa_lulusan_dropout::_entities::mahasiswa_lulusan_dropout as FeederMasterMahasiswaLulusDO;
 
 type MyBackend = Autodiff<NdArray<f32>>;
 
+// =====================================================
+//  CNN Model (same architecture as before)
+// =====================================================
 #[derive(Module, Debug)]
-pub struct CNNModel<B: Backend> {
-    conv1: Conv1d<B>,
-    fc1: Linear<B>,
+pub struct CNNModel<B: burn::tensor::backend::Backend> {
+    conv1: burn::nn::conv::Conv1d<B>,
+    fc1: burn::nn::Linear<B>,
+    relu: Relu,
+    sigmoid: Sigmoid,
 }
 
-impl<B: Backend> CNNModel<B> {
+impl<B: burn::tensor::backend::Backend> CNNModel<B> {
     pub fn new(n_features: usize, seq_len: usize, device: &B::Device) -> Self {
         let conv1 = Conv1dConfig::new(n_features, 16, 3).init(device);
         let fc_in = (seq_len - 2) * 16;
         let fc1 = LinearConfig::new(fc_in, 1).init(device);
-        Self { conv1, fc1 }
+        Self {
+            conv1,
+            fc1,
+            relu: Relu::new(),
+            sigmoid: Sigmoid::new(),
+        }
     }
 
-    pub fn forward(&self, x: Tensor<B, 3>) -> Tensor<B, 2> {
+    pub fn forward(&self, x: burn::tensor::Tensor<B, 3>) -> burn::tensor::Tensor<B, 2> {
         let x = self.conv1.forward(x);
-        let x = Relu::new().forward(x);
+        let x = self.relu.forward(x);
         let x = x.flatten(1, 2);
-        self.fc1.forward(x)
+        let x = self.fc1.forward(x);
+        self.sigmoid.forward(x)
     }
 }
 
+// =====================================================
+//  Task Implementation
+// =====================================================
 pub struct ConvolutionalNeuralNetworkBurnTraining;
 
-#[async_trait]
+#[async_trait::async_trait]
 impl Task for ConvolutionalNeuralNetworkBurnTraining {
     fn task(&self) -> TaskInfo {
         TaskInfo {
             name: "ConvolutionalNeuralNetworkBurnTraining".to_string(),
-            detail: "train simple 1D-CNN for kelulusan tepat waktu using burn 0.19".to_string(),
+            detail: "Train 1D CNN using pure Burn (Learner API)".to_string(),
         }
     }
 
@@ -54,98 +67,101 @@ impl Task for ConvolutionalNeuralNetworkBurnTraining {
         const SEQ_LEN: usize = 8;
         const N_FEATURES: usize = 4;
 
+        // === Fetch records from DB ===
         let db = &app_context.db;
-        let records: Vec<FeederMasterPerkuliahanMahasiswa::Model> = FeederMasterPerkuliahanMahasiswa::Entity::find()
-            .order_by_asc(FeederMasterPerkuliahanMahasiswa::Column::Nim)
-            .all(db)
-            .await
-            .map_err(|e| Error::Message(format!("DB query error: {e}")))?;
+        let perkuliahan_records: Vec<FeederMasterPerkuliahanMahasiswa::Model> =
+            FeederMasterPerkuliahanMahasiswa::Entity::find()
+                .order_by_asc(FeederMasterPerkuliahanMahasiswa::Column::Nim)
+                .all(db)
+                .await
+                .map_err(|e| Error::Message(format!("DB query error (perkuliahan): {e}")))?;
 
-        if records.is_empty() {
-            println!("No records found.");
-            return Ok(());
+        let lulus_records: Vec<FeederMasterMahasiswaLulusDO::Model> =
+            FeederMasterMahasiswaLulusDO::Entity::find()
+                .all(db)
+                .await
+                .map_err(|e| Error::Message(format!("DB query error (lulus/do): {e}")))?;
+
+        // Build label map
+        let mut label_map: HashMap<Uuid, f32> = HashMap::new();
+        for mhs in &lulus_records {
+            if let Some(id_reg) = mhs.id_registrasi_mahasiswa {
+                let status = mhs.nama_jenis_keluar.to_lowercase();
+                let label = if status.contains("lulus") { 1.0 } else { 0.0 };
+                label_map.insert(id_reg, label);
+            }
         }
 
+        // Group perkuliahan by mahasiswa
         #[derive(Clone)]
         struct MahasiswaInfo {
             records: Vec<FeederMasterPerkuliahanMahasiswa::Model>,
         }
 
         let mut groups: HashMap<Uuid, MahasiswaInfo> = HashMap::new();
-        for rec in &records {
+        for rec in &perkuliahan_records {
             if let Some(id_reg) = rec.id_registrasi_mahasiswa {
-                groups
-                    .entry(id_reg)
-                    .and_modify(|info| info.records.push(rec.clone()))
-                    .or_insert_with(|| MahasiswaInfo {
-                        records: vec![rec.clone()],
-                    });
+                if label_map.contains_key(&id_reg) {
+                    groups
+                        .entry(id_reg)
+                        .and_modify(|info| info.records.push(rec.clone()))
+                        .or_insert(MahasiswaInfo { records: vec![rec.clone()] });
+                }
             }
         }
 
-        // Sort & build tensors
-        let mut x_data = Vec::new();
-        let mut y_data = Vec::new();
+        let mut x_vec = Vec::new();
+        let mut y_vec = Vec::new();
 
-        for (_, info) in groups.iter_mut() {
+        for (id_reg, info) in groups.iter_mut() {
             info.records.sort_by_key(|r| r.id_semester.clone().unwrap_or_default());
             let rec_count = info.records.len();
             let start = if rec_count > SEQ_LEN { rec_count - SEQ_LEN } else { 0 };
             let slice = &info.records[start..];
 
-            let mut arr = ndarray::Array2::<f32>::zeros((N_FEATURES, SEQ_LEN));
-            let mut col = SEQ_LEN;
-            for rec in slice.iter().rev() {
-                col -= 1;
-                arr[[0, col]] = rec.ips.unwrap_or(0.0);
-                arr[[1, col]] = rec.ipk.unwrap_or(0.0);
-                arr[[2, col]] = rec.sks_semester.unwrap_or(0.0);
-                arr[[3, col]] = rec.sks_total.unwrap_or(0.0);
+            let mut seq = Vec::with_capacity(SEQ_LEN * N_FEATURES);
+            let mut pad = SEQ_LEN - slice.len();
+
+            // Pad
+            for _ in 0..pad {
+                seq.extend_from_slice(&[0.0, 0.0, 0.0, 0.0]);
             }
 
-            x_data.push(arr);
+            for rec in slice {
+                seq.push(rec.ips.unwrap_or(0.0) / 4.0);
+                seq.push(rec.ipk.unwrap_or(0.0) / 4.0);
+                seq.push(rec.sks_semester.unwrap_or(0.0) / 24.0);
+                seq.push(rec.sks_total.unwrap_or(0.0) / 160.0);
+            }
 
-            // Label dummy: lulus = 1.0 jika status "L", else 0.0
-            let label = if info.records.iter().any(|r| r.id_status_mahasiswa.as_deref() == Some("L")) {
-                1.0
-            } else {
-                0.0
-            };
-            y_data.push(label);
+            x_vec.push(seq);
+            y_vec.push(*label_map.get(id_reg).unwrap_or(&0.0));
         }
 
-        let n_samples = x_data.len();
-        println!("Loaded {} samples.", n_samples);
+        let n_samples = x_vec.len();
+        let positives = y_vec.iter().filter(|&&v| v == 1.0).count();
+        println!("Dataset: {} samples | Positives: {}", n_samples, positives);
 
-        let x_stack = ndarray::Array3::from_shape_vec(
-            (n_samples, N_FEATURES, SEQ_LEN),
-            x_data.iter().flat_map(|a| a.iter().copied()).collect(),
-        )
-        .unwrap();
-
-        let _y_stack = ndarray::Array2::from_shape_vec(
-            (n_samples, 1),
-            y_data.clone(),
-        )
-        .unwrap();
-
+        // === Convert to Burn tensors ===
         let device = NdArrayDevice::default();
-        let mut model = CNNModel::<MyBackend>::new(N_FEATURES, SEQ_LEN, &device);
-        let mut optim = AdamConfig::new().init();
-
-        // Convert ndarray to burn tensor data
-        let x_vec: Vec<f32> = x_stack.iter().copied().collect();
-        let x_data = TensorData::new(x_vec, [n_samples, N_FEATURES, SEQ_LEN]);
-        let y_data = TensorData::new(y_data.clone(), [n_samples, 1]);
-
+        
+        // Flatten x_vec for tensor creation
+        let x_flat: Vec<f32> = x_vec.iter().flat_map(|v| v.iter().copied()).collect();
+        let x_data = TensorData::new(x_flat, [n_samples, N_FEATURES, SEQ_LEN]);
+        let y_data = TensorData::new(y_vec.clone(), [n_samples, 1]);
+        
         let x_tensor = Tensor::<MyBackend, 3>::from_data(x_data, &device);
         let y_tensor = Tensor::<MyBackend, 2>::from_data(y_data, &device);
 
-        // Simple manual training loop
-        let epochs = 5;
+        // === Model + Optimizer ===
+        let mut model = CNNModel::<MyBackend>::new(N_FEATURES, SEQ_LEN, &device);
+        let mut optim = AdamConfig::new().init();
+
+        // === Manual training loop ===
+        let epochs = 30;
         let lr = 0.001;
 
-        println!("Training for {epochs} epochs ...");
+        println!("Training for {} epochs with learning rate {}...", epochs, lr);
 
         for epoch in 0..epochs {
             let output = model.forward(x_tensor.clone());
@@ -156,23 +172,22 @@ impl Task for ConvolutionalNeuralNetworkBurnTraining {
             model = optim.step(lr, model, grads);
             
             let loss_val = loss.into_data().to_vec::<f32>().unwrap()[0];
-            println!("Epoch {epoch} | Loss = {:.6}", loss_val);
+            
+            if epoch % 5 == 0 || epoch == epochs - 1 {
+                println!("Epoch {} | Loss = {:.6}", epoch, loss_val);
+            }
         }
 
-        // Save model - CompactRecorder will add .mpk extension automatically
+        // === Save model ===
         let recorder = CompactRecorder::new();
-        model
-            .save_file("./public/cnn_training/cnn_model_v19", &recorder)
+        let base = "./public/cnn_training/cnn_model_v19";
+        model.save_file(base, &recorder)
             .map_err(|e| Error::Message(format!("Save model error: {e:?}")))?;
+        
+        std::fs::rename(format!("{base}.mpk"), format!("{base}.burn"))
+            .map_err(|e| Error::Message(format!("Rename error: {e}")))?;
 
-        // Rename .mpk to .burn
-        std::fs::rename(
-            "./public/cnn_training/cnn_model_v19.mpk",
-            "./public/cnn_training/cnn_model_v19.burn"
-        )
-        .map_err(|e| Error::Message(format!("Rename error: {e}")))?;
-
-        println!("✅ Training complete. Model saved to ./public/cnn_training/cnn_model_v19.burn");
+        println!("✅ Training complete. Model saved to {}.burn", base);
 
         Ok(())
     }
