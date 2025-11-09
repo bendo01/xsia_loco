@@ -7,6 +7,9 @@ use burn::record::CompactRecorder;
 use burn::tensor::Tensor;
 use burn_ndarray::NdArrayDevice;
 
+use sea_orm::QueryOrder;
+// use sea_query::Order;
+
 use crate::models::burn::convolutional_neural_network::perkuliahan_mahasiswa::{
     PerkuliahanMahasiswaCnnModel, B as BackendB,
 };
@@ -41,7 +44,7 @@ impl Task for ConvolutionalNeuralNetworkBurnForecast {
 
         // Query database records
         let records = FeederMasterPerkuliahanMahasiswa::Entity::find()
-            .order_by(FeederMasterPerkuliahanMahasiswa::Column::Nim, Order::Asc)
+            .order_by_asc(FeederMasterPerkuliahanMahasiswa::Column::Nim)
             .all(&app_context.db)
             .await
             .map_err(|e| Error::Message(format!("DB query error: {e}")))?;
