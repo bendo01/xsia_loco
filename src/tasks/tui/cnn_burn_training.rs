@@ -78,6 +78,7 @@ impl Task for ConvolutionalNeuralNetworkBurnTraining {
 
         let lulus_records: Vec<FeederMasterMahasiswaLulusDO::Model> =
             FeederMasterMahasiswaLulusDO::Entity::find()
+                .order_by_asc(FeederMasterMahasiswaLulusDO::Column::Nim)
                 .all(db)
                 .await
                 .map_err(|e| Error::Message(format!("DB query error (lulus/do): {e}")))?;
