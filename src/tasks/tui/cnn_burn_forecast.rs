@@ -38,7 +38,7 @@ impl Task for ConvolutionalNeuralNetworkBurnForecast {
 
         let saved_model_dir =
             std::env::var("SAVED_MODEL_DIR").unwrap_or_else(|_| "./public/cnn_training".to_string());
-        let model_file = format!("{}/cnn_model_v19.burn", saved_model_dir);
+        let model_file = format!("{}/cnn_model_v19", saved_model_dir);
 
         // Query database records
         let records = FeederMasterPerkuliahanMahasiswa::Entity::find()
@@ -123,14 +123,16 @@ impl Task for ConvolutionalNeuralNetworkBurnForecast {
         // Permute to [batch, N_FEATURES, SEQ_LEN] for Conv1D
         input_tensor = input_tensor.permute([0, 2, 1]);
 
-        // Load model (CompactRecorder)
+        // Load model (CompactRecorder) - will look for .mpk extension automatically
+        // But we renamed it to .burn, so we need to specify the full path
+        let model_path = format!("{}.burn", model_file);
         let recorder = CompactRecorder::new();
         let record = <CompactRecorder as Recorder<BackendB>>::load(
             &recorder,
-            model_file.clone().into(),
+            model_path.clone().into(),
             &device,
         )
-        .map_err(|e| Error::Message(format!("Gagal load model file '{model_file}': {e}")))?;
+        .map_err(|e| Error::Message(format!("Gagal load model file '{model_path}': {e}")))?;
 
         // Create model instance (must match training)
         let model = <PerkuliahanMahasiswaCnnModel as Module<BackendB>>::load_record(
