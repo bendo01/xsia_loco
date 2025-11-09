@@ -91,6 +91,8 @@ impl Task for ConvolutionalNeuralNetworkBurnTraining {
                 label_map.insert(id_reg, label);
             }
         }
+        
+        println!("Found {} students with graduation/dropout status", label_map.len());
 
         // Group perkuliahan by mahasiswa
         #[derive(Clone)]
@@ -141,6 +143,12 @@ impl Task for ConvolutionalNeuralNetworkBurnTraining {
         let n_samples = x_vec.len();
         let positives = y_vec.iter().filter(|&&v| v == 1.0).count();
         println!("Dataset: {} samples | Positives: {}", n_samples, positives);
+        
+        if n_samples == 0 {
+            return Err(Error::Message(
+                "No training data available. Make sure students exist in both perkuliahan_mahasiswa and mahasiswa_lulusan_dropout tables with matching id_registrasi_mahasiswa.".to_string()
+            ));
+        }
 
         // === Convert to Burn tensors ===
         let device = NdArrayDevice::default();
