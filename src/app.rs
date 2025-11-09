@@ -337,7 +337,8 @@ impl Hooks for App {
         tasks.register(
             tasks::feeder_dikti::downstream::estimasi::master::get_list_penugasan_semua_dosen::EstimateListPenugasanSemuaDosen,
         );
-        tasks.register(tasks::tui::cnn_tensor::ConvolutionalNeuralNetwork);
+        tasks.register(tasks::tui::cnn_burn::ConvolutionalNeuralNetworkBurn);
+        tasks.register(tasks::tui::cnn_tensor::ConvolutionalNeuralNetworkTensor);
         tasks.register(tasks::tui::generate_hash_password::GenerateHashPassword);
         tasks.register(tasks::tui::regenerate_all_student_detail_activities::RegenerateAllStudentDetailActivities);
         tasks.register(tasks::tui::generate_institution_unit_campaign_activities::GenerateInstitutionUnitCampaignActivities);

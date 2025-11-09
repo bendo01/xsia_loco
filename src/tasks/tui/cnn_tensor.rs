@@ -11,13 +11,13 @@ struct MahasiswaInfo {
     records: Vec<FeederMasterPerkuliahanMahasiswa::Model>,
 }
 
-pub struct ConvolutionalNeuralNetwork;
+pub struct ConvolutionalNeuralNetworkTensor;
 
 #[async_trait]
-impl Task for ConvolutionalNeuralNetwork {
+impl Task for ConvolutionalNeuralNetworkTensor {
     fn task(&self) -> TaskInfo {
         TaskInfo {
-            name: "ConvolutionalNeuralNetwork".to_string(),
+            name: "ConvolutionalNeuralNetworkTensor".to_string(),
             detail: "test tensor flow using cnn algorithm".to_string(),
         }
     }
