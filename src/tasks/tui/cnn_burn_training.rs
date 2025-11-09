@@ -1,19 +1,19 @@
 use loco_rs::prelude::*;
-use sea_orm::entity::prelude::*;
 use crate::models::feeder::master::perkuliahan_mahasiswa::_entities::perkuliahan_mahasiswa as FeederMasterPerkuliahanMahasiswa;
 use std::collections::HashMap;
 use uuid::Uuid;
 
 use burn::{
     module::Module,
-    nn::{conv::Conv1dConfig, Conv1d, Linear, LinearConfig, relu},
-    optim::{Adam, AdamConfig},
-    record::{CompactRecorder, Recorder},
+    nn::{conv::Conv1dConfig, conv::Conv1d, Linear, LinearConfig, Relu},
+    optim::{AdamConfig, Optimizer, GradientsParams},
+    record::CompactRecorder,
     tensor::{backend::Backend, Tensor},
 };
-use burn_ndarray::NdArrayBackend;
+use burn::backend::{ndarray::{NdArray, NdArrayDevice}, Autodiff};
+use burn::tensor::TensorData;
 
-type MyBackend = NdArrayBackend<f32>;
+type MyBackend = Autodiff<NdArray<f32>>;
 
 #[derive(Module, Debug)]
 pub struct CNNModel<B: Backend> {
@@ -31,19 +31,19 @@ impl<B: Backend> CNNModel<B> {
 
     pub fn forward(&self, x: Tensor<B, 3>) -> Tensor<B, 2> {
         let x = self.conv1.forward(x);
-        let x = relu(x);
+        let x = Relu::new().forward(x);
         let x = x.flatten(1, 2);
         self.fc1.forward(x)
     }
 }
 
-pub struct ConvolutionalNeuralNetworkBurn;
+pub struct ConvolutionalNeuralNetworkBurnTraining;
 
 #[async_trait]
-impl Task for ConvolutionalNeuralNetworkBurn {
+impl Task for ConvolutionalNeuralNetworkBurnTraining {
     fn task(&self) -> TaskInfo {
         TaskInfo {
-            name: "ConvolutionalNeuralNetworkBurn".to_string(),
+            name: "ConvolutionalNeuralNetworkBurnTraining".to_string(),
             detail: "train simple 1D-CNN for kelulusan tepat waktu using burn 0.19".to_string(),
         }
     }
@@ -65,8 +65,6 @@ impl Task for ConvolutionalNeuralNetworkBurn {
 
         #[derive(Clone)]
         struct MahasiswaInfo {
-            nim: Option<String>,
-            nama: Option<String>,
             records: Vec<FeederMasterPerkuliahanMahasiswa::Model>,
         }
 
@@ -77,8 +75,6 @@ impl Task for ConvolutionalNeuralNetworkBurn {
                     .entry(id_reg)
                     .and_modify(|info| info.records.push(rec.clone()))
                     .or_insert_with(|| MahasiswaInfo {
-                        nim: rec.nim.clone(),
-                        nama: rec.nama_mahasiswa.clone(),
                         records: vec![rec.clone()],
                     });
             }
@@ -124,18 +120,23 @@ impl Task for ConvolutionalNeuralNetworkBurn {
         )
         .unwrap();
 
-        let y_stack = ndarray::Array2::from_shape_vec(
+        let _y_stack = ndarray::Array2::from_shape_vec(
             (n_samples, 1),
             y_data.clone(),
         )
         .unwrap();
 
-        let device = burn_ndarray::NdArrayDevice::default();
+        let device = NdArrayDevice::default();
         let mut model = CNNModel::<MyBackend>::new(N_FEATURES, SEQ_LEN, &device);
-        let mut optim = AdamConfig::new().init(&device);
+        let mut optim = AdamConfig::new().init();
 
-        let mut x_tensor = Tensor::<MyBackend, 3>::from_ndarray(x_stack);
-        let mut y_tensor = Tensor::<MyBackend, 2>::from_ndarray(y_stack);
+        // Convert ndarray to burn tensor data
+        let x_vec: Vec<f32> = x_stack.iter().copied().collect();
+        let x_data = TensorData::new(x_vec, [n_samples, N_FEATURES, SEQ_LEN]);
+        let y_data = TensorData::new(y_data.clone(), [n_samples, 1]);
+
+        let x_tensor = Tensor::<MyBackend, 3>::from_data(x_data, &device);
+        let y_tensor = Tensor::<MyBackend, 2>::from_data(y_data, &device);
 
         // Simple manual training loop
         let epochs = 5;
@@ -145,10 +146,13 @@ impl Task for ConvolutionalNeuralNetworkBurn {
 
         for epoch in 0..epochs {
             let output = model.forward(x_tensor.clone());
-            let loss = output.clone().sub(y_tensor.clone()).powf(2.0).mean();
+            let loss = output.clone().sub(y_tensor.clone()).powf_scalar(2.0).mean();
 
-            optim.step(&mut model, &loss);
-            let loss_val = loss.into_data().value()[0];
+            let grads = loss.backward();
+            let grads = GradientsParams::from_grads(grads, &model);
+            model = optim.step(lr, model, grads);
+            
+            let loss_val = loss.into_data().to_vec::<f32>().unwrap()[0];
             println!("Epoch {epoch} | Loss = {:.6}", loss_val);
         }
 
