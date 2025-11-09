@@ -3,4 +3,5 @@ pub mod generate_institution_unit_campaign_activities;
 pub mod generate_student_campaign_activities;
 pub mod generate_student_payment_midtrans_transaction;
 pub mod regenerate_all_student_detail_activities;
-pub mod convolutional_neural_network;
+pub mod cnn_tensor;
+pub mod cnn_burn;

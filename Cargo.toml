@@ -34,7 +34,6 @@ opentelemetry-semantic-conventions = "0.30"
 regex = { version = "1.11" }
 migration = { path = "migration" }
 sea-orm = { version = "1.1", features = [
-    "sqlx-sqlite",
     "sqlx-postgres",
     "runtime-tokio-rustls",
     "macros",
@@ -54,7 +53,7 @@ tower = "0.5.2"
 tower-http = { version = "0.6.2", features = ["cors", "fs"] }
 dotenvy = "0.15.7"
 rust_xlsxwriter = "0.89.1"
-headless_chrome = "1.0.17"
+headless_chrome = "1.0.18"
 base64 = "0.22" # For encoding the logo image
 urlencoding = "2.1"
 reqwest = { version = "0.12", features = [
@@ -74,9 +73,10 @@ sha256 = "1.6.0"
 random-string = "1.1.0"
 colored = "3.0.0"
 
-ndarray = "0.15"
-ndarray-rand = "0.14"
+ndarray = "0.17"
+ndarray-rand = "0.16"
 tensorflow = "0.21.0"
+burn = { version = "0.19", features = ["train", "ndarray"], default-features = false }
 
 [[bin]]
 name = "xsia_loco-cli"
