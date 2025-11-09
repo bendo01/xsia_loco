@@ -1,6 +1,7 @@
 pub mod academic;
 pub mod auth;
 pub mod building;
+pub mod burn;
 pub mod chart;
 pub mod contact;
 pub mod document;

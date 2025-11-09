@@ -159,10 +159,10 @@ impl Task for ConvolutionalNeuralNetworkBurnTraining {
         // Save model
         let recorder = CompactRecorder::new();
         model
-            .save_file("./models/cnn_model_v19.burn", &recorder)
+            .save_file("./public/cnn_training/cnn_model_v19.burn", &recorder)
             .map_err(|e| Error::Message(format!("Save model error: {e:?}")))?;
 
-        println!("✅ Training complete. Model saved to ./models/cnn_model_v19.burn");
+        println!("✅ Training complete. Model saved to ./public/cnn_training/cnn_model_v19.burn");
 
         Ok(())
     }
