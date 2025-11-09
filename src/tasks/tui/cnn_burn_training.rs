@@ -120,7 +120,7 @@ impl Task for ConvolutionalNeuralNetworkBurnTraining {
             let slice = &info.records[start..];
 
             let mut seq = Vec::with_capacity(SEQ_LEN * N_FEATURES);
-            let mut pad = SEQ_LEN - slice.len();
+            let pad = SEQ_LEN - slice.len();
 
             // Pad
             for _ in 0..pad {
