@@ -76,7 +76,9 @@ colored = "3.0.0"
 ndarray = "0.17"
 ndarray-rand = "0.16"
 tensorflow = "0.21.0"
-burn = { version = "0.19", features = ["train", "ndarray"], default-features = false }
+burn = "0.19"
+burn-ndarray = "0.9"
+burn-train = "0.9"
 
 [[bin]]
 name = "xsia_loco-cli"
