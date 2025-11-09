@@ -25,6 +25,6 @@ impl Task for ConvolutionalNeuralNetworkBurnForecast {
     }
 
     async fn run(&self, app_context: &AppContext, _vars: &task::Vars) -> Result<(), Error> {
-
+        Ok(())
     }
 }
