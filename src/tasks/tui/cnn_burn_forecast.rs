@@ -35,7 +35,7 @@ impl Task for ConvolutionalNeuralNetworkBurnForecast {
         const N_FEATURES: usize = 4;
 
         let saved_model_dir =
-            std::env::var("SAVED_MODEL_DIR").unwrap_or_else(|_| "./public/cnn_training/".to_string());
+            std::env::var("SAVED_MODEL_DIR").unwrap_or_else(|_| "./public/cnn_training".to_string());
         let model_file = format!("{}/cnn_model_v19.mpk", saved_model_dir);
 
         // Query database records via SeaORM
