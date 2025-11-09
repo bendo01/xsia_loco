@@ -26,10 +26,10 @@ pub struct PerkuliahanMahasiswaCnnModel {
 
 impl PerkuliahanMahasiswaCnnModel {
     /// Create model instance with same input size used in training
-    pub fn new(input_dim: usize, hidden: usize) -> Self {
+    pub fn new(input_dim: usize, hidden: usize, device: &<B as Backend>::Device) -> Self {
         Self {
-            fc1: LinearConfig::new(input_dim, hidden).init(),
-            fc2: LinearConfig::new(hidden, 1).init(),
+            fc1: LinearConfig::new(input_dim, hidden).init(device),
+            fc2: LinearConfig::new(hidden, 1).init(device),
             sigmoid: Sigmoid::new(),
         }
     }

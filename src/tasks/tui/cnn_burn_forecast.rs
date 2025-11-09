@@ -35,8 +35,8 @@ impl Task for ConvolutionalNeuralNetworkBurnForecast {
         const N_FEATURES: usize = 4;
 
         let saved_model_dir =
-            std::env::var("SAVED_MODEL_DIR").unwrap_or_else(|_| "./saved_model".to_string());
-        let model_file = format!("{}/model.bin", saved_model_dir);
+            std::env::var("SAVED_MODEL_DIR").unwrap_or_else(|_| "./public/cnn_training/".to_string());
+        let model_file = format!("{}/cnn_model_v19.mpk", saved_model_dir);
 
         // Query database records via SeaORM
         let records = FeederMasterPerkuliahanMahasiswa::Entity::find()
@@ -126,7 +126,7 @@ impl Task for ConvolutionalNeuralNetworkBurnForecast {
         let input_dim = SEQ_LEN * N_FEATURES;
         let hidden = 64;
 
-        let model = PerkuliahanMahasiswaCnnModel::new(input_dim, hidden)
+        let model = PerkuliahanMahasiswaCnnModel::new(input_dim, hidden, &device)
             .load_record(record)
             .map_err(|e| Error::Message(format!("Gagal load record ke model: {:?}", e)))?;
 
