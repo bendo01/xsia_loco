@@ -156,11 +156,18 @@ impl Task for ConvolutionalNeuralNetworkBurnTraining {
             println!("Epoch {epoch} | Loss = {:.6}", loss_val);
         }
 
-        // Save model
+        // Save model - CompactRecorder will add .mpk extension automatically
         let recorder = CompactRecorder::new();
         model
-            .save_file("./public/cnn_training/cnn_model_v19.burn", &recorder)
+            .save_file("./public/cnn_training/cnn_model_v19", &recorder)
             .map_err(|e| Error::Message(format!("Save model error: {e:?}")))?;
+
+        // Rename .mpk to .burn
+        std::fs::rename(
+            "./public/cnn_training/cnn_model_v19.mpk",
+            "./public/cnn_training/cnn_model_v19.burn"
+        )
+        .map_err(|e| Error::Message(format!("Rename error: {e}")))?;
 
         println!("✅ Training complete. Model saved to ./public/cnn_training/cnn_model_v19.burn");
 
