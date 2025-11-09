@@ -41,6 +41,7 @@ impl Task for ConvolutionalNeuralNetworkBurnForecast {
 
         // Query database records
         let records = FeederMasterPerkuliahanMahasiswa::Entity::find()
+            .order_by(FeederMasterPerkuliahanMahasiswa::Column::Nim, Order::Asc)
             .all(&app_context.db)
             .await
             .map_err(|e| Error::Message(format!("DB query error: {e}")))?;

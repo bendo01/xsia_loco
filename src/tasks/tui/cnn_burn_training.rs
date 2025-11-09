@@ -1,5 +1,6 @@
 use loco_rs::prelude::*;
 use crate::models::feeder::master::perkuliahan_mahasiswa::_entities::perkuliahan_mahasiswa as FeederMasterPerkuliahanMahasiswa;
+use sea_orm::Order;
 use std::collections::HashMap;
 use uuid::Uuid;
 
@@ -54,6 +55,7 @@ impl Task for ConvolutionalNeuralNetworkBurnTraining {
 
         let db = &app_context.db;
         let records: Vec<FeederMasterPerkuliahanMahasiswa::Model> = FeederMasterPerkuliahanMahasiswa::Entity::find()
+            .order_by(FeederMasterPerkuliahanMahasiswa::Column::Nim, Order::Asc)
             .all(db)
             .await
             .map_err(|e| Error::Message(format!("DB query error: {e}")))?;
