@@ -2,6 +2,7 @@ use loco_rs::prelude::*;
 use std::collections::HashMap;
 use uuid::Uuid;
 use sea_orm::QueryOrder;
+use colored::Colorize;
 
 use burn::prelude::*;
 use burn::record::CompactRecorder;
@@ -196,15 +197,15 @@ impl Task for ConvolutionalNeuralNetworkBurnForecast {
 
         println!("\n=== HASIL PREDIKSI KELULUSAN ===");
         println!("{:<15} | {:<30} | {:<8} | {:<10} | {:<6}",
-            "NIM", "Nama Mahasiswa", "Prob", "Prediksi", "Asli");
+            "NIM", "Nama Mahasiswa", "Probabilitas", "Prediksi", "Kenyataan");
         println!("{:-<80}", "-");
         for (nim, nama, prob, pred, label) in results {
             println!("{:<15} | {:<30} | {:<8.4} | {:<10} | {:<6}",
                 nim.unwrap_or_else(|| "-".to_string()),
                 nama.unwrap_or_else(|| "-".to_string()),
                 prob,
-                if pred == 1.0 { "✅ Lulus" } else { "❌ Tidak" },
-                if label == 1.0 { "1" } else { "0" });
+                if pred == 1.0 { "✅ Lulus".green() } else { "❌ Tidak".red() },
+                if label == 1.0 { "✅ Lulus".green() } else { "❌ Tidak".red() });
         }
 
         // === Metrics ===
