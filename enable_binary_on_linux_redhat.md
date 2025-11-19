@@ -161,3 +161,34 @@ systemctl status xsia.service
 ```sh
 ss -tulpn | grep 5150
 ```
+
+```sh
+sudo chcon -t bin_t /var/www/html/gis_project/gisapp/gisapp-cli
+```
+
+```sh
+sudo chcon -R -t usr_t /var/www/html/gis_project/gisapp
+```
+
+```sh
+sudo systemctl daemon-reload
+sudo systemctl restart gis_project
+```
+
+```sh
+sudo semanage fcontext -a -t bin_t "/var/www/html/gis_project/gisapp/gisapp-cli"
+sudo semanage fcontext -a -t usr_t "/var/www/html/gis_project/gisapp(/.*)?"
+```
+
+```sh
+sudo restorecon -Rv /var/www/html/gis_project/
+```
+
+```sh
+sudo setenforce 0
+sudo systemctl restart gis_project
+```
+
+```sh
+sudo setenforce 1
+```
